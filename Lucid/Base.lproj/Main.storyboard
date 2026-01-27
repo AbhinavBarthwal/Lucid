@@ -480,11 +480,22 @@
                     <connections>
                         <segue destination="qrW-Cb-yNF" kind="relationship" relationship="viewControllers" id="pzj-hc-giu"/>
                         <segue destination="7oq-fy-lk8" kind="relationship" relationship="viewControllers" id="Uu8-Bt-jKs"/>
+                        <segue destination="vLT-au-tGI" kind="relationship" relationship="viewControllers" id="nLZ-ZU-wUq"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wy8-pG-l1V" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="135.1145038167939" y="130.28169014084509"/>
+        </scene>
+        <!--EyeTests-->
+        <scene sceneID="irf-2E-U6e">
+            <objects>
+                <viewControllerPlaceholder storyboardIdentifier="EyeTests" storyboardName="EyeTests" referencedIdentifier="EyeTests" id="vLT-au-tGI" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Item" id="33g-Lo-xfV"/>
+                </viewControllerPlaceholder>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Mlc-0A-Yal" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="592" y="495"/>
         </scene>
     </scenes>
     <resources>
