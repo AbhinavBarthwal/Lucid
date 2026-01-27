@@ -9,7 +9,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Item-->
+        <!--Summary-->
         <scene sceneID="4L2-B9-daJ">
             <objects>
                 <viewController id="qrW-Cb-yNF" customClass="LoginScreenViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
@@ -58,7 +58,7 @@
                             <constraint firstItem="X3A-yN-6xj" firstAttribute="trailing" secondItem="lJo-ZZ-wxl" secondAttribute="trailing" id="qtA-CK-cW6"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Item" id="S6k-Av-SfA"/>
+                    <tabBarItem key="tabBarItem" title="Summary" image="heart.text.clipboard" catalog="system" selectedImage="heart.text.clipboard.fill" id="S6k-Av-SfA"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3sq-re-b8F" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -440,7 +440,7 @@
                             <outlet property="delegate" destination="seB-HS-Km7" id="OIC-41-yTM"/>
                         </connections>
                     </tableView>
-                    <tabBarItem key="tabBarItem" title="Item" id="ZNh-qI-XDa"/>
+                    <tabBarItem key="tabBarItem" title="Exercises" image="dumbbell" catalog="system" selectedImage="dumbbell.fill" id="ZNh-qI-XDa"/>
                     <navigationItem key="navigationItem" title="Exercise" leftItemsSupplementBackButton="YES" largeTitleDisplayMode="always" style="browser" id="7iK-dM-TVO"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
@@ -453,7 +453,7 @@
         <scene sceneID="LcB-eX-ZRr">
             <objects>
                 <navigationController id="7oq-fy-lk8" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Item" id="2kr-9a-DxH"/>
+                    <tabBarItem key="tabBarItem" title="Item" selectedImage="dumbbell" catalog="system" id="2kr-9a-DxH"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="VnK-F1-bQM">
                         <rect key="frame" x="0.0" y="124" width="440" height="106"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -478,18 +478,18 @@
                     </tabBar>
                     <connections>
                         <segue destination="qrW-Cb-yNF" kind="relationship" relationship="viewControllers" id="pzj-hc-giu"/>
-                        <segue destination="7oq-fy-lk8" kind="relationship" relationship="viewControllers" id="Uu8-Bt-jKs"/>
                         <segue destination="vLT-au-tGI" kind="relationship" relationship="viewControllers" id="nLZ-ZU-wUq"/>
+                        <segue destination="7oq-fy-lk8" kind="relationship" relationship="viewControllers" id="mgF-sY-tm3"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wy8-pG-l1V" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="135.1145038167939" y="130.28169014084509"/>
         </scene>
-        <!--EyeTests-->
+        <!--EyeTest-->
         <scene sceneID="irf-2E-U6e">
             <objects>
-                <viewControllerPlaceholder storyboardIdentifier="EyeTests" storyboardName="EyeTests" referencedIdentifier="EyeTests" id="vLT-au-tGI" sceneMemberID="viewController">
+                <viewControllerPlaceholder storyboardIdentifier="EyeTests" storyboardName="EyeTests" referencedIdentifier="EyeTest" id="vLT-au-tGI" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Item" id="33g-Lo-xfV"/>
                 </viewControllerPlaceholder>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Mlc-0A-Yal" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -506,6 +506,10 @@
         <image name="PeripheralAwareness" width="136" height="136"/>
         <image name="SaccadicJumps" width="136" height="136"/>
         <image name="SmoothPursuits" width="136" height="136"/>
+        <image name="dumbbell" catalog="system" width="128" height="72"/>
+        <image name="dumbbell.fill" catalog="system" width="128" height="72"/>
+        <image name="heart.text.clipboard" catalog="system" width="103" height="128"/>
+        <image name="heart.text.clipboard.fill" catalog="system" width="103" height="128"/>
         <image name="signpost.right.and.left.fill" catalog="system" width="125" height="128"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

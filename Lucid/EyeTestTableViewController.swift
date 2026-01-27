@@ -12,78 +12,34 @@ class EyeTestTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
+        // 1. Create the ImageView with your specific background
+        let bgImageView = UIImageView(image: UIImage(named: "BackgroundGradient"))
+        
+        // 2. Set the content mode to cover the entire screen
+        bgImageView.contentMode = .scaleAspectFill
+        
+        // 3. Assign it to the table
+        self.tableView.backgroundView = bgImageView
+        
+        // 4. Ensure transparency of the table and cells
+        self.tableView.backgroundColor = .clear
+        
 
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
+            // This finds every label with tag 10 (Titles) and 20 (Descriptions)
+            view.subviews.forEach { subview in
+                // Fix Titles
+                if let title = subview.viewWithTag(10) as? UILabel {
+                    title.font = UIFont.preferredFont(forTextStyle: .headline)
+                    title.setContentHuggingPriority(.defaultHigh, for: .vertical)
+                }
+                
+                // Fix Descriptions
+                if let desc = subview.viewWithTag(20) as? UILabel {
+                    desc.numberOfLines = 0
+                    desc.setContentHuggingPriority(.defaultLow, for: .vertical)
+                }
+            }
+        
     }
-
-    // MARK: - Table view data source
-
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return 0
-    }
-
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        return 0
-    }
-
-    /*
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier", for: indexPath)
-
-        // Configure the cell...
-
-        return cell
-    }
-    */
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+    // In your ExerciseTableViewController.swift
 }
