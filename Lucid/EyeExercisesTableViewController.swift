@@ -1,23 +1,20 @@
 import UIKit
 
-class EyeExercisesTableViewController: UITableViewController {
-    func addGradientToBackground() {
-        let backgroundView = UIView(frame: tableView.bounds)
-        let gradientLayer = CAGradientLayer()
+class ExerciseTableViewController: UITableViewController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        // 1. Create the ImageView with your specific background
+        let bgImageView = UIImageView(image: UIImage(named: "BackgroundGradient"))
         
-        // Use the screen bounds for full background
-        gradientLayer.frame = UIScreen.main.bounds
-        gradientLayer.colors = [
-            UIColor(red: 0.05, green: 0.02, blue: 0.12, alpha: 1.0).cgColor,
-            UIColor(red: 0.15, green: 0.08, blue: 0.25, alpha: 1.0).cgColor
-        ]
+        // 2. Set the content mode to cover the entire screen
+        bgImageView.contentMode = .scaleAspectFill
         
-        backgroundView.layer.insertSublayer(gradientLayer, at: 0)
+        // 3. Assign it to the table
+        self.tableView.backgroundView = bgImageView
         
-        // IMPORTANT: Set as backgroundView, not a subview of the main view
-        self.tableView.backgroundView = backgroundView
-        
-        // Force the table to be clear so we can see through it
+        // 4. Ensure transparency of the table and cells
         self.tableView.backgroundColor = .clear
     }
 }
