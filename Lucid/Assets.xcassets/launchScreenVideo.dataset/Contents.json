@@ -1,0 +1,15 @@
+{
+  "data" : [
+    {
+      "filename" : "launchScreenVideo.mp4",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  },
+  "properties" : {
+    "compression-type" : "none"
+  }
+}
