@@ -13,7 +13,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        
+        let appearance = UINavigationBarAppearance()
+
+        
+        // 1. Define the Expanded Font
+        // Width 1.25 corresponds to the "Expanded" trait
+        let expandedFont = UIFont.systemFont(ofSize: 20, weight: .bold, width: .expanded)
+        let largeExpandedFont = UIFont.systemFont(ofSize: 34, weight: .bold, width: .expanded)
+
+        // 2. Apply to Standard Title (Centered)
+        appearance.titleTextAttributes = [
+            .font: expandedFont,
+            .foregroundColor: UIColor.white
+        ]
+        
+        // 3. Apply to Large Title (Left-aligned)
+        appearance.largeTitleTextAttributes = [
+            .font: largeExpandedFont,
+            .foregroundColor: UIColor.white
+        ]
+
+        // 4. Push these settings to all Navigation Bars
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        UINavigationBar.appearance().compactAppearance = appearance
+        
         return true
     }
 

@@ -12,8 +12,8 @@ import AVFoundation
 import SwiftUI
 
 
-var dBlink = 5
-var LPBlink = 5
+var dBlink = 1
+var LPBlink = 1
 
 enum TrainingPhase {
     case doubleBlink(remaining: Int)

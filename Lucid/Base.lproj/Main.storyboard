@@ -94,7 +94,7 @@
                                                         <constraint firstAttribute="width" constant="90" id="GqB-hR-Pah"/>
                                                     </constraints>
                                                 </imageView>
-                                                <label opaque="NO" userInteractionEnabled="NO" tag="10" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Smooth Pursuits" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rua-VM-kBe">
+                                                <label opaque="NO" userInteractionEnabled="NO" tag="10" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Smooth Pursuits" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rua-VM-kBe">
                                                     <rect key="frame" x="107.99999999999999" y="9" width="252.66666666666663" height="40"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="40" id="06m-bX-zzD"/>
@@ -522,9 +522,11 @@
                             <arscnView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="62U-uL-F7K">
                                 <rect key="frame" x="0.0" y="62" width="440" height="832"/>
                             </arscnView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Z8q-kM-Rsd">
-                                <rect key="frame" x="186" y="260" width="196" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Z8q-kM-Rsd">
+                                <rect key="frame" x="0.0" y="236" width="440" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="weL-Zx-qq9"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
@@ -542,17 +544,24 @@
                         <viewLayoutGuide key="safeArea" id="9jD-sD-xhz"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="62U-uL-F7K" firstAttribute="trailing" secondItem="9jD-sD-xhz" secondAttribute="trailing" id="5HJ-uP-C6q"/>
+                            <constraint firstItem="62U-uL-F7K" firstAttribute="bottom" secondItem="9jD-sD-xhz" secondAttribute="bottom" id="BdP-C1-Nec"/>
+                            <constraint firstItem="Z8q-kM-Rsd" firstAttribute="leading" secondItem="9jD-sD-xhz" secondAttribute="leading" id="GrH-ro-5sH"/>
                             <constraint firstItem="9jD-sD-xhz" firstAttribute="trailing" secondItem="62U-uL-F7K" secondAttribute="trailing" id="Lwm-Qg-gT2"/>
                             <constraint firstItem="9jD-sD-xhz" firstAttribute="bottom" secondItem="Xc2-eH-0Pt" secondAttribute="bottom" constant="221" id="PZl-gx-lKj"/>
                             <constraint firstItem="62U-uL-F7K" firstAttribute="top" secondItem="9jD-sD-xhz" secondAttribute="top" id="YiI-Km-No6"/>
                             <constraint firstItem="9jD-sD-xhz" firstAttribute="bottom" secondItem="62U-uL-F7K" secondAttribute="bottom" id="c8M-wg-ABA"/>
+                            <constraint firstItem="62U-uL-F7K" firstAttribute="top" secondItem="9jD-sD-xhz" secondAttribute="top" id="ckp-ez-q8P"/>
+                            <constraint firstItem="Z8q-kM-Rsd" firstAttribute="top" secondItem="9jD-sD-xhz" secondAttribute="top" constant="174" id="iNh-nW-Dbc"/>
+                            <constraint firstItem="9jD-sD-xhz" firstAttribute="trailing" secondItem="Z8q-kM-Rsd" secondAttribute="trailing" id="pWV-Ch-f72"/>
                             <constraint firstItem="62U-uL-F7K" firstAttribute="leading" secondItem="9jD-sD-xhz" secondAttribute="leading" id="vjH-w3-ssT"/>
+                            <constraint firstItem="62U-uL-F7K" firstAttribute="leading" secondItem="9jD-sD-xhz" secondAttribute="leading" id="xiD-JY-2yh"/>
                             <constraint firstItem="9jD-sD-xhz" firstAttribute="trailing" secondItem="Xc2-eH-0Pt" secondAttribute="trailing" id="y7j-Z0-2O8"/>
                             <constraint firstItem="Xc2-eH-0Pt" firstAttribute="leading" secondItem="9jD-sD-xhz" secondAttribute="leading" id="z0d-OE-HXQ"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Item" id="AWc-5v-mku"/>
-                    <navigationItem key="navigationItem" id="wrS-oA-Ina"/>
+                    <navigationItem key="navigationItem" largeTitleDisplayMode="never" style="editor" id="wrS-oA-Ina"/>
                     <connections>
                         <outlet property="instructionLabel" destination="Xc2-eH-0Pt" id="0V7-8Q-DZh"/>
                         <outlet property="leftEyeLabel" destination="Z8q-kM-Rsd" id="R48-1R-o2A"/>

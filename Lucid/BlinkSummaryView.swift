@@ -47,9 +47,7 @@ struct BlinkSummaryView: View {
         ScrollView {
             VStack(spacing: 25) {
                 Text("Performance Report")
-                    .font(.system(.title, design: .rounded).bold())
-                    .foregroundColor(.white)
-                
+                    .font(.system(size: 34, weight: .medium, design: .default).width(.expanded))                
                 // Overall Score Circle
                 ZStack {
                     Circle()
