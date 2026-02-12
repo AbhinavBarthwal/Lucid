@@ -7,16 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		ADBEFC9A2F29BF7C00F2A535 /* fsg.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = ADBEFC992F29BF7C00F2A535 /* fsg.mp4 */; };
+		977A70862F39207700AE145D /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 977A70852F39207700AE145D /* DGCharts */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		ADBEFC992F29BF7C00F2A535 /* fsg.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = fsg.mp4; sourceTree = "<group>"; };
 		ADCBCE9A2F14ACAD008D4CCE /* Lucid.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lucid.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		ADCBCEAC2F14ACAE008D4CCE /* Exceptions for "Lucid" folder in "Lucid" target */ = {
+		978330D22F391E0A008E8412 /* Exceptions for "Lucid" folder in "Lucid" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -29,7 +28,7 @@
 		ADCBCE9C2F14ACAD008D4CCE /* Lucid */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				ADCBCEAC2F14ACAE008D4CCE /* Exceptions for "Lucid" folder in "Lucid" target */,
+				978330D22F391E0A008E8412 /* Exceptions for "Lucid" folder in "Lucid" target */,
 			);
 			path = Lucid;
 			sourceTree = "<group>";
@@ -41,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				977A70862F39207700AE145D /* DGCharts in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -50,7 +50,6 @@
 		ADCBCE912F14ACAD008D4CCE = {
 			isa = PBXGroup;
 			children = (
-				ADBEFC992F29BF7C00F2A535 /* fsg.mp4 */,
 				ADCBCE9C2F14ACAD008D4CCE /* Lucid */,
 				ADCBCE9B2F14ACAD008D4CCE /* Products */,
 			);
@@ -84,6 +83,7 @@
 			);
 			name = Lucid;
 			packageProductDependencies = (
+				977A70852F39207700AE145D /* DGCharts */,
 			);
 			productName = Lucid;
 			productReference = ADCBCE9A2F14ACAD008D4CCE /* Lucid.app */;
@@ -113,6 +113,9 @@
 			);
 			mainGroup = ADCBCE912F14ACAD008D4CCE;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				977A70842F39207700AE145D /* XCRemoteSwiftPackageReference "Charts" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = ADCBCE9B2F14ACAD008D4CCE /* Products */;
 			projectDirPath = "";
@@ -128,7 +131,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ADBEFC9A2F29BF7C00F2A535 /* fsg.mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -148,28 +150,29 @@
 		ADCBCEAE2F14ACAE008D4CCE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PGAUC552ZV;
+				DEVELOPMENT_TEAM = 6V79MTX685;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Lucid/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = lucidstory;
-				INFOPLIST_KEY_NSCameraUsageDescription = dg;
+				INFOPLIST_KEY_NSCameraUsageDescription = Cameraaa;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UIStatusBarStyle = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = test.com.Lucid;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.myname.personal.LUCID3-0";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -183,28 +186,29 @@
 		ADCBCEAF2F14ACAE008D4CCE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PGAUC552ZV;
+				DEVELOPMENT_TEAM = 6V79MTX685;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Lucid/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = lucidstory;
-				INFOPLIST_KEY_NSCameraUsageDescription = dg;
+				INFOPLIST_KEY_NSCameraUsageDescription = Cameraaa;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UIStatusBarStyle = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = test.com.Lucid;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.myname.personal.LUCID3-0";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -358,6 +362,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		977A70842F39207700AE145D /* XCRemoteSwiftPackageReference "Charts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/danielgindi/Charts";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		977A70852F39207700AE145D /* DGCharts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 977A70842F39207700AE145D /* XCRemoteSwiftPackageReference "Charts" */;
+			productName = DGCharts;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = ADCBCE922F14ACAD008D4CCE /* Project object */;
 }

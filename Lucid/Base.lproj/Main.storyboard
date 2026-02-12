@@ -3,67 +3,11 @@
     <device id="retina6_9" orientation="portrait" appearance="dark"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
-        <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Summary-->
-        <scene sceneID="4L2-B9-daJ">
-            <objects>
-                <viewController id="qrW-Cb-yNF" customClass="LoginScreenViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="Vls-qS-uGF">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LoginScreenImage" translatesAutoresizingMaskIntoConstraints="NO" id="X3A-yN-6xj">
-                                <rect key="frame" x="0.0" y="0.0" width="440" height="564"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="564" id="xAg-bg-mDG"/>
-                                </constraints>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                        <integer key="value" value="32"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
-                                </userDefinedRuntimeAttributes>
-                            </imageView>
-                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QF3-kA-h0M">
-                                <rect key="frame" x="131" y="640" width="179" height="34.333333333333371"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="34.329999999999998" id="Xt3-yl-8Sl"/>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="179" id="kN1-2H-9B8"/>
-                                </constraints>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="tinted">
-                                    <imageReference key="image" image="signpost.right.and.left.fill" catalog="system" symbolScale="large"/>
-                                    <attributedString key="attributedTitle">
-                                        <fragment content="sign in"/>
-                                    </attributedString>
-                                </buttonConfiguration>
-                            </button>
-                        </subviews>
-                        <viewLayoutGuide key="safeArea" id="lJo-ZZ-wxl"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <constraints>
-                            <constraint firstItem="X3A-yN-6xj" firstAttribute="leading" secondItem="lJo-ZZ-wxl" secondAttribute="leading" id="6qb-hv-NNM"/>
-                            <constraint firstItem="QF3-kA-h0M" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="lJo-ZZ-wxl" secondAttribute="leading" id="IBY-Vu-Y3f"/>
-                            <constraint firstItem="lJo-ZZ-wxl" firstAttribute="trailing" secondItem="QF3-kA-h0M" secondAttribute="trailing" constant="102" id="QNd-y5-ZqZ"/>
-                            <constraint firstItem="X3A-yN-6xj" firstAttribute="trailing" secondItem="lJo-ZZ-wxl" secondAttribute="trailing" id="VVD-Us-M8G"/>
-                            <constraint firstItem="X3A-yN-6xj" firstAttribute="top" secondItem="Vls-qS-uGF" secondAttribute="top" id="b9G-Pm-YcD"/>
-                            <constraint firstItem="X3A-yN-6xj" firstAttribute="top" secondItem="Vls-qS-uGF" secondAttribute="top" id="bv4-Kl-Y68"/>
-                            <constraint firstItem="QF3-kA-h0M" firstAttribute="top" secondItem="X3A-yN-6xj" secondAttribute="bottom" constant="85" id="gSS-ec-w6x"/>
-                            <constraint firstItem="X3A-yN-6xj" firstAttribute="leading" secondItem="lJo-ZZ-wxl" secondAttribute="leading" id="q3E-3R-Rpj"/>
-                            <constraint firstItem="X3A-yN-6xj" firstAttribute="trailing" secondItem="lJo-ZZ-wxl" secondAttribute="trailing" id="qtA-CK-cW6"/>
-                        </constraints>
-                    </view>
-                    <tabBarItem key="tabBarItem" title="Summary" image="heart.text.clipboard" catalog="system" selectedImage="heart.text.clipboard.fill" id="S6k-Av-SfA"/>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="3sq-re-b8F" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1061.8320610687022" y="130.28169014084509"/>
-        </scene>
         <!--Exercise-->
         <scene sceneID="pzX-4V-U21">
             <objects>
@@ -117,7 +61,7 @@
                                                 <constraint firstAttribute="bottom" secondItem="w21-n3-Lx1" secondAttribute="bottom" constant="9" id="y2e-lm-Z6W"/>
                                             </constraints>
                                         </tableViewCellContentView>
-                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
@@ -477,15 +421,26 @@
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </tabBar>
                     <connections>
-                        <segue destination="qrW-Cb-yNF" kind="relationship" relationship="viewControllers" id="pzj-hc-giu"/>
-                        <segue destination="vLT-au-tGI" kind="relationship" relationship="viewControllers" id="nLZ-ZU-wUq"/>
+                        <segue destination="KZ4-5G-eYx" kind="relationship" relationship="viewControllers" id="971-hh-jOR"/>
                         <segue destination="7oq-fy-lk8" kind="relationship" relationship="viewControllers" id="mgF-sY-tm3"/>
                         <segue destination="Gb3-N5-TTw" kind="relationship" relationship="viewControllers" id="aI8-dW-r4g"/>
+                        <segue destination="vLT-au-tGI" kind="relationship" relationship="viewControllers" id="nLZ-ZU-wUq"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wy8-pG-l1V" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="135.1145038167939" y="130.28169014084509"/>
+        </scene>
+        <!--Summary-->
+        <scene sceneID="o27-eq-Yy1">
+            <objects>
+                <viewControllerPlaceholder storyboardName="Summary" referencedIdentifier="Summary" id="KZ4-5G-eYx" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Summary" image="clipboard.fill" catalog="system" id="BMk-0k-C3E"/>
+                    <navigationItem key="navigationItem" id="8aJ-3C-nEe"/>
+                </viewControllerPlaceholder>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="SRf-T1-buS" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-87" y="541"/>
         </scene>
         <!--EyeTest-->
         <scene sceneID="irf-2E-U6e">
@@ -552,17 +507,14 @@
     <resources>
         <image name="BlinkTraining" width="136" height="136"/>
         <image name="FigureEight" width="136" height="136"/>
-        <image name="LoginScreenImage" width="736" height="1313"/>
         <image name="NearFarFocus" width="136" height="136"/>
         <image name="PencilPushUps" width="136" height="136"/>
         <image name="PeripheralAwareness" width="136" height="136"/>
         <image name="SaccadicJumps" width="136" height="136"/>
         <image name="SmoothPursuits" width="136" height="136"/>
+        <image name="clipboard.fill" catalog="system" width="98" height="128"/>
         <image name="dumbbell" catalog="system" width="128" height="72"/>
         <image name="dumbbell.fill" catalog="system" width="128" height="72"/>
-        <image name="heart.text.clipboard" catalog="system" width="103" height="128"/>
-        <image name="heart.text.clipboard.fill" catalog="system" width="103" height="128"/>
-        <image name="signpost.right.and.left.fill" catalog="system" width="125" height="128"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
