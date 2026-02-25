@@ -10,7 +10,7 @@ class ExerciseTableViewController: UITableViewController {
         
         // 2. Set the content mode to cover the entire screen
         bgImageView.contentMode = .scaleAspectFill
-        
+            
         // 3. Assign it to the table
         self.tableView.backgroundView = bgImageView
         
