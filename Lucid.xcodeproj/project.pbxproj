@@ -156,6 +156,8 @@
 				INFOPLIST_FILE = Lucid/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = lucidstory;
 				INFOPLIST_KEY_NSCameraUsageDescription = dg;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "C test";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -192,6 +194,8 @@
 				INFOPLIST_FILE = Lucid/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = lucidstory;
 				INFOPLIST_KEY_NSCameraUsageDescription = dg;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "C test";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
