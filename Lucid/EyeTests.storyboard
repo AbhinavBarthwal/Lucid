@@ -220,10 +220,10 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <pageControl opaque="NO" contentMode="scaleToFill" enabled="NO" highlighted="YES" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" numberOfPages="12" currentPage="1" translatesAutoresizingMaskIntoConstraints="NO" id="s1N-SM-zsE">
-                                <rect key="frame" x="40" y="580" width="313" height="25.666666666666629"/>
+                                <rect key="frame" x="40" y="662.33333333333337" width="313" height="25.666666666666629"/>
                             </pageControl>
                             <slider opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="2" minValue="0.0" maxValue="4" preferredBehavioralStyle="mac" translatesAutoresizingMaskIntoConstraints="NO" id="WmP-CR-NPp">
-                                <rect key="frame" x="40" y="532" width="313" height="40"/>
+                                <rect key="frame" x="40" y="614.33333333333337" width="313" height="40"/>
                                 <color key="tintColor" name="AccentColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="KEy-FS-cXU"/>
@@ -244,7 +244,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dN8-ZV-Swu">
-                                <rect key="frame" x="31" y="490" width="331" height="32"/>
+                                <rect key="frame" x="31" y="572.33333333333337" width="331" height="32"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="32" id="EM4-Ep-ETy"/>
                                 </constraints>
@@ -271,7 +271,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lii-La-Zke">
-                                <rect key="frame" x="56.666666666666657" y="647.66666666666663" width="280" height="34.333333333333371"/>
+                                <rect key="frame" x="56.666666666666657" y="730" width="280" height="34.333333333333371"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="280" id="n6K-5u-HOb"/>
                                 </constraints>
@@ -301,7 +301,6 @@
                             <constraint firstItem="k2P-0r-m0T" firstAttribute="leading" secondItem="Ltp-JR-ORG" secondAttribute="leading" constant="80" id="Tg9-vc-osg"/>
                             <constraint firstItem="s1N-SM-zsE" firstAttribute="centerX" secondItem="7sE-vr-TUu" secondAttribute="centerX" id="VVW-hd-zx1"/>
                             <constraint firstItem="t1A-kK-cze" firstAttribute="leading" secondItem="Ltp-JR-ORG" secondAttribute="leading" constant="63" id="Vxf-R7-9XP"/>
-                            <constraint firstItem="Ltp-JR-ORG" firstAttribute="bottom" secondItem="lii-La-Zke" secondAttribute="bottom" constant="53" id="ZFE-PN-nD6"/>
                             <constraint firstItem="dN8-ZV-Swu" firstAttribute="leading" secondItem="Ltp-JR-ORG" secondAttribute="leading" constant="31" id="cHh-cl-Cpm"/>
                             <constraint firstItem="bOh-Oq-2PV" firstAttribute="top" secondItem="t1A-kK-cze" secondAttribute="bottom" constant="7.3333333333333428" id="elj-yq-FME"/>
                             <constraint firstItem="bOh-Oq-2PV" firstAttribute="trailing" secondItem="t1A-kK-cze" secondAttribute="trailing" id="kcu-Kb-dqd"/>
