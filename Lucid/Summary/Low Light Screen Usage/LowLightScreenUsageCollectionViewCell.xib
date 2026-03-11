@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="LowLightCell" id="Nc2-IZ-nnG" customClass="LowLightScreenUsageCollectionViewCell" customModule="Lucid" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="158" height="144"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="ctS-q6-lbg">
+                <rect key="frame" x="0.0" y="0.0" width="158" height="144"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="uFX-5Q-vJH">
+                        <rect key="frame" x="12" y="8" width="128.33333333333334" height="33.333333333333336"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Low Light Usage" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lHJ-WO-kiF">
+                                <rect key="frame" x="0.0" y="0.0" width="128.33333333333334" height="19.333333333333332"/>
+                                <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="16"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Today" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="apY-qE-h8n">
+                                <rect key="frame" x="0.0" y="19.333333333333332" width="128.33333333333334" height="13.999999999999996"/>
+                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="12"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                    </stackView>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vFT-zn-neY" customClass="SemiCircleGauge" customModule="Lucid" customModuleProvider="target">
+                        <rect key="frame" x="4" y="22" width="150" height="100"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="150" id="EJa-Ic-Y45"/>
+                            <constraint firstAttribute="height" constant="100" id="wfc-rW-GoR"/>
+                        </constraints>
+                    </view>
+                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="ju2-tu-KBx">
+                        <rect key="frame" x="50.333333333333343" y="84" width="57.666666666666657" height="26.333333333333329"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9fJ-Ju-pH0">
+                                <rect key="frame" x="0.0" y="0.0" width="57.666666666666664" height="26.333333333333332"/>
+                                <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="22"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="9fJ-Ju-pH0" firstAttribute="centerX" secondItem="ju2-tu-KBx" secondAttribute="centerX" id="dPs-6Y-I5L"/>
+                            <constraint firstItem="9fJ-Ju-pH0" firstAttribute="centerY" secondItem="ju2-tu-KBx" secondAttribute="centerY" id="sMF-9C-gIe"/>
+                        </constraints>
+                    </stackView>
+                </subviews>
+                <color key="backgroundColor" red="0.1058823529" green="0.1058823529" blue="0.1058823529" alpha="0.69999999999999996" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                <constraints>
+                    <constraint firstItem="ju2-tu-KBx" firstAttribute="centerX" secondItem="ctS-q6-lbg" secondAttribute="centerX" id="6gr-h5-2px"/>
+                    <constraint firstItem="vFT-zn-neY" firstAttribute="centerX" secondItem="ctS-q6-lbg" secondAttribute="centerX" id="G7a-Im-7NZ"/>
+                    <constraint firstItem="uFX-5Q-vJH" firstAttribute="leading" secondItem="ctS-q6-lbg" secondAttribute="leading" constant="12" id="L0P-LC-tc2"/>
+                    <constraint firstItem="uFX-5Q-vJH" firstAttribute="top" secondItem="ctS-q6-lbg" secondAttribute="top" constant="8" id="Lgh-DV-crm"/>
+                    <constraint firstItem="ju2-tu-KBx" firstAttribute="centerY" secondItem="ctS-q6-lbg" secondAttribute="centerY" constant="25" id="jvC-4V-TwA"/>
+                    <constraint firstItem="vFT-zn-neY" firstAttribute="centerY" secondItem="ctS-q6-lbg" secondAttribute="centerY" id="s1H-I6-ltV"/>
+                    <constraint firstItem="vFT-zn-neY" firstAttribute="centerX" secondItem="ctS-q6-lbg" secondAttribute="centerX" id="vK8-cQ-L6f"/>
+                </constraints>
+                <userDefinedRuntimeAttributes>
+                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                        <integer key="value" value="20"/>
+                    </userDefinedRuntimeAttribute>
+                    <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                </userDefinedRuntimeAttributes>
+            </collectionViewCellContentView>
+            <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="calibratedRGB"/>
+            <size key="customSize" width="254" height="216"/>
+            <userDefinedRuntimeAttributes>
+                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                    <integer key="value" value="20"/>
+                </userDefinedRuntimeAttribute>
+                <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+            </userDefinedRuntimeAttributes>
+            <connections>
+                <outlet property="containerView" destination="ctS-q6-lbg" id="Aac-ih-l1i"/>
+                <outlet property="ringContainer" destination="vFT-zn-neY" id="Mcv-G7-ANI"/>
+                <outlet property="subtitleLabel" destination="apY-qE-h8n" id="Uix-84-AeJ"/>
+                <outlet property="timeLabel" destination="9fJ-Ju-pH0" id="7qW-bu-rRx"/>
+                <outlet property="titleLabel" destination="lHJ-WO-kiF" id="BP6-aq-Cv0"/>
+            </connections>
+            <point key="canvasLocation" x="-139" y="-215"/>
+        </collectionViewCell>
+    </objects>
+</document>

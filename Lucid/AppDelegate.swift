@@ -16,25 +16,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let appearance = UINavigationBarAppearance()
 
-        
-        // 1. Define the Expanded Font
-        // Width 1.25 corresponds to the "Expanded" trait
+  
         let expandedFont = UIFont.systemFont(ofSize: 20, weight: .bold, width: .expanded)
         let largeExpandedFont = UIFont.systemFont(ofSize: 34, weight: .bold, width: .expanded)
 
-        // 2. Apply to Standard Title (Centered)
+
         appearance.titleTextAttributes = [
             .font: expandedFont,
             .foregroundColor: UIColor.white
         ]
         
-        // 3. Apply to Large Title (Left-aligned)
         appearance.largeTitleTextAttributes = [
             .font: largeExpandedFont,
             .foregroundColor: UIColor.white
         ]
 
-        // 4. Push these settings to all Navigation Bars
         UINavigationBar.appearance().standardAppearance = appearance
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
         UINavigationBar.appearance().compactAppearance = appearance
@@ -59,3 +55,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+
+@IBDesignable
+class ExpandedLabel: UILabel {
+    @IBInspectable var isExpanded: Bool = true {
+        didSet {
+            updateFont()
+        }
+    }
+
+    private func updateFont() {
+        self.font = .systemFont(ofSize: self.font.pointSize,
+                                 weight: .medium,
+                                 width: .expanded)
+    }
+    
+    override func prepareForInterfaceBuilder() {
+        updateFont()
+    }
+}

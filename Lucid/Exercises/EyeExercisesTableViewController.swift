@@ -16,11 +16,9 @@ class ExerciseTableViewController: UITableViewController {
         
         // 4. Ensure transparency of the table and cells
         self.tableView.backgroundColor = .clear
-        
-
-            // This finds every label with tag 10 (Titles) and 20 (Descriptions)
+    
             view.subviews.forEach { subview in
-                // Fix Titles
+
                 if let title = subview.viewWithTag(10) as? UILabel {
                     title.font = UIFont.preferredFont(forTextStyle: .headline)
                     title.setContentHuggingPriority(.defaultHigh, for: .vertical)

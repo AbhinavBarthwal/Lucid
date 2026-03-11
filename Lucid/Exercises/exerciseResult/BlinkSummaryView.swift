@@ -14,7 +14,6 @@ struct BlinkSummaryView: View {
     let totalErrors: Int
     var onDismiss: () -> Void
 
-    // Individual Eye Scores (Normalized to 100%)
     var leftAverage: Int {
         guard !leftPeaks.isEmpty else { return 0 }
         return Int((leftPeaks.reduce(0, +) / Float(leftPeaks.count)) * 100)
@@ -33,7 +32,6 @@ struct BlinkSummaryView: View {
 
     var chartData: [BlinkData] {
         var data: [BlinkData] = []
-        // Clamp values to 0.0 - 1.0 to prevent overflow
         for (i, val) in leftPeaks.enumerated() {
             data.append(BlinkData(index: i + 1, intensity: min(max(val, 0), 1), eye: "Left"))
         }

@@ -7,11 +7,23 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		ADBEFC9A2F29BF7C00F2A535 /* fsg.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = ADBEFC992F29BF7C00F2A535 /* fsg.mp4 */; };
+		AD4309AA2F5FD8C800915CF3 /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = AD4309A92F5FD8C800915CF3 /* DGCharts */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		AD43099C2F5FD36300915CF3 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		ADBEFC992F29BF7C00F2A535 /* fsg.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = fsg.mp4; sourceTree = "<group>"; };
 		ADCBCE9A2F14ACAD008D4CCE /* Lucid.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lucid.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -41,17 +53,25 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD4309AA2F5FD8C800915CF3 /* DGCharts in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AD43099D2F5FD41E00915CF3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		ADCBCE912F14ACAD008D4CCE = {
 			isa = PBXGroup;
 			children = (
-				ADBEFC992F29BF7C00F2A535 /* fsg.mp4 */,
 				ADCBCE9C2F14ACAD008D4CCE /* Lucid */,
+				AD43099D2F5FD41E00915CF3 /* Frameworks */,
 				ADCBCE9B2F14ACAD008D4CCE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -74,6 +94,7 @@
 				ADCBCE962F14ACAD008D4CCE /* Sources */,
 				ADCBCE972F14ACAD008D4CCE /* Frameworks */,
 				ADCBCE982F14ACAD008D4CCE /* Resources */,
+				AD43099C2F5FD36300915CF3 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -84,6 +105,7 @@
 			);
 			name = Lucid;
 			packageProductDependencies = (
+				AD4309A92F5FD8C800915CF3 /* DGCharts */,
 			);
 			productName = Lucid;
 			productReference = ADCBCE9A2F14ACAD008D4CCE /* Lucid.app */;
@@ -113,6 +135,9 @@
 			);
 			mainGroup = ADCBCE912F14ACAD008D4CCE;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				AD4309A82F5FD8C800915CF3 /* XCRemoteSwiftPackageReference "Charts" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = ADCBCE9B2F14ACAD008D4CCE /* Products */;
 			projectDirPath = "";
@@ -128,7 +153,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ADBEFC9A2F29BF7C00F2A535 /* fsg.mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -156,7 +180,7 @@
 				INFOPLIST_FILE = Lucid/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = lucidstory;
 				INFOPLIST_KEY_NSCameraUsageDescription = dg;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = qwtyj;
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "C test";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -194,7 +218,7 @@
 				INFOPLIST_FILE = Lucid/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = lucidstory;
 				INFOPLIST_KEY_NSCameraUsageDescription = dg;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = qwtyj;
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "C test";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -364,6 +388,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		AD4309A82F5FD8C800915CF3 /* XCRemoteSwiftPackageReference "Charts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ChartsOrg/Charts";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AD4309A92F5FD8C800915CF3 /* DGCharts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AD4309A82F5FD8C800915CF3 /* XCRemoteSwiftPackageReference "Charts" */;
+			productName = DGCharts;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = ADCBCE922F14ACAD008D4CCE /* Project object */;
 }

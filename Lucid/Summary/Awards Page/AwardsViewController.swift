@@ -1,15 +1,13 @@
 //
-//  LoginScreenViewController.swift
+//  AwardsViewController.swift
 //  Lucid
 //
-//  Created by Abhinav Barthwal on 1/27/26.
+//  Created by Kanishka Bansal on 09/03/26.
 //
 
 import UIKit
-import AVKit
-import AVFoundation
 
-class LoginScreenViewController: UIViewController {
+class AwardsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -17,7 +15,6 @@ class LoginScreenViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
-
 
     /*
     // MARK: - Navigation
