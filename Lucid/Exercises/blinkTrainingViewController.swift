@@ -4,14 +4,18 @@ import SceneKit
 import AVFoundation
 import SwiftUI
 
-var dBlink = 1
-var LPBlink = 1
+//number of times for  blink
+var doubleBlink = 1
+var LeftRighEyeBlink = 1
 
-enum TrainingPhase {
+
+enum TypeOfBlink {
     case doubleBlink(remaining: Int)
     case singleBlink(eye: String, remaining: Int)
     case completed
     
+    
+    //remaining number of blinks for any type of blink to display
     var remaining: Int {
         switch self {
         case .doubleBlink(let r): return r
@@ -20,6 +24,7 @@ enum TrainingPhase {
         }
     }
     
+    //decreases the number of blinks every time a user blinks
     mutating func decrement() {
         switch self {
         case .doubleBlink(let r): self = .doubleBlink(remaining: r - 1)
@@ -29,303 +34,396 @@ enum TrainingPhase {
     }
 }
 class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
-    @IBOutlet var leftEyeLabel: UILabel!
+
     @IBOutlet var instructionLabel: UILabel!
+    //sceneView is used to attach ARkit
     @IBOutlet var sceneView: ARSCNView!
     
-    private let largeCountLabel = UILabel()
-    private let phaseInstructionLabel = UILabel()
-    private let instructionBackgroundView = UIView()
+    //Total number of blinks left Counter
+    @IBOutlet var largeCountLabel: UILabel!
     
-    private var player: AVQueuePlayer?
-    private var playerLayer: AVPlayerLayer?
-    private var playerLooper: AVPlayerLooper?
-    //background image
-    
-    private var currentPhase: TrainingPhase = .doubleBlink(remaining: dBlink)
-    private var isAcceptingInput = false
-    private var isLeftEyeClosed = false
-    private var isRightEyeClosed = false
-    private let blinkThreshold: Float = 0.7
-    
-    private var totalErrors = 0
-    private var failedAttemptsForCurrentBlink = 0
-    private var consecutiveErrors = 0
-    
-    private var responseTimer: Timer?
-    private var leftMaxBlinks: [Float] = []
-    private var rightMaxBlinks: [Float] = []
-    private var currentBlinkMaxLeft: Float = 0.0
-    private var currentBlinkMaxRight: Float = 0.0
-    //result
-    
-    private let impactMed = UIImpactFeedbackGenerator(style: .rigid)
-    private let impactHeavy = UIImpactFeedbackGenerator(style: .rigid)
-    private let impactRigid = UIImpactFeedbackGenerator(style: .rigid)
-    private let notificationGen = UINotificationFeedbackGenerator()
-    //make another file
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupBackgroundVideo()
-        setupUI()
+    @IBOutlet var centerMessageLAbel: UILabel!
+
+
         
-        currentPhase = .doubleBlink(remaining: dBlink)
-        startNewPhase(text: "Blink BOTH eyes\nafter the vibration") {
-            self.triggerNextCue()
-        }
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        // Timer label added to match near/far logic
+        //@IBOutlet weak var timerLabel: UILabel!
         
-        let config = ARFaceTrackingConfiguration()
-        sceneView.session.run(config)
-    }
-    
-    override var prefersHomeIndicatorAutoHidden: Bool { return true }
-    
-    private func triggerNextCue() {
-        isAcceptingInput = false
-        hideNudge()
-        currentBlinkMaxLeft = 0.0
-        currentBlinkMaxRight = 0.0
+        // background video
+        private var player: AVQueuePlayer?
+        private var playerLayer: AVPlayerLayer?
+        private var playerLooper: AVPlayerLooper?
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-            self.impactMed.impactOccurred()
-            self.impactMed.impactOccurred()
-            self.isAcceptingInput = true
-            self.startResponseTimer()
-        }
-    }
-    
-    private func startResponseTimer() {
-        responseTimer?.invalidate()
-        responseTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { [weak self] _ in
-            self?.showContextualNudge()
-            self?.impactMed.impactOccurred()
-            self?.impactMed.impactOccurred()
-        }
-    }
-    
-    private func showContextualNudge() {
-        DispatchQueue.main.async {
-            let nudgeText: String
-            switch self.currentPhase {
-            case .doubleBlink: nudgeText = "Please, try a double blink"
-            case .singleBlink(let eye, _): nudgeText = "Please, blink your \(eye) eye"
-            default: return
-            }
+        // variable for when exercise is running
+        private var currentPhase: TypeOfBlink = .completed // Handled in countdown now
+        private var isAcceptingInput = false
+        private var isLeftEyeClosed = false
+        private var isRightEyeClosed = false
+        private let blinkThreshold: Float = 0.7
+        
+        // error counts while blinking
+        private var totalErrors = 0
+        private var failedAttemptsForCurrentBlink = 0
+        private var consecutiveErrors = 0
+        
+        // variables needed for timers & results
+        private var responseTimer: Timer?
+        private var phaseTimer: Timer?
+        private var secondsRemaining = 0
+        private var leftMaxBlinks: [Float] = []
+        private var rightMaxBlinks: [Float] = []
+        private var currentBlinkMaxLeft: Float = 0.0
+        private var currentBlinkMaxRight: Float = 0.0
+
+        private let impactMed = UIImpactFeedbackGenerator(style: .rigid)
+        private let impactHeavy = UIImpactFeedbackGenerator(style: .rigid)
+        private let impactRigid = UIImpactFeedbackGenerator(style: .rigid)
+        private let notificationGen = UINotificationFeedbackGenerator()
+        
+        override func viewDidLoad() {
+            super.viewDidLoad()
+            setupBackgroundVideo()
+            setupInitialUI()
             
-            self.instructionLabel.text = nudgeText
-            UIView.animate(withDuration: 0.5) { self.instructionLabel.alpha = 1.0 }
-        }
-    }
-    
-    private func hideNudge() {
-        DispatchQueue.main.async {
-            UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 0 }
-        }
-    }
-    
-    func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
-        guard let faceAnchor = anchor as? ARFaceAnchor, isAcceptingInput else { return }
-        
-        let realLeftValue = faceAnchor.blendShapes[.eyeBlinkRight]?.floatValue ?? 0.0
-        let realRightValue = faceAnchor.blendShapes[.eyeBlinkLeft]?.floatValue ?? 0.0
-        
-        if realLeftValue > currentBlinkMaxLeft { currentBlinkMaxLeft = realLeftValue }
-        if realRightValue > currentBlinkMaxRight { currentBlinkMaxRight = realRightValue }
-        
-        let leftClosedNow = realLeftValue > blinkThreshold
-        let rightClosedNow = realRightValue > blinkThreshold
-        
-        let leftOpened = isLeftEyeClosed && !leftClosedNow
-        let rightOpened = isRightEyeClosed && !rightClosedNow
-        
-        if leftOpened || rightOpened {
-            handleBlinkAttempt(left: leftOpened, right: rightOpened)
+            // Starts the 5-4-3-2-1 countdown before triggering the first phase
+            startInitialCountdown()
         }
         
-        isLeftEyeClosed = leftClosedNow
-        isRightEyeClosed = rightClosedNow
-    }
-    
-    private func handleBlinkAttempt(left: Bool, right: Bool) {
-        let isCorrect: Bool
-        switch currentPhase {
-        case .doubleBlink: isCorrect = left && right
-        case .singleBlink(let eye, _): isCorrect = (eye == "left") ? (left && !right) : (right && !left)
-        default: return
+        override func viewWillAppear(_ animated: Bool) {
+            super.viewWillAppear(animated)
+            self.navigationController?.setNavigationBarHidden(true, animated: false)
+            
+            // attaches face tracking with the sceneview
+            let config = ARFaceTrackingConfiguration()
+            sceneView.session.run(config)
         }
         
-        if isCorrect {
-            leftMaxBlinks.append(currentBlinkMaxLeft)
-            rightMaxBlinks.append(currentBlinkMaxRight)
-            consecutiveErrors = 0
-            failedAttemptsForCurrentBlink = 0
-            processSuccess()
-        } else {
-            handleError()
+        override func viewWillDisappear(_ animated: Bool) {
+            super.viewWillDisappear(animated)
+            sceneView.session.pause()
+            phaseTimer?.invalidate()
+            responseTimer?.invalidate()
         }
-    }
-    
-    private func handleError() {
-        totalErrors += 1
-        consecutiveErrors += 1
-        failedAttemptsForCurrentBlink += 1
         
-        self.notificationGen.notificationOccurred(.error)
-        self.notificationGen.notificationOccurred(.error)
-        self.impactHeavy.impactOccurred()
-        self.impactHeavy.impactOccurred()
+        override var prefersHomeIndicatorAutoHidden: Bool { return true }
         
-        DispatchQueue.main.async {
-            UIView.animate(withDuration: 0.2, animations: {
-                self.largeCountLabel.textColor = .systemRed
+        // MARK: - UI & Transition Logic (Imported & Adapted)
+        
+        private func setupInitialUI() {
+            //timerLabel.alpha = 0
+            instructionLabel.alpha = 0
+            largeCountLabel.alpha = 0
+            playerLayer?.opacity = 0
+            
+            //timerLabel.isHidden = false
+            instructionLabel.isHidden = false
+            largeCountLabel.isHidden = false
+            centerMessageLAbel.isHidden = false
+            
+            centerMessageLAbel.alpha = 1
+            sceneView.delegate = self
+            sceneView.alpha = 0.01 // keep AR view hidden
+        }
+        
+        private func fadeTransition(showCenterMessage: Bool, showExerciseUI: Bool, completion: (() -> Void)? = nil) {
+            UIView.animate(withDuration: 0.5, animations: {
+                self.centerMessageLAbel.alpha = showCenterMessage ? 1 : 0
+                //self.timerLabel.alpha = showExerciseUI ? 1 : 0
+                self.instructionLabel.alpha = showExerciseUI ? 1 : 0
+                self.largeCountLabel.alpha = showExerciseUI ? 1 : 0
+                self.playerLayer?.opacity = showExerciseUI ? 1 : 0
             }) { _ in
-                UIView.animate(withDuration: 0.2) { self.largeCountLabel.textColor = .white }
+                completion?()
             }
+        }
+        
+        // MARK: - Phase & Timer Management
+        
+        private func startInitialCountdown() {
+            isAcceptingInput = false
+            secondsRemaining = 5
+            centerMessageLAbel.text = "\(secondsRemaining)"
             
-            if self.consecutiveErrors >= 3 { self.showContextualNudge() }
-            
-            if self.failedAttemptsForCurrentBlink >= 10 {
-                self.failedAttemptsForCurrentBlink = 0
-                self.processSuccess()
-            }
-        }
-    }
-    
-    private func processSuccess() {
-        responseTimer?.invalidate()
-        isAcceptingInput = false
-        hideNudge()
-        
-        DispatchQueue.main.async {
-            self.currentPhase.decrement()
-            self.largeCountLabel.text = "\(self.currentPhase.remaining)"
-            self.impactRigid.impactOccurred()
-            self.impactRigid.impactOccurred()
-            
-            if self.currentPhase.remaining <= 0 {
-                self.notificationGen.notificationOccurred(.success)
-                self.notificationGen.notificationOccurred(.success)
-                self.advancePhase()
-            } else {
-                self.triggerNextCue()
-            }
-        }
-    }
-    
-    private func advancePhase() {
-        consecutiveErrors = 0
-        switch currentPhase {
-        case .doubleBlink:
-            self.currentPhase = .singleBlink(eye: "left", remaining: LPBlink)
-            startNewPhase(text: "Blink LEFT eye only\nafter the vibration") { self.triggerNextCue() }
-        case .singleBlink(let eye, _):
-            if eye == "left" {
-                self.currentPhase = .singleBlink(eye: "right", remaining: LPBlink)
-                startNewPhase(text: "Blink RIGHT eye only\nafter the vibration") { self.triggerNextCue() }
-            } else {
-                finishSession()
-            }
-        default: break
-        }
-    }
-    
-    private func finishSession() {
-        currentPhase = .completed
-        self.showSummaryScreen()
-    }
-    
-    private func showSummaryScreen() {
-        DispatchQueue.main.async {
-            let summaryView = BlinkSummaryView(
-                leftPeaks: self.leftMaxBlinks,
-                rightPeaks: self.rightMaxBlinks,
-                totalErrors: self.totalErrors,
-                onDismiss: {
-                    self.dismiss(animated: true)
-                }
-            )
-            let hostingController = UIHostingController(rootView: summaryView)
-            hostingController.modalPresentationStyle = .fullScreen
-            self.present(hostingController, animated: true)
-        }
-    }
-    
-    private func setupUI() {
-        instructionBackgroundView.frame = view.bounds
-        instructionBackgroundView.backgroundColor = .black
-        instructionBackgroundView.alpha = 1.0
-        view.addSubview(instructionBackgroundView)
-        
-        phaseInstructionLabel.frame = CGRect(x: 20, y: 0, width: view.frame.width - 40, height: 250)
-        phaseInstructionLabel.center = view.center
-        phaseInstructionLabel.textAlignment = .center
-        phaseInstructionLabel.font = .systemFont(ofSize: 32, weight: .bold)
-        phaseInstructionLabel.textColor = .white
-        phaseInstructionLabel.numberOfLines = 0
-        view.addSubview(phaseInstructionLabel)
-        
-        largeCountLabel.frame = CGRect(x: 0, y: 120, width: view.frame.width, height: 120)
-        largeCountLabel.textAlignment = .center
-        largeCountLabel.font = .systemFont(ofSize: 80, weight: .bold)
-        largeCountLabel.textColor = .white
-        largeCountLabel.text = "10"
-        view.addSubview(largeCountLabel)
-        
-        instructionLabel.alpha = 0
-        sceneView.delegate = self
-        sceneView.alpha = 0.01
-    }
-    
-    private func startNewPhase(text: String, completion: @escaping () -> Void) {
-        isAcceptingInput = false
-        largeCountLabel.isHidden = true
-        playerLayer?.opacity = 0
-        
-        showPhaseInstruction(text) {
-            self.largeCountLabel.text = "\(self.currentPhase.remaining)"
-            self.largeCountLabel.isHidden = false
-            self.playerLayer?.opacity = 1
-            completion()
-        }
-    }
-    
-    private func showPhaseInstruction(_ text: String, completion: @escaping () -> Void) {
-        DispatchQueue.main.async {
-            self.phaseInstructionLabel.text = text
-            self.instructionBackgroundView.isHidden = false
-            UIView.animate(withDuration: 0.7, animations: {
-                self.instructionBackgroundView.alpha = 1.0
-                self.phaseInstructionLabel.alpha = 1.0
-            }) { _ in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                    UIView.animate(withDuration: 0.7, animations: {
-                        self.instructionBackgroundView.alpha = 0.0
-                        self.phaseInstructionLabel.alpha = 0.0
-                    }) { _ in
-                        self.instructionBackgroundView.isHidden = true
-                        completion()
+            phaseTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
+                guard let self = self else { return }
+                self.secondsRemaining -= 1
+                
+                if self.secondsRemaining > 0 {
+                    self.centerMessageLAbel.text = "\(self.secondsRemaining)"
+                } else {
+                    timer.invalidate()
+                    self.fadeTransition(showCenterMessage: false, showExerciseUI: false) {
+                        self.currentPhase = .doubleBlink(remaining: doubleBlink)
+                        self.showPreparationMessage("Blink BOTH eyes\nafter the vibration") {
+                            self.startActiveBlinkPhase()
+                        }
                     }
                 }
             }
         }
+        
+        private func showPreparationMessage(_ message: String, completion: @escaping () -> Void) {
+            isAcceptingInput = false
+            centerMessageLAbel.text = message
+            fadeTransition(showCenterMessage: true, showExerciseUI: false)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                self.fadeTransition(showCenterMessage: false, showExerciseUI: false) {
+                    completion()
+                }
+            }
+        }
+        
+        private func startTransitionPhase(nextPhase: @escaping () -> Void) {
+            isAcceptingInput = false
+            responseTimer?.invalidate()
+            phaseTimer?.invalidate()
+            
+            centerMessageLAbel.text = "Nicely Done!"
+            fadeTransition(showCenterMessage: true, showExerciseUI: false)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                self.fadeTransition(showCenterMessage: false, showExerciseUI: false) {
+                    nextPhase()
+                }
+            }
+        }
+        
+        private func startActiveBlinkPhase() {
+            // Sets a 20 second time limit to complete the required blinks
+            secondsRemaining = 20
+            //timerLabel.text = "\(secondsRemaining)"
+            largeCountLabel.text = "\(currentPhase.remaining)"
+            instructionLabel.text = "" // clear any residual nudge text
+            
+            fadeTransition(showCenterMessage: false, showExerciseUI: true) {
+                self.triggerNextCue()
+                self.startPhaseTimer()
+            }
+        }
+        
+        private func startPhaseTimer() {
+            phaseTimer?.invalidate()
+            phaseTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
+                guard let self = self else { return }
+                self.secondsRemaining -= 1
+                
+//                if self.secondsRemaining >= 0 {
+//                    self.timerLabel.text = "\(self.secondsRemaining)"
+//                }
+                
+                // If the user runs out of time before finishing their blinks
+                if self.secondsRemaining <= 0 {
+                    timer.invalidate()
+                    self.centerMessageLAbel.text = "Time's Up!"
+                    self.startTransitionPhase {
+                        self.advancePhase()
+                    }
+                }
+            }
+        }
+        
+        // MARK: - Blink & Nudge Logic
+        
+        private func triggerNextCue() {
+            isAcceptingInput = false
+            hideNudge()
+            currentBlinkMaxLeft = 0.0
+            currentBlinkMaxRight = 0.0
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                self.impactMed.impactOccurred()
+                self.impactMed.impactOccurred()
+                self.isAcceptingInput = true
+                self.startResponseTimer()
+            }
+        }
+        
+        // waits for user to respond and notifies if no response
+        private func startResponseTimer() {
+            responseTimer?.invalidate()
+            responseTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { [weak self] _ in
+                self?.showContextualNudge()
+                self?.impactMed.impactOccurred()
+                self?.impactMed.impactOccurred()
+            }
+        }
+        
+        // alerts user about what they have to do in that specific phase
+        private func showContextualNudge() {
+            DispatchQueue.main.async {
+                let nudgeText: String
+                switch self.currentPhase {
+                case .doubleBlink: nudgeText = "Please, try a double blink"
+                case .singleBlink(let eye, _): nudgeText = "Please, blink your \(eye) eye"
+                default: return
+                }
+                
+                self.instructionLabel.text = nudgeText
+                UIView.animate(withDuration: 0.5) { self.instructionLabel.alpha = 1.0 }
+            }
+        }
+        
+        private func hideNudge() {
+            DispatchQueue.main.async {
+                UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 0 }
+            }
+        }
+        
+        // function that handles eye blink only if the eye is open
+        func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
+            guard let faceAnchor = anchor as? ARFaceAnchor, isAcceptingInput else { return }
+            
+            let realLeftValue = faceAnchor.blendShapes[.eyeBlinkRight]?.floatValue ?? 0.0
+            let realRightValue = faceAnchor.blendShapes[.eyeBlinkLeft]?.floatValue ?? 0.0
+            
+            if realLeftValue > currentBlinkMaxLeft { currentBlinkMaxLeft = realLeftValue }
+            if realRightValue > currentBlinkMaxRight { currentBlinkMaxRight = realRightValue }
+            
+            let leftClosedNow = realLeftValue > blinkThreshold
+            let rightClosedNow = realRightValue > blinkThreshold
+            
+            let leftOpened = isLeftEyeClosed && !leftClosedNow
+            let rightOpened = isRightEyeClosed && !rightClosedNow
+            
+            if leftOpened || rightOpened {
+                handleBlinkAttempt(left: leftOpened, right: rightOpened)
+            }
+            
+            isLeftEyeClosed = leftClosedNow
+            isRightEyeClosed = rightClosedNow
+        }
+        
+        // function handling an attempt to blink and verifies it
+        private func handleBlinkAttempt(left: Bool, right: Bool) {
+            let isCorrect: Bool
+            switch currentPhase {
+            case .doubleBlink: isCorrect = left && right
+            case .singleBlink(let eye, _): isCorrect = (eye == "left") ? (left && !right) : (right && !left)
+            default: return
+            }
+            
+            if isCorrect {
+                leftMaxBlinks.append(currentBlinkMaxLeft)
+                rightMaxBlinks.append(currentBlinkMaxRight)
+                consecutiveErrors = 0
+                failedAttemptsForCurrentBlink = 0
+                processSuccess()
+            } else {
+                handleError()
+            }
+        }
+        
+        // if blink was unsucessfull it alerts user and handles errors
+        private func handleError() {
+            totalErrors += 1
+            consecutiveErrors += 1
+            failedAttemptsForCurrentBlink += 1
+            
+            self.notificationGen.notificationOccurred(.error)
+            self.notificationGen.notificationOccurred(.error)
+            self.impactHeavy.impactOccurred()
+            self.impactHeavy.impactOccurred()
+            
+            DispatchQueue.main.async {
+                UIView.animate(withDuration: 0.2, animations: {
+                    self.largeCountLabel.textColor = .systemRed
+                }) { _ in
+                    UIView.animate(withDuration: 0.2) { self.largeCountLabel.textColor = .white }
+                }
+                
+                if self.consecutiveErrors >= 3 { self.showContextualNudge() }
+                
+                if self.failedAttemptsForCurrentBlink >= 10 {
+                    self.failedAttemptsForCurrentBlink = 0
+                    self.processSuccess()
+                }
+            }
+        }
+        
+        private func processSuccess() {
+            responseTimer?.invalidate()
+            isAcceptingInput = false
+            hideNudge()
+            
+            DispatchQueue.main.async {
+                self.currentPhase.decrement()
+                self.largeCountLabel.text = "\(self.currentPhase.remaining)"
+                self.impactRigid.impactOccurred()
+                self.impactRigid.impactOccurred()
+                
+                if self.currentPhase.remaining <= 0 {
+                    self.notificationGen.notificationOccurred(.success)
+                    self.notificationGen.notificationOccurred(.success)
+                    self.phaseTimer?.invalidate() // Stop phase countdown
+                    self.advancePhase()
+                } else {
+                    self.triggerNextCue()
+                }
+            }
+        }
+        
+        // switches the blink phases one by one
+        private func advancePhase() {
+            consecutiveErrors = 0
+            switch currentPhase {
+            case .doubleBlink:
+                self.currentPhase = .singleBlink(eye: "left", remaining: LeftRighEyeBlink)
+                startTransitionPhase {
+                    self.showPreparationMessage("Blink LEFT eye only\nafter the vibration") {
+                        self.startActiveBlinkPhase()
+                    }
+                }
+            case .singleBlink(let eye, _):
+                if eye == "left" {
+                    self.currentPhase = .singleBlink(eye: "right", remaining: LeftRighEyeBlink)
+                    startTransitionPhase {
+                        self.showPreparationMessage("Blink RIGHT eye only\nafter the vibration") {
+                            self.startActiveBlinkPhase()
+                        }
+                    }
+                } else {
+                    startTransitionPhase {
+                        self.finishSession()
+                    }
+                }
+            default: break
+            }
+        }
+        
+        private func finishSession() {
+            currentPhase = .completed
+            phaseTimer?.invalidate()
+            self.showSummaryScreen()
+        }
+        
+        // placeholder as of now that will be updated
+        private func showSummaryScreen() {
+            DispatchQueue.main.async {
+                let summaryView = BlinkSummaryView(
+                    leftPeaks: self.leftMaxBlinks,
+                    rightPeaks: self.rightMaxBlinks,
+                    totalErrors: self.totalErrors,
+                    onDismiss: {
+                        self.dismiss(animated: true)
+                    }
+                )
+                let hostingController = UIHostingController(rootView: summaryView)
+                hostingController.modalPresentationStyle = .fullScreen
+                self.present(hostingController, animated: true)
+            }
+        }
+        
+        private func setupBackgroundVideo() {
+            guard let path = Bundle.main.path(forResource: "eyeBlinkBackground", ofType: "mp4") else { return }
+            let url = URL(fileURLWithPath: path)
+            let playerItem = AVPlayerItem(url: url)
+            player = AVQueuePlayer(playerItem: playerItem)
+            playerLooper = AVPlayerLooper(player: player!, templateItem: playerItem)
+            playerLayer = AVPlayerLayer(player: player)
+            playerLayer?.frame = view.bounds
+            playerLayer?.videoGravity = .resizeAspectFill
+            view.layer.insertSublayer(playerLayer!, at: 0)
+            player?.play()
+        }
     }
-    
-    private func setupBackgroundVideo() {
-        guard let path = Bundle.main.path(forResource: "eyeBlinkBackground", ofType: "mp4") else { return }
-        let url = URL(fileURLWithPath: path)
-        let playerItem = AVPlayerItem(url: url)
-        player = AVQueuePlayer(playerItem: playerItem)
-        playerLooper = AVPlayerLooper(player: player!, templateItem: playerItem)
-        playerLayer = AVPlayerLayer(player: player)
-        playerLayer?.frame = view.bounds
-        playerLayer?.videoGravity = .resizeAspectFill
-        view.layer.insertSublayer(playerLayer!, at: 0)
-        player?.play()
-    }
-}

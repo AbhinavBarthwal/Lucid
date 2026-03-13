@@ -23,6 +23,6 @@ class LowLightScreenUsageCollectionViewCell: UICollectionViewCell {
     func configure(usage: String, progress: CGFloat) {
         layoutIfNeeded()
         timeLabel.text = usage
-        ringContainer.setProgress(0.5)
+        ringContainer.setProgress(0.9)
     }
 }
