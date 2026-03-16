@@ -22,7 +22,7 @@ class DigitalEyeStrainCollectionViewCell: UICollectionViewCell {
         barChartView.chartDescription.enabled = false
         barChartView.legend.enabled = false
         barChartView.isUserInteractionEnabled = false
-        
+    
         let xAxis = barChartView.xAxis
         xAxis.labelPosition = .bottom
         xAxis.drawGridLinesEnabled = false

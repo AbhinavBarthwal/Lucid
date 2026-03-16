@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Smooth Pursuits View Controller-->
+        <scene sceneID="4yF-ku-K6t">
+            <objects>
+                <viewController storyboardIdentifier="SmoothPursuitsVC" useStoryboardIdentifierAsRestorationIdentifier="YES" id="8YJ-of-xBX" customClass="SmoothPursuitsViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="VzB-Ma-mhr">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BW3-Cz-qFf">
+                                <rect key="frame" x="20" y="697.66666666666663" width="353" height="26.333333333333371"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0oo-9g-JKa">
+                                <rect key="frame" x="186.66666666666666" y="416" width="20" height="20"/>
+                                <color key="backgroundColor" name="AccentColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="20" id="MqQ-94-E8c"/>
+                                    <constraint firstAttribute="height" constant="20" id="kVr-Vv-8NF"/>
+                                </constraints>
+                            </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="o2P-pE-ivc">
+                                <rect key="frame" x="20" y="413" width="353" height="26.333333333333314"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="CcM-Mf-VC1"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="CcM-Mf-VC1" firstAttribute="trailing" secondItem="o2P-pE-ivc" secondAttribute="trailing" constant="20" id="37V-p8-Vzn"/>
+                            <constraint firstItem="o2P-pE-ivc" firstAttribute="centerY" secondItem="VzB-Ma-mhr" secondAttribute="centerY" id="3ID-Q4-lTz"/>
+                            <constraint firstItem="BW3-Cz-qFf" firstAttribute="leading" secondItem="CcM-Mf-VC1" secondAttribute="leading" constant="20" id="3mb-FX-DKZ"/>
+                            <constraint firstItem="o2P-pE-ivc" firstAttribute="centerX" secondItem="VzB-Ma-mhr" secondAttribute="centerX" id="OO1-Uj-lp3"/>
+                            <constraint firstItem="0oo-9g-JKa" firstAttribute="centerX" secondItem="VzB-Ma-mhr" secondAttribute="centerX" id="VGQ-i4-sXX"/>
+                            <constraint firstItem="CcM-Mf-VC1" firstAttribute="trailing" secondItem="BW3-Cz-qFf" secondAttribute="trailing" constant="20" id="VK0-Pm-Ouq"/>
+                            <constraint firstItem="o2P-pE-ivc" firstAttribute="leading" secondItem="CcM-Mf-VC1" secondAttribute="leading" constant="20" id="ZUm-PY-JiJ"/>
+                            <constraint firstItem="0oo-9g-JKa" firstAttribute="centerY" secondItem="VzB-Ma-mhr" secondAttribute="centerY" id="bUA-Vk-W9t"/>
+                            <constraint firstItem="CcM-Mf-VC1" firstAttribute="bottom" secondItem="BW3-Cz-qFf" secondAttribute="bottom" constant="60" id="g0o-og-fQa"/>
+                            <constraint firstItem="0oo-9g-JKa" firstAttribute="centerY" secondItem="VzB-Ma-mhr" secondAttribute="centerY" id="pmT-gf-Hrv"/>
+                            <constraint firstItem="0oo-9g-JKa" firstAttribute="centerX" secondItem="VzB-Ma-mhr" secondAttribute="centerX" id="u9I-gi-lD5"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="centerMessageLabel" destination="o2P-pE-ivc" id="VCl-Of-LOO"/>
+                        <outlet property="circleView" destination="0oo-9g-JKa" id="6Z5-LG-uCc"/>
+                        <outlet property="instructionLabel" destination="BW3-Cz-qFf" id="Uhh-za-eDI"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="F39-mT-mda" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-25.190839694656489" y="-12.67605633802817"/>
+        </scene>
+    </scenes>
+    <resources>
+        <namedColor name="AccentColor">
+            <color red="1" green="0.50199997425079346" blue="0.15700000524520874" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

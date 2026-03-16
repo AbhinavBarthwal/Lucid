@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Figure Eight View Controller-->
+        <scene sceneID="D4Q-OZ-MW6">
+            <objects>
+                <viewController storyboardIdentifier="FigureEightVC" useStoryboardIdentifierAsRestorationIdentifier="YES" id="qPs-rH-zy6" customClass="FigureEightViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="sGb-bQ-Kgb">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="11S-x7-nLB">
+                                <rect key="frame" x="10" y="697.66666666666663" width="373" height="26.333333333333371"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0j0-zu-idg">
+                                <rect key="frame" x="186.66666666666666" y="416" width="20" height="20"/>
+                                <color key="backgroundColor" name="AccentColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="20" id="N17-NQ-4YE"/>
+                                    <constraint firstAttribute="height" constant="20" id="jo5-Qj-94W"/>
+                                </constraints>
+                            </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dgl-rT-Uy0">
+                                <rect key="frame" x="10" y="413" width="373" height="26.333333333333314"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="1fy-0N-fzC"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="1fy-0N-fzC" firstAttribute="bottom" secondItem="11S-x7-nLB" secondAttribute="bottom" constant="60" id="4HG-JG-K77"/>
+                            <constraint firstItem="1fy-0N-fzC" firstAttribute="trailing" secondItem="Dgl-rT-Uy0" secondAttribute="trailing" constant="10" id="D2o-Ev-SH6"/>
+                            <constraint firstItem="0j0-zu-idg" firstAttribute="centerX" secondItem="sGb-bQ-Kgb" secondAttribute="centerX" id="K3T-8Z-4C1"/>
+                            <constraint firstItem="11S-x7-nLB" firstAttribute="leading" secondItem="1fy-0N-fzC" secondAttribute="leading" constant="10" id="Mgs-rY-Xz8"/>
+                            <constraint firstItem="Dgl-rT-Uy0" firstAttribute="centerY" secondItem="sGb-bQ-Kgb" secondAttribute="centerY" id="PUw-fe-cxc"/>
+                            <constraint firstItem="0j0-zu-idg" firstAttribute="centerX" secondItem="sGb-bQ-Kgb" secondAttribute="centerX" id="Rj2-9R-dap"/>
+                            <constraint firstItem="0j0-zu-idg" firstAttribute="centerY" secondItem="sGb-bQ-Kgb" secondAttribute="centerY" id="Y7y-o2-eeA"/>
+                            <constraint firstItem="1fy-0N-fzC" firstAttribute="trailing" secondItem="11S-x7-nLB" secondAttribute="trailing" constant="10" id="ZyM-hG-Nf2"/>
+                            <constraint firstItem="Dgl-rT-Uy0" firstAttribute="leading" secondItem="1fy-0N-fzC" secondAttribute="leading" constant="10" id="hDB-uP-2y5"/>
+                            <constraint firstItem="Dgl-rT-Uy0" firstAttribute="centerX" secondItem="sGb-bQ-Kgb" secondAttribute="centerX" id="p3R-bf-nG9"/>
+                            <constraint firstItem="0j0-zu-idg" firstAttribute="centerY" secondItem="sGb-bQ-Kgb" secondAttribute="centerY" id="uUH-oe-kQk"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="centerMessageLabel" destination="Dgl-rT-Uy0" id="BBq-gS-zwb"/>
+                        <outlet property="circleView" destination="0j0-zu-idg" id="LSL-Qz-W6h"/>
+                        <outlet property="instructionLabel" destination="11S-x7-nLB" id="o8c-ll-R77"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="10Y-ND-z1h" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-25.190839694656489" y="-12.67605633802817"/>
+        </scene>
+    </scenes>
+    <resources>
+        <namedColor name="AccentColor">
+            <color red="1" green="0.50199997425079346" blue="0.15700000524520874" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

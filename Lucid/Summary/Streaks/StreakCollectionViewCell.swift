@@ -8,9 +8,9 @@
 import UIKit
 
 class StreakCollectionViewCell: UICollectionViewCell {
+
     
-    // Connect all 7 views to this one array by dragging from the dots in Storyboard
-    @IBOutlet var streakDayWiseView : [UIView]!
+    
     
 
     override func awakeFromNib() {

@@ -12,8 +12,11 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource {
     
     @IBOutlet var collectionView: UICollectionView!
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override func viewWillAppear(_ animated: Bool) {
+            super.viewWillAppear(animated)
+            
+            // Reloads the data so the gauge updates immediately when returning from an exercise
+        collectionView.reloadData()
         
         setupBackground()
         
@@ -247,14 +250,24 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource {
             
             
         } else if indexPath.section == 1 {
-            switch indexPath.item {
-            case 0:
-                let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: "DailyExerciseCell",
-                    for: indexPath
-                ) as! DailyExerciseCollectionViewCell
-                cell.configure(current: 9, goal: 20)
-                return cell
+                    switch indexPath.item {
+                    case 0:
+                        let cell = collectionView.dequeueReusableCell(
+                            withReuseIdentifier: "DailyExerciseCell",
+                            for: indexPath
+                        ) as! DailyExerciseCollectionViewCell
+                        
+                        // 1. Fetch today's exact record from UserDefaults
+                        let todayRecord = ExerciseDataManager.shared.fetchTodayRecord()
+                        
+                        // 2. Convert the stored seconds into minutes for the UI
+                        let completedMins = todayRecord.completedSeconds / 60
+                        let goalMins = todayRecord.goalSeconds / 60
+                        
+                        // 3. Pass the dynamic data to the cell
+                        cell.configure(current: completedMins, goal: goalMins)
+                        
+                        return cell
             case 1:
                 let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: "LowLightCell",
