@@ -20,6 +20,9 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
     // AR session to run head/eye tracking.
     private let arSession = ARSession()
     private let errorHapticGenerator = UINotificationFeedbackGenerator()
+    private var sessionStartTime: Date?
+
+    private let successHapticGenerator = UINotificationFeedbackGenerator()
     
     private enum ExercisePhase {
         case none, tracking
@@ -40,6 +43,7 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         super.viewDidLoad()
         setupInitialUI()
         errorHapticGenerator.prepare()
+        successHapticGenerator.prepare() // Add this
         
         startInitialCountdown()
     }
@@ -158,8 +162,13 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         currentPhase = .tracking
         currentLoopIndex = 0
         isAnimationPaused = false
-        resetLayerSpeed(layer: peripheralDotView.layer)
         
+        // START THE CLOCK HERE
+        self.sessionStartTime = Date()
+        
+        resetLayerSpeed(layer: peripheralDotView.layer)
+
+    
         // Generate the orbit path
         currentPath = createPeripheralTrack()
         
@@ -321,6 +330,16 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         gazeTimer?.invalidate()
         peripheralDotView.layer.removeAllAnimations()
         
+        // STOP THE CLOCK AND SAVE
+        if let startTime = sessionStartTime {
+            let elapsedTime = Date().timeIntervalSince(startTime)
+            let elapsedSeconds = Int(elapsedTime)
+            ExerciseDataManager.shared.addExerciseTime(seconds: elapsedSeconds)
+            
+            // Optional: Trigger success haptic
+            successHapticGenerator.notificationOccurred(.success)
+        }
+        
         UIView.animate(withDuration: 0.5) {
             self.centerDotView.alpha = 0
             self.peripheralDotView.alpha = 0
@@ -335,7 +354,8 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             print("Exercise Completed - Transitioning to summary")
-            // Handle dismissal or segue to your summary screen here!
+            // Your dismissal/segue logic
         }
+    
     }
 }

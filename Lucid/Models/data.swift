@@ -8,10 +8,8 @@ final class User {
     var age: Int
     var createdAt: Date
     
-    // Relationships for historical tracking
     @Relationship(deleteRule: .cascade) var eyeTestSessions: [EyeTestSession]
     @Relationship(deleteRule: .cascade) var exerciseSessions: [ExerciseSession]
-    @Relationship(deleteRule: .cascade) var osdiHistory: [OSDIResult]
 
     init(name: String, age: Int) {
         self.id = UUID()
@@ -20,7 +18,6 @@ final class User {
         self.createdAt = Date()
         self.eyeTestSessions = []
         self.exerciseSessions = []
-        self.osdiHistory = []
     }
 }
 
@@ -54,7 +51,8 @@ final class ExerciseSession {
 @Model
 final class EyeTestSession {
     var id: UUID
-    var date: Date
+    var startingTime: Date
+    var endingTime : Date
     var score: Double // Landolt C scale reached
     var eyeTested: String // "Left", "Right", or "Both"
     
@@ -62,7 +60,7 @@ final class EyeTestSession {
 
     init(score: Double, eye: String) {
         self.id = UUID()
-        self.date = Date()
+        self.startingTime = Date()
         self.score = score
         self.eyeTested = eye
     }
