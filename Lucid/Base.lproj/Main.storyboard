@@ -2301,10 +2301,10 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
-                            <tableViewSection headerTitle="Reminders" id="8LX-cx-jkQ">
+                            <tableViewSection headerTitle="Reminders" footerTitle="Recieve a notification to take the tests once in every two weeks." id="8LX-cx-jkQ">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="settingCell" rowHeight="60" id="s6x-dz-P1s">
-                                        <rect key="frame" x="20" y="183.33333015441895" width="400" height="60"/>
+                                        <rect key="frame" x="20" y="190.66666221618652" width="400" height="60"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="s6x-dz-P1s" id="I7e-RM-So7">
                                             <rect key="frame" x="0.0" y="0.0" width="400" height="60"/>
@@ -2334,7 +2334,7 @@
                             <tableViewSection footerTitle="Get the notification about your past week performance" id="ZZE-Ia-LtE">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="settingCell" rowHeight="60" id="sSa-uN-irc">
-                                        <rect key="frame" x="20" y="279.33333015441895" width="400" height="60"/>
+                                        <rect key="frame" x="20" y="314.66666221618652" width="400" height="60"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="sSa-uN-irc" id="NnQ-Hs-3h4">
                                             <rect key="frame" x="0.0" y="0.0" width="400" height="60"/>
@@ -2364,7 +2364,7 @@
                             <tableViewSection headerTitle="Eye Care" id="ulT-0E-tMe">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="settingCell" rowHeight="60" id="Bpq-DK-GUE">
-                                        <rect key="frame" x="20" y="407.33333015441895" width="400" height="60"/>
+                                        <rect key="frame" x="20" y="442.66666221618652" width="400" height="60"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Bpq-DK-GUE" id="eUI-3c-FWv">
                                             <rect key="frame" x="0.0" y="0.0" width="400" height="60"/>
@@ -2390,7 +2390,7 @@
                                         </tableViewCellContentView>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="settingCell" rowHeight="60" id="eg4-r9-JBC">
-                                        <rect key="frame" x="20" y="467.33333015441895" width="400" height="60"/>
+                                        <rect key="frame" x="20" y="502.66666221618652" width="400" height="60"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="eg4-r9-JBC" id="IQc-3m-3LQ">
                                             <rect key="frame" x="0.0" y="0.0" width="400" height="60"/>
@@ -2420,7 +2420,7 @@
                             <tableViewSection footerTitle="Recieve a notification on completing the tasks and earned rewards" id="fIc-82-qUy">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="settingCell" rowHeight="60" id="NWD-b6-Vcc">
-                                        <rect key="frame" x="20" y="563.33333015441895" width="400" height="60"/>
+                                        <rect key="frame" x="20" y="598.66666221618652" width="400" height="60"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="NWD-b6-Vcc" id="tqF-sc-2bq">
                                             <rect key="frame" x="0.0" y="0.0" width="400" height="60"/>
