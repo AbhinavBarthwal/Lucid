@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Bucket
-   uuid = "B64647B3-6C39-4ED3-A9B2-FF10978A410A"
+   uuid = "192533EB-022A-4C7F-A212-AB696C3BB27B"
    type = "1"
    version = "2.0">
    <Breakpoints>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "746A837B-D16B-4832-86C2-3A5979C7D28A"
-            shouldBeEnabled = "No"
+            uuid = "9D05EEB0-AB6B-4F41-AF09-0BF0DE4FED21"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Lucid/UserDetailViewController.swift"
+            filePath = "Lucid/PreviousConditionsViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "71"
-            endingLineNumber = "71"
-            landmarkName = "UserDetailViewController"
-            landmarkType = "3">
+            startingLineNumber = "97"
+            endingLineNumber = "97"
+            landmarkName = "doneTapped(_:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

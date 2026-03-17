@@ -105,6 +105,17 @@ class PreviousConditionsViewController: UITableViewController {
         }
     }
     
+    @IBAction func qioo(_ sender: Any) {
+        print("DONE PRESSED")
+        
+        delegate?.didSelectConditions(Array(selectedConditions))
+        
+        if navigationController != nil {
+            navigationController?.popViewController(animated: true)
+        } else {
+            dismiss(animated: true)
+        }
+    }
     
     struct ConditionBubblesView: View {
         
