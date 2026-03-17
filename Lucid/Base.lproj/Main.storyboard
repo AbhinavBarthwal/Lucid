@@ -1963,8 +1963,8 @@
         <scene sceneID="l8H-ap-7eE">
             <objects>
                 <tableViewController id="BvN-U5-4oM" customClass="UserDetailViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" id="APA-d8-9Ej">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="1074"/>
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="default" rowHeight="30" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" id="APA-d8-9Ej">
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="1012"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <sections>
@@ -1983,7 +1983,7 @@
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="profileimage" translatesAutoresizingMaskIntoConstraints="NO" id="tIH-zE-aLd">
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="icon" translatesAutoresizingMaskIntoConstraints="NO" id="tIH-zE-aLd">
                                                     <rect key="frame" x="172" y="0.0" width="100" height="100"/>
                                                 </imageView>
                                             </subviews>
@@ -2231,7 +2231,7 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" id="tw4-jX-2vR"/>
-                    <size key="freeformSize" width="440" height="1136"/>
+                    <size key="freeformSize" width="440" height="1074"/>
                     <connections>
                         <outlet property="conditionsStackView" destination="WDy-b2-fTj" id="mzo-F3-xhK"/>
                         <outlet property="leftEyeField" destination="SHV-vs-sSI" id="MQU-oy-9S6"/>
@@ -2243,7 +2243,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dmd-sZ-1YD" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="648" y="1719"/>
+            <point key="canvasLocation" x="647.72727272727275" y="1718.4100418410042"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="2SO-V0-P9K">
@@ -2479,12 +2479,12 @@
         <image name="dumbbell.fill" catalog="system" width="128" height="72"/>
         <image name="heart.text.clipboard" catalog="system" width="103" height="128"/>
         <image name="heart.text.clipboard.fill" catalog="system" width="103" height="128"/>
+        <image name="icon" width="10.666666984558105" height="10.666666984558105"/>
         <image name="minus" catalog="system" width="128" height="26"/>
         <image name="notification" width="58" height="78"/>
         <image name="password" width="58" height="80"/>
         <image name="plus" catalog="system" width="128" height="113"/>
         <image name="profiledetail" width="58" height="78"/>
-        <image name="profileimage" width="341.33334350585938" height="512"/>
         <image name="signpost.right.and.left.fill" catalog="system" width="125" height="128"/>
         <namedColor name="AccentColor">
             <color red="1" green="0.50199997425079346" blue="0.15700000524520874" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
