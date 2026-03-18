@@ -276,12 +276,15 @@ import SwiftData
 
 class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     
     // MARK: - Outlets
     @IBOutlet weak var instructionLabel: UILabel!
     @IBOutlet weak var centerMessageLabel: UILabel!
     @IBOutlet weak var circleView: UIView!
 =======
+=======
+>>>>>>> Stashed changes
 
     @IBOutlet private weak var instructionLabel: UILabel!
     @IBOutlet private weak var centerMessageLabel: UILabel!
@@ -303,6 +306,9 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     private let errorHapticGenerator = UINotificationFeedbackGenerator()
     private let successHapticGenerator = UINotificationFeedbackGenerator()
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     private var sessionStartTime: Date?
     
@@ -323,6 +329,9 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
 
     var modelContext: ModelContext?
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     private var totalFramesChecked = 0
     private var totalErrors = 0
@@ -335,8 +344,12 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     // Track head movement degrees to see if they are cheating
     private var headMovementSamples: [Float] = []
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     
     // MARK: - Lifecycle
+=======
+
+>>>>>>> Stashed changes
 =======
 
 >>>>>>> Stashed changes
@@ -365,8 +378,12 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         circleView.layer.removeAllAnimations()
     }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     
     // MARK: - ARSessionDelegate
+=======
+
+>>>>>>> Stashed changes
 =======
 
 >>>>>>> Stashed changes
@@ -391,8 +408,12 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         }
     }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     
     // MARK: - UI Setup
+=======
+
+>>>>>>> Stashed changes
 =======
 
 >>>>>>> Stashed changes
@@ -418,8 +439,12 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         }
     }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     
     // MARK: - Sequences
+=======
+
+>>>>>>> Stashed changes
 =======
 
 >>>>>>> Stashed changes
@@ -485,8 +510,12 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         }
     }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     
     // MARK: - Core Logic & Animation
+=======
+
+>>>>>>> Stashed changes
 =======
 
 >>>>>>> Stashed changes
@@ -584,11 +613,15 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
 =======
 
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     private func finishExercise() {
         currentPhase = .none
         gazeTimer?.invalidate()
         circleView.layer.removeAllAnimations()
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
         
         
@@ -670,6 +703,8 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     }
     
 =======
+=======
+>>>>>>> Stashed changes
 
         // 1. Calculations
         let startTime = sessionStartTime ?? Date() 
@@ -714,6 +749,9 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         }
     }
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     private func startTransitionPhase(message: String, nextPhase: @escaping () -> Void) {
         fadeTransition(showCenterMessage: true, showExerciseUI: false)

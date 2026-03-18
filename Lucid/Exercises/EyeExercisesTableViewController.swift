@@ -1,5 +1,6 @@
 import UIKit
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
 class ExerciseTableViewController: UITableViewController {
     
@@ -12,6 +13,12 @@ import SwiftData
 
 class ExerciseTableViewController: UITableViewController {
     
+=======
+import SwiftData
+
+class ExerciseTableViewController: UITableViewController {
+    
+>>>>>>> Stashed changes
     let exercises = ["Blink", "SmoothPursuit", "PencilPushup", "Figure8", "NearFar"]
     
     // Reference to the SwiftData context
@@ -20,6 +27,7 @@ class ExerciseTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupBackground()
+<<<<<<< Updated upstream
     }
 
     private func setupBackground() {
@@ -52,6 +60,17 @@ class ExerciseTableViewController: UITableViewController {
 =======
     }
 
+=======
+    }
+
+    private func setupBackground() {
+        let bgImageView = UIImageView(image: UIImage(named: "BackgroundGradient"))
+        bgImageView.contentMode = .scaleAspectFill
+        self.tableView.backgroundView = bgImageView
+        self.tableView.backgroundColor = .clear
+    }
+
+>>>>>>> Stashed changes
     //Navigation & Data Passing
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -64,6 +83,9 @@ class ExerciseTableViewController: UITableViewController {
             blinkVC.modelContext = self.modelContext
             print("Successfully passed context to Blink VC")
         }
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         
     }
