@@ -1054,7 +1054,7 @@
                             <tableViewSection headerTitle="Tests" id="evF-E7-sJs">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" rowHeight="108" id="Bv6-f4-tPS">
-                                        <rect key="frame" x="20" y="867.33333015441906" width="400" height="108"/>
+                                        <rect key="frame" x="20" y="867.33333015441895" width="400" height="108"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Bv6-f4-tPS" id="uT8-2c-QOL">
                                             <rect key="frame" x="0.0" y="0.0" width="369.66666666666669" height="108"/>
