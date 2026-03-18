@@ -1054,7 +1054,7 @@
                             <tableViewSection headerTitle="Tests" id="evF-E7-sJs">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" rowHeight="108" id="Bv6-f4-tPS">
-                                        <rect key="frame" x="20" y="867.33333015441895" width="400" height="108"/>
+                                        <rect key="frame" x="20" y="867.33333015441906" width="400" height="108"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Bv6-f4-tPS" id="uT8-2c-QOL">
                                             <rect key="frame" x="0.0" y="0.0" width="369.66666666666669" height="108"/>
@@ -2146,7 +2146,7 @@
                                                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                             <textInputTraits key="textInputTraits"/>
                                                         </textField>
-                                                        <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" maximumValue="100" translatesAutoresizingMaskIntoConstraints="NO" id="E8y-2k-5yp">
+                                                        <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" minimumValue="-20" maximumValue="15" stepValue="0.25" translatesAutoresizingMaskIntoConstraints="NO" id="E8y-2k-5yp">
                                                             <rect key="frame" x="0.0" y="72.333333333333343" width="94" height="32"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="height" constant="32" id="v8q-ep-Rbe"/>
@@ -2179,7 +2179,7 @@
                                                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                             <textInputTraits key="textInputTraits"/>
                                                         </textField>
-                                                        <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" maximumValue="100" translatesAutoresizingMaskIntoConstraints="NO" id="8ec-xu-OZL">
+                                                        <stepper opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" minimumValue="-20" maximumValue="100" stepValue="0.25" translatesAutoresizingMaskIntoConstraints="NO" id="8ec-xu-OZL">
                                                             <rect key="frame" x="0.0" y="72.333333333333343" width="94" height="32"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="height" constant="32" id="Qg2-Ae-fDc"/>
@@ -2250,7 +2250,13 @@
                             <outlet property="delegate" destination="BvN-U5-4oM" id="OPB-dQ-VaK"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Medical Profile" id="tw4-jX-2vR"/>
+                    <navigationItem key="navigationItem" title="Medical Profile" id="tw4-jX-2vR">
+                        <barButtonItem key="rightBarButtonItem" style="plain" systemItem="save" id="Kq6-ll-byv">
+                            <connections>
+                                <action selector="saveButtonTapped:" destination="BvN-U5-4oM" id="vxg-dT-LcT"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <size key="freeformSize" width="440" height="1012"/>
                     <connections>
                         <outlet property="conditionsStackView" destination="WDy-b2-fTj" id="1L8-Vk-5U3"/>

@@ -1,6 +1,8 @@
 import UIKit
+import SwiftData
 
 class MedicalProfileViewController: UITableViewController {
+
     
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var leftEyeField: UITextField!
@@ -13,14 +15,18 @@ class MedicalProfileViewController: UITableViewController {
     
     var selectedConditions: [String] = []
     var selectedGender: String?
+    var user: User?
+    var context: ModelContext!
+    var currentUser: User!
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupProfileImage()
-        setupSteppers()
         setupGenderMenu()
         loadSavedGender()
+        loadMedicalProfile()
+        
     }
     
     func setupProfileImage() {
@@ -29,22 +35,6 @@ class MedicalProfileViewController: UITableViewController {
         profileImageView.layer.borderWidth = 2
         profileImageView.layer.borderColor = UIColor.systemGray5.cgColor
         profileImageView.contentMode = .scaleAspectFill
-    }
-    
-    func setupSteppers() {
-        
-        leftStepper.minimumValue = -10
-        leftStepper.maximumValue = 10
-        leftStepper.stepValue = 0.25
-        leftStepper.value = 0
-        
-        rightStepper.minimumValue = -10
-        rightStepper.maximumValue = 10
-        rightStepper.stepValue = 0.25
-        rightStepper.value = 0
-        
-        leftEyeField.text = "0.00"
-        rightEyeField.text = "0.00"
     }
 
     
@@ -90,10 +80,8 @@ class MedicalProfileViewController: UITableViewController {
         func selectGender(_ gender: String) {
             selectedGender = gender
             
-            // Simple text update (no animation)
             genderButton.setTitle(gender, for: .normal)
             
-            // Save only (no UI reload here)
             UserDefaults.standard.set(gender, forKey: "userGender")
         }
     
@@ -126,6 +114,62 @@ class MedicalProfileViewController: UITableViewController {
             
             conditionsStackView.addArrangedSubview(label)
         }
+    }
+    
+    func saveMedicalProfile() {
+        
+        guard let user = user else { return }
+        
+        user.medicalProfile.gender = selectedGender
+        
+        user.medicalProfile.leftEyePower = Double(leftEyeField.text ?? "") ?? 0
+        user.medicalProfile.rightEyePower = Double(rightEyeField.text ?? "") ?? 0
+        
+        user.medicalProfile.previousConditions = selectedConditions
+        
+        try? context?.save()
+    }
+    
+    @IBAction func saveButtonTapped(_ sender: UIBarButtonItem) {
+        
+        saveMedicalProfile()
+        
+        let alert = UIAlertController(
+            title: "Success",
+            message: "Data saved successfully",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+            
+            if let nav = self.navigationController {
+                nav.popViewController(animated: true)
+            } else {
+                self.dismiss(animated: true)
+            }
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    func loadMedicalProfile() {
+        
+        guard let user = user else { return }
+        
+        selectedGender = user.medicalProfile.gender
+        genderButton.setTitle(selectedGender ?? "Select", for: .normal)
+        
+        let left = user.medicalProfile.leftEyePower ?? 0
+        let right = user.medicalProfile.rightEyePower ?? 0
+        
+        leftEyeField.text = String(format: "%.2f", left)
+        rightEyeField.text = String(format: "%.2f", right)
+        
+        leftStepper.value = left
+        rightStepper.value = right
+        
+        selectedConditions = user.medicalProfile.previousConditions
+        updateConditions(selectedConditions)
     }
     
     override func viewDidLayoutSubviews() {
