@@ -2,6 +2,7 @@ import UIKit
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
 class ExerciseTableViewController: UITableViewController {
     
@@ -26,6 +27,12 @@ import SwiftData
 class ExerciseTableViewController: UITableViewController {
     
 >>>>>>> Stashed changes
+=======
+import SwiftData
+
+class ExerciseTableViewController: UITableViewController {
+    
+>>>>>>> Stashed changes
     let exercises = ["Blink", "SmoothPursuit", "PencilPushup", "Figure8", "NearFar"]
     
     // Reference to the SwiftData context
@@ -34,6 +41,7 @@ class ExerciseTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupBackground()
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
     }
@@ -71,6 +79,8 @@ class ExerciseTableViewController: UITableViewController {
 =======
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
     }
 
     private func setupBackground() {
@@ -81,6 +91,9 @@ class ExerciseTableViewController: UITableViewController {
     }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -98,6 +111,9 @@ class ExerciseTableViewController: UITableViewController {
         }
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
