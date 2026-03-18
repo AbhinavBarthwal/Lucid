@@ -5,8 +5,8 @@ import AVFoundation
 import SwiftUI
 import SwiftData
 //number of times for  blink
-var doubleBlink = 5
-var LeftRighEyeBlink = 5
+var doubleBlink = 1
+var LeftRighEyeBlink = 1
 // tracking the actual exercise duration
 private var sessionStartTime: Date?
 enum TypeOfBlink {

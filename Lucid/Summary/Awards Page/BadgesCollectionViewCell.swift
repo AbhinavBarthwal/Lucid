@@ -17,5 +17,12 @@ class BadgesCollectionViewCell: UICollectionViewCell {
         super.awakeFromNib()
         // Initialization code
     }
+    
+    func configure(name: String, date: String, image: String) {
+        iconName.text = name
+        iconTime.text = date
+        icon.image = UIImage(named: image)
+    }
+    
 
 }
