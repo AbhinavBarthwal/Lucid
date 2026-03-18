@@ -19,7 +19,9 @@ class PreviousConditionsViewController: UITableViewController {
     
     weak var delegate: PreviousConditionsDelegate?
     
-    var selectedConditions: Set<String> = []
+  //  var selectedConditions: Set<String> = []
+    var selectedEyeConditions: Set<String> = []
+    var selectedBodyConditions: Set<String> = []
     
     let eyeConditions = [
         "Digital Eye Strain",
@@ -54,13 +56,13 @@ class PreviousConditionsViewController: UITableViewController {
         let eyeView = ConditionBubblesView(
             conditions: eyeConditions
         ) { [weak self] selection in
-            self?.selectedConditions.formUnion(selection)
+            self?.selectedEyeConditions = selection
         }
         
         let bodyView = ConditionBubblesView(
             conditions: bodyConditions
         ) { [weak self] selection in
-            self?.selectedConditions.formUnion(selection)
+            self?.selectedBodyConditions = selection
         }
         
         let eyeHost = UIHostingController(rootView: eyeView)
@@ -91,13 +93,13 @@ class PreviousConditionsViewController: UITableViewController {
         bodyHost.didMove(toParent: self)
     }
     
-    // Call this when user taps Done
-    @IBAction func doneTapped(_ sender: UIButton) {
-        
+    @IBAction func doneTapped(_ sender: Any) {
         print("DONE PRESSED")
-        
-        delegate?.didSelectConditions(Array(selectedConditions))
-        
+
+        let finalConditions = selectedEyeConditions.union(selectedBodyConditions)
+
+        delegate?.didSelectConditions(Array(finalConditions))
+
         if navigationController != nil {
             navigationController?.popViewController(animated: true)
         } else {

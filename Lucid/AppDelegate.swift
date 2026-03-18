@@ -12,20 +12,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
-        let appearance = UINavigationBarAppearance()
-        
-        let eF = UIFont.systemFont(ofSize: 20, weight: .semibold, width: .expanded)
-        let lEF = UIFont.systemFont(ofSize: 32, weight: .semibold, width: .expanded)
-        
-        appearance.titleTextAttributes = [ .font : eF , .foregroundColor : UIColor.white]
-        appearance.largeTitleTextAttributes = [ .font : lEF , .foregroundColor : UIColor.white]
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
-        UINavigationBar.appearance().compactAppearance = appearance
-        return true
-    }
+//    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+//        // Override point for customization after application launch.
+////        let appearance = UINavigationBarAppearance()
+////        
+////        let eF = UIFont.systemFont(ofSize: 20, weight: .semibold, width: .expanded)
+////        let lEF = UIFont.systemFont(ofSize: 32, weight: .semibold, width: .expanded)
+////        
+////        appearance.titleTextAttributes = [ .font : eF , .foregroundColor : UIColor.white]
+////        appearance.largeTitleTextAttributes = [ .font : lEF , .foregroundColor : UIColor.white]
+////        UINavigationBar.appearance().standardAppearance = appearance
+////        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+////        UINavigationBar.appearance().compactAppearance = appearance
+////        return true
+//    }
 
     // MARK: UISceneSession Lifecycle
 

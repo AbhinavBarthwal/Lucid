@@ -228,9 +228,6 @@
                                         <constraints>
                                             <constraint firstItem="4m1-bM-jyX" firstAttribute="width" secondItem="1QY-fJ-fST" secondAttribute="width" multiplier="0.18" id="F70-6P-tIM"/>
                                         </constraints>
-                                        <connections>
-                                            <segue destination="5er-UG-z1o" kind="show" id="eL3-jZ-hMx"/>
-                                        </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" rowHeight="48" id="K0B-nn-WMY">
                                         <rect key="frame" x="20" y="250" width="400" height="48"/>
@@ -637,9 +634,9 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Previous Conditions" id="zCB-0N-5DF">
-                        <barButtonItem key="rightBarButtonItem" style="plain" systemItem="done" id="i2O-V0-LmQ">
+                        <barButtonItem key="rightBarButtonItem" style="plain" systemItem="done" id="MTS-r7-2oV">
                             <connections>
-                                <action selector="doneTapped:" destination="0Az-YR-ivS" id="WvN-D5-JYj"/>
+                                <action selector="doneTapped:" destination="0Az-YR-ivS" id="r68-ZM-zlH"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -1801,7 +1798,7 @@
             <objects>
                 <tableViewController id="5er-UG-z1o" customClass="PasswordTableViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" id="CNS-15-m66">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <sections>
@@ -1982,7 +1979,7 @@
             </objects>
             <point key="canvasLocation" x="1814" y="1754"/>
         </scene>
-        <!--Medical Profile View Controller-->
+        <!--Medical Profile-->
         <scene sceneID="l8H-ap-7eE">
             <objects>
                 <tableViewController id="BvN-U5-4oM" customClass="MedicalProfileViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
@@ -2253,7 +2250,7 @@
                             <outlet property="delegate" destination="BvN-U5-4oM" id="OPB-dQ-VaK"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="tw4-jX-2vR"/>
+                    <navigationItem key="navigationItem" title="Medical Profile" id="tw4-jX-2vR"/>
                     <size key="freeformSize" width="440" height="1012"/>
                     <connections>
                         <outlet property="conditionsStackView" destination="WDy-b2-fTj" id="1L8-Vk-5U3"/>
@@ -2288,7 +2285,7 @@
             </objects>
             <point key="canvasLocation" x="-788" y="2494"/>
         </scene>
-        <!--Notifications View Controller-->
+        <!--Notifications-->
         <scene sceneID="Jic-8S-jO1">
             <objects>
                 <tableViewController id="OwT-FQ-XyG" customClass="NotificationsViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
@@ -2377,7 +2374,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8gc-sn-rSI">
-                                                    <rect key="frame" x="312" y="15" width="63" height="28"/>
+                                                    <rect key="frame" x="309" y="16" width="63" height="28"/>
                                                     <connections>
                                                         <action selector="eyeTrendChanged:" destination="OwT-FQ-XyG" eventType="valueChanged" id="ecs-Xo-1Jo"/>
                                                     </connections>
@@ -2494,7 +2491,7 @@
                             <outlet property="delegate" destination="OwT-FQ-XyG" id="I1l-k2-OfW"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="PNl-Ik-2l2"/>
+                    <navigationItem key="navigationItem" title="Notifications" id="PNl-Ik-2l2"/>
                     <connections>
                         <outlet property="badgeSwitch" destination="7Zs-c9-VIx" id="rEl-Zc-1mB"/>
                         <outlet property="digitalTimeSwitch" destination="QyL-np-tuw" id="6XM-zQ-dYW"/>
