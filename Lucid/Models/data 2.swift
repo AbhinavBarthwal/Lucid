@@ -8,6 +8,13 @@ final class User {
     var age: Int
     var createdAt: Date
     
+   //med profile sturcture
+    // variable previous conditions string type array
+    
+    //mdecial conditions
+    
+    //notifications structure
+    
     @Relationship(deleteRule: .cascade, inverse: \EyeTestSession.user) var eyeTestSessions: [EyeTestSession] = []
     @Relationship(deleteRule: .cascade, inverse: \ExerciseSession.user) var exerciseSessions: [ExerciseSession] = []
 

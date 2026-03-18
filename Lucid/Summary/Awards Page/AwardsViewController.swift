@@ -51,8 +51,6 @@ class AwardsViewController: UIViewController, UICollectionViewDataSource, UIColl
         allBadges = ProgressManager.shared.loadBadges()
         let record = ProgressManager.shared.loadRecord()
         
-        // 2. Check if the user hit any milestones
-        checkMilestones(using: record)
     }
     
     private func setupBackground() {
@@ -201,31 +199,20 @@ class AwardsViewController: UIViewController, UICollectionViewDataSource, UIColl
         ) as! BadgesCollectionViewCell
         
         if indexPath.section == 0 {
-            // 1. Get the Badge object
-            let badge = currAwards[indexPath.item]
+            let awardName = currAwards[indexPath.item]
             
-            // 2. Pass the specific properties to the configure method
-            cell.configure(
-                name: badge.title,
-                date: badge.dateEarned ?? "No Date",
-                image: badge.imageName
-            )
+            cell.configure(name: currAwards[0].title, date: "08/03/2026", image: "Image")
             
             cell.alpha = 1.0
             cell.iconTime.isHidden = false
             
         } else {
-            // 1. Get the Badge object
-            let badge = futureAwards[indexPath.item]
+            let goalName = futureAwards[indexPath.item]
             
-            // 2. Pass the specific properties
-            cell.configure(
-                name: badge.title,
-                date: "Locked",
-                image: badge.imageName
-            )
+            cell.configure(name: currAwards[0].title, date: " ", image: "Image2")
             
             cell.alpha = 0.5
+            
             cell.iconTime.isHidden = false
         }
         
@@ -236,34 +223,7 @@ class AwardsViewController: UIViewController, UICollectionViewDataSource, UIColl
         self.navigationController?.popViewController(animated: true)
     }
     
-    private func checkMilestones(using record: ExerciseRecord) {
-            var didUnlockSomething = false
-            
-            // Check "1st Exercise" Badge (using the counter)
-            if record.counter >= 1 {
-                if let index = allBadges.firstIndex(where: { $0.id == "exercise_1" }), !allBadges[index].isUnlocked {
-                    unlockBadge(at: index)
-                    didUnlockSomething = true
-                }
-            }
-            
-            // Check "1 Day Streak" Badge (using the streak)
-            if record.currentStreak >= 1 {
-                if let index = allBadges.firstIndex(where: { $0.id == "streak_1" }), !allBadges[index].isUnlocked {
-                    unlockBadge(at: index)
-                    didUnlockSomething = true
-                }
-            }
-            
-            // If they unlocked a badge, save the updated master list and reload the screen
-            if didUnlockSomething {
-                ProgressManager.shared.saveBadges(allBadges)
-                collectionView.reloadData()
-            } else {
-                // Just reload to make sure the UI is fresh
-                collectionView.reloadData()
-            }
-        }
+
     
     private func unlockBadge(at index: Int) {
             allBadges[index].isUnlocked = true
