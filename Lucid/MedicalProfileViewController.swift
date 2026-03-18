@@ -1,94 +1,119 @@
 import UIKit
 
-class UserDetailViewController: UITableViewController {
-
-    // MARK: - Profile Image
-    @IBOutlet weak var profileImageView: UIImageView!
+class MedicalProfileViewController: UITableViewController {
     
-    // MARK: - Eye Fields
+    @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var leftEyeField: UITextField!
     @IBOutlet weak var rightEyeField: UITextField!
-    
-    // MARK: - Steppers
     @IBOutlet weak var leftStepper: UIStepper!
     @IBOutlet weak var rightStepper: UIStepper!
-    
-    // MARK: - Conditions Container
     @IBOutlet weak var conditionsStackView: UIStackView!
     
-    // MARK: - Variables
+    @IBOutlet weak var genderButton: UIButton!
+    
     var selectedConditions: [String] = []
+    var selectedGender: String?
     
-    
-    // MARK: - View Load
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupProfileImage()
         setupSteppers()
+        setupGenderMenu()
+        loadSavedGender()
     }
     
-    
-    // MARK: - Circular Profile Image
     func setupProfileImage() {
-        
-        profileImageView.layer.cornerRadius = profileImageView.frame.width / 2
         profileImageView.clipsToBounds = true
-        
+        profileImageView.layer.cornerRadius = profileImageView.frame.height / 2
         profileImageView.layer.borderWidth = 2
         profileImageView.layer.borderColor = UIColor.systemGray5.cgColor
+        profileImageView.contentMode = .scaleAspectFill
     }
     
-    
-    // MARK: - Setup Steppers
     func setupSteppers() {
         
-        // Left Eye Stepper
         leftStepper.minimumValue = -10
         leftStepper.maximumValue = 10
         leftStepper.stepValue = 0.25
         leftStepper.value = 0
         
-        // Right Eye Stepper
         rightStepper.minimumValue = -10
         rightStepper.maximumValue = 10
         rightStepper.stepValue = 0.25
         rightStepper.value = 0
         
-        // Initial Text
         leftEyeField.text = "0.00"
         rightEyeField.text = "0.00"
     }
+
     
-    
-    // MARK: - Left Eye Stepper
     @IBAction func leftStepperChanged(_ sender: UIStepper) {
-        
-        let value = sender.value
-        leftEyeField.text = String(format: "%.2f", value)
+        leftEyeField.text = String(format: "%.2f", sender.value)
     }
-    
-    
-    // MARK: - Right Eye Stepper
+
     @IBAction func rightStepperChanged(_ sender: UIStepper) {
-        
-        let value = sender.value
-        print(value)
-        rightEyeField.text = String(format: "%.2f", value)
+        rightEyeField.text = String(format: "%.2f", sender.value)
     }
     
+    func setupGenderMenu() {
+        
+        let current = UserDefaults.standard.string(forKey: "userGender")
+
+        let male = UIAction(
+            title: "Female",
+            state: current == "Female" ? .on : .off
+        ) { _ in
+            self.selectGender("Female")
+        }
+
+        let female = UIAction(
+            title: "Male",
+            state: current == "Male" ? .on : .off
+        ) { _ in
+            self.selectGender("Male")
+        }
+
+        let preferNot = UIAction(
+            title: "Prefer not to say",
+            state: current == "Prefer not to say" ? .on : .off
+        ) { _ in
+            self.selectGender("Prefer not to say")
+        }
+
+        let menu = UIMenu(title: "Select Gender", children: [male, female, preferNot])
+
+        genderButton.menu = menu
+        genderButton.showsMenuAsPrimaryAction = true
+    }
     
-    // MARK: - Update Previous Conditions
+        func selectGender(_ gender: String) {
+            selectedGender = gender
+            
+            // Simple text update (no animation)
+            genderButton.setTitle(gender, for: .normal)
+            
+            // Save only (no UI reload here)
+            UserDefaults.standard.set(gender, forKey: "userGender")
+        }
+    
+    func loadSavedGender() {
+        if let saved = UserDefaults.standard.string(forKey: "userGender") {
+            selectedGender = saved
+            genderButton.setTitle(saved, for: .normal)
+        } else {
+            genderButton.setTitle("Select", for: .normal)
+        }
+    }
+    
     func updateConditions(_ conditions: [String]) {
         
         selectedConditions = conditions
         
-        // Remove old tags
         conditionsStackView.arrangedSubviews.forEach {
             $0.removeFromSuperview()
         }
         
-        // Add new condition tags
         for condition in selectedConditions {
             
             let label = UILabel()
@@ -103,23 +128,19 @@ class UserDetailViewController: UITableViewController {
         }
     }
     
-    
-    // MARK: - Fix Circle Layout
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         setupProfileImage()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
         if let vc = segue.destination as? PreviousConditionsViewController {
             vc.delegate = self
         }
     }
 }
 
-extension UserDetailViewController: PreviousConditionsDelegate {
-    
+extension MedicalProfileViewController: PreviousConditionsDelegate {
     func didSelectConditions(_ conditions: [String]) {
         updateConditions(conditions)
     }
