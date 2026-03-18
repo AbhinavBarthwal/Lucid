@@ -1,4 +1,5 @@
 import UIKit
+<<<<<<< Updated upstream
 
 class ExerciseTableViewController: UITableViewController {
     
@@ -6,6 +7,23 @@ class ExerciseTableViewController: UITableViewController {
         super.viewDidLoad()
 
         // 1. Create the ImageView with your specific background
+=======
+import SwiftData
+
+class ExerciseTableViewController: UITableViewController {
+    
+    let exercises = ["Blink", "SmoothPursuit", "PencilPushup", "Figure8", "NearFar"]
+    
+    // Reference to the SwiftData context
+    var modelContext: ModelContext?
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupBackground()
+    }
+
+    private func setupBackground() {
+>>>>>>> Stashed changes
         let bgImageView = UIImageView(image: UIImage(named: "BackgroundGradient"))
         
         // 2. Set the content mode to cover the entire screen
@@ -16,6 +34,7 @@ class ExerciseTableViewController: UITableViewController {
         
         // 4. Ensure transparency of the table and cells
         self.tableView.backgroundColor = .clear
+<<<<<<< Updated upstream
     
             view.subviews.forEach { subview in
 
@@ -30,6 +49,22 @@ class ExerciseTableViewController: UITableViewController {
                     desc.setContentHuggingPriority(.defaultLow, for: .vertical)
                 }
             }
+=======
+    }
+
+    //Navigation & Data Passing
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if let destinationVC = segue.destination as? SmoothPursuitsViewController {
+            destinationVC.modelContext = self.modelContext
+            print("Successfully passed context to Smooth Pursuit VC")
+            
+        } else if let blinkVC = segue.destination as? blinkTrainingViewController {
+            blinkVC.modelContext = self.modelContext
+            print("Successfully passed context to Blink VC")
+        }
+>>>>>>> Stashed changes
         
     }
     // In your ExerciseTableViewController.swift

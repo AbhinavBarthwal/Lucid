@@ -275,21 +275,35 @@ import ARKit
 import SwiftData
 
 class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
+<<<<<<< Updated upstream
     
     // MARK: - Outlets
     @IBOutlet weak var instructionLabel: UILabel!
     @IBOutlet weak var centerMessageLabel: UILabel!
     @IBOutlet weak var circleView: UIView!
+=======
+
+    @IBOutlet private weak var instructionLabel: UILabel!
+    @IBOutlet private weak var centerMessageLabel: UILabel!
+    @IBOutlet private weak var circleView: UIView!
+>>>>>>> Stashed changes
 
     // AR session to run head/eye tracking.
     private let arSession = ARSession()
     private var isLookingAtScreen = false
+<<<<<<< Updated upstream
     
     // Haptic generators
     private let errorHapticGenerator = UINotificationFeedbackGenerator()
     private let successHapticGenerator = UINotificationFeedbackGenerator()
     
     // --- TIME & PHASE TRACKING VARIABLES ---
+=======
+
+    private let errorHapticGenerator = UINotificationFeedbackGenerator()
+    private let successHapticGenerator = UINotificationFeedbackGenerator()
+
+>>>>>>> Stashed changes
     private var sessionStartTime: Date?
     
     private enum ExercisePhase {
@@ -300,10 +314,16 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     // Timer to monitor the user's gaze continuously
     private var gazeTimer: Timer?
     private var countdownRemaining = 0
+<<<<<<< Updated upstream
     
     // --- SWIFTDATA TRACKING VARIABLES ---
     var modelContext: ModelContext?
     
+=======
+
+    var modelContext: ModelContext?
+
+>>>>>>> Stashed changes
     private var totalFramesChecked = 0
     private var totalErrors = 0
     private var currentTargetDirectionIndex = 0
@@ -314,8 +334,12 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     
     // Track head movement degrees to see if they are cheating
     private var headMovementSamples: [Float] = []
+<<<<<<< Updated upstream
     
     // MARK: - Lifecycle
+=======
+
+>>>>>>> Stashed changes
     override func viewDidLoad() {
         super.viewDidLoad()
         setupInitialUI()
@@ -340,8 +364,12 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         gazeTimer?.invalidate()
         circleView.layer.removeAllAnimations()
     }
+<<<<<<< Updated upstream
     
     // MARK: - ARSessionDelegate
+=======
+
+>>>>>>> Stashed changes
     func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
         guard let faceAnchor = anchors.compactMap({ $0 as? ARFaceAnchor }).first else {
             isLookingAtScreen = false
@@ -362,8 +390,12 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
             headMovementSamples.append(totalMovementDegrees)
         }
     }
+<<<<<<< Updated upstream
     
     // MARK: - UI Setup
+=======
+
+>>>>>>> Stashed changes
     private func setupInitialUI() {
         circleView.layer.cornerRadius = circleView.bounds.width / 2
         instructionLabel.alpha = 0
@@ -385,8 +417,12 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
             completion?()
         }
     }
+<<<<<<< Updated upstream
     
     // MARK: - Sequences
+=======
+
+>>>>>>> Stashed changes
     private func startInitialCountdown() {
         currentPhase = .none
         countdownRemaining = 5
@@ -448,8 +484,12 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
             }
         }
     }
+<<<<<<< Updated upstream
     
     // MARK: - Core Logic & Animation
+=======
+
+>>>>>>> Stashed changes
     private func startStarPathAnimation(targetIndex: Int) {
         guard currentPhase == .tracking else { return }
         
@@ -538,12 +578,18 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         guard index >= 0 && index < names.count else { return "center" }
         return names[index]
     }
+<<<<<<< Updated upstream
     
     // MARK: - SwiftData Integration & Completion
+=======
+
+
+>>>>>>> Stashed changes
     private func finishExercise() {
         currentPhase = .none
         gazeTimer?.invalidate()
         circleView.layer.removeAllAnimations()
+<<<<<<< Updated upstream
         
         
         // --- CALCULATION PHASE ---
@@ -623,6 +669,52 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         }
     }
     
+=======
+
+        // 1. Calculations
+        let startTime = sessionStartTime ?? Date() 
+        let endTime = Date()
+        let elapsedSeconds = Int(endTime.timeIntervalSince(startTime))
+        
+        let accuracy = totalFramesChecked > 0 ? Int((Double(totalFramesChecked - totalErrors) / Double(totalFramesChecked)) * 100.0) : 0
+        let avgHeadMovement: Float = headMovementSamples.isEmpty ? 0.0 : headMovementSamples.reduce(0, +) / Float(headMovementSamples.count)
+
+        var calculatedDirectionErrors: [String: Double] = [:]
+        for (direction, totalChecks) in directionChecks {
+            let fails = directionFails[direction] ?? 0
+            let errorPercentage = totalChecks > 0 ? (Double(fails) / Double(totalChecks)) * 100.0 : 0.0
+            calculatedDirectionErrors[direction] = errorPercentage
+        }
+
+        // 2. Save Data using Singleton Context
+        let context = SwiftDataManager.shared.context
+        let newSession = ExerciseSession(type: "SmoothPursuit", duration: elapsedSeconds, accuracy: accuracy, errors: totalErrors)
+        newSession.headMovementDegrees = avgHeadMovement
+        newSession.directionErrors = calculatedDirectionErrors
+        context.insert(newSession)
+        
+        ExerciseDataManager.shared.addExerciseTime(seconds: elapsedSeconds)
+        
+        try? context.save()
+
+        // 3. Navigate to Report
+        DispatchQueue.main.async {
+            let storyboard = UIStoryboard(name: "Report", bundle: nil)
+            guard let reportVC = storyboard.instantiateViewController(withIdentifier: "ReportViewController") as? ReportViewController else { return }
+
+            reportVC.sessionType = "SmoothPursuit"
+            reportVC.overallScore = accuracy
+            reportVC.totalErrors = self.totalErrors
+            reportVC.avgHeadMovement = avgHeadMovement
+            reportVC.directionErrors = calculatedDirectionErrors
+
+            let nav = UINavigationController(rootViewController: reportVC)
+            nav.modalPresentationStyle = .fullScreen
+            self.present(nav, animated: true, completion: nil)
+        }
+    }
+
+>>>>>>> Stashed changes
     private func startTransitionPhase(message: String, nextPhase: @escaping () -> Void) {
         fadeTransition(showCenterMessage: true, showExerciseUI: false)
         centerMessageLabel.text = message

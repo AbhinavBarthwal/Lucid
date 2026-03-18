@@ -60,7 +60,7 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         private var isAcceptingInput = false
         private var isLeftEyeClosed = false
         private var isRightEyeClosed = false
-        private let blinkThreshold: Float = 0.7
+        private let blinkThreshold: Float = 0.75
         
         // error counts while blinking
         private var totalErrors = 0
@@ -198,7 +198,7 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         
         private func startActiveBlinkPhase() {
             // Sets a 20 second time limit to complete the required blinks
-            secondsRemaining = 20
+            secondsRemaining = 25
             largeCountLabel.text = "\(currentPhase.remaining)"
             instructionLabel.text = "" // clear any residual nudge text
             
@@ -305,8 +305,20 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
             }
             
             if isCorrect {
-                leftMaxBlinks.append(currentBlinkMaxLeft)
-                rightMaxBlinks.append(currentBlinkMaxRight)
+                switch currentPhase {
+                case .doubleBlink:
+                    leftMaxBlinks.append(currentBlinkMaxLeft)
+                    rightMaxBlinks.append(currentBlinkMaxRight)
+                case .singleBlink(let eye, _):
+                    if eye == "left" {
+                        leftMaxBlinks.append(currentBlinkMaxLeft)
+                    } else if eye == "right" {
+                        rightMaxBlinks.append(currentBlinkMaxRight)
+                    }
+                default:
+                    break
+                }
+                
                 consecutiveErrors = 0
                 failedAttemptsForCurrentBlink = 0
                 processSuccess()
@@ -448,6 +460,7 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         // Save to Database
         if let context = modelContext {
             context.insert(newSession)
+            ExerciseDataManager.shared.addExerciseTime(seconds: elapsedSeconds)
             
             do {
                 try context.save()
@@ -466,6 +479,7 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
             } catch {
                 print("\n❌ SWIFTDATA SAVE FAILED: \(error) ❌\n")
             }
+<<<<<<< Updated upstream
         } else {
             // IF YOU SEE THIS, YOUR UIKIT VIEW CONTROLLER HAS NO DATABASE CONNECTION
             print("\n☠️ FATAL ERROR: modelContext IS COMPLETELY NIL! ☠️")
@@ -488,6 +502,38 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
             }
         }
         
+=======
+            
+            
+            
+            // 6. Transition to your SwiftUI Summary Screen
+            showSummaryScreen(score: responseScore)
+            
+        }
+    private func showSummaryScreen(score: Double) {
+        DispatchQueue.main.async {
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let rootVC = windowScene.windows.first?.rootViewController else { return }
+
+            let storyboard = UIStoryboard(name: "Report", bundle: nil)
+            guard let reportVC = storyboard.instantiateViewController(withIdentifier: "ReportViewController") as? ReportViewController else { return }
+
+            reportVC.sessionType = "Blink"
+            reportVC.overallScore = Int(score)
+            reportVC.totalErrors = self.totalErrors
+            reportVC.chartData = ["Left": self.leftMaxBlinks, "Right": self.rightMaxBlinks]
+
+            let navWrapper = UINavigationController(rootViewController: reportVC)
+            navWrapper.modalPresentationStyle = .pageSheet
+
+            self.dismiss(animated: true) {
+                rootVC.present(navWrapper, animated: true)
+            }
+        }
+    }
+    
+    
+>>>>>>> Stashed changes
         private func setupBackgroundVideo() {
             guard let path = Bundle.main.path(forResource: "eyeBlinkBackground", ofType: "mp4") else { return }
             let url = URL(fileURLWithPath: path)
