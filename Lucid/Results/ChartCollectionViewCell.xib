@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="ChartCell" id="gTV-IL-0wX" customClass="ChartCollectionViewCell" customModule="Lucid" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="286" height="266"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="286" height="266"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hDQ-qB-srR" customClass="ResultChart" customModule="Lucid" customModuleProvider="target">
+                        <rect key="frame" x="0.0" y="0.0" width="286" height="266"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </subviews>
+            </view>
+            <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
+            <constraints>
+                <constraint firstItem="hDQ-qB-srR" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="iuV-9e-pcW"/>
+                <constraint firstItem="hDQ-qB-srR" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="kUS-Q0-Yyw"/>
+                <constraint firstAttribute="bottom" secondItem="hDQ-qB-srR" secondAttribute="bottom" id="pM4-e7-CRy"/>
+                <constraint firstAttribute="trailing" secondItem="hDQ-qB-srR" secondAttribute="trailing" id="qp8-it-lD6"/>
+            </constraints>
+            <size key="customSize" width="286" height="266"/>
+            <connections>
+                <outlet property="resultChart" destination="hDQ-qB-srR" id="bO3-MO-0xM"/>
+            </connections>
+            <point key="canvasLocation" x="25.954198473282442" y="229.57746478873241"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

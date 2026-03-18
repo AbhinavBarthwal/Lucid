@@ -8,37 +8,55 @@ final class User {
     var age: Int
     var createdAt: Date
     
-    @Relationship(deleteRule: .cascade) var eyeTestSessions: [EyeTestSession]
-    @Relationship(deleteRule: .cascade) var exerciseSessions: [ExerciseSession]
+    @Relationship(deleteRule: .cascade, inverse: \EyeTestSession.user) var eyeTestSessions: [EyeTestSession] = []
+    @Relationship(deleteRule: .cascade, inverse: \ExerciseSession.user) var exerciseSessions: [ExerciseSession] = []
 
     init(name: String, age: Int) {
         self.id = UUID()
         self.name = name
         self.age = age
         self.createdAt = Date()
-        self.eyeTestSessions = []
-        self.exerciseSessions = []
     }
+}
+
+enum EyeDirection: String, CaseIterable, Codable {
+    case top, topRight, right, bottomRight, bottom, bottomLeft, left, topLeft
 }
 
 // MARK: - Exercise Sessions
 @Model
 final class ExerciseSession {
     var id: UUID
-    var date: Date
-    var type: String // "Blink", "PencilPushup", "NearFar"
+    var startingDate: Date
+    var startingTime: Date
+    var endingTime: Date
+    var type: String // "Blink", "PencilPushup", "SmoothPursuit", "Figure8", "NearFar"
     var durationSeconds: Int
     
     // Meaningful Data Points extracted from your ViewControllers
-    var accuracyScore: Double? // For Pencil Pushups (1 - average error)
+    var accuracyScore: Int? // For Pencil Pushups (1 - average error)
     var averageBlinkIntensity: Float? // Derived from blinkTraining peaks
     var errorCount: Int? // Tracking lapses in focus or incorrect blinks
+    var headMovementDegrees: Float?    // Average head rotation during exercise -> smooth pursuits, saccadic jumps, figure 8, pencil pushups
+    
+    // Using String keys because SwiftData dictionaries require String or Int keys
+    var directionErrors: [String: Double]? // Errors in a particular direction -> smooth pursuits, saccadic jumps
+    
+    var errorsPerSession: [Int]? // Number errors which occurs in each phase/rep -> pencilPushups, figure 8, near far focus, blink
+    var nearPointOfConvergence: Float? // faceTransform -> At what point user couldnt see the dot -> pencil pushups, near far focus
+    var paceScore: Double? // Time taken by user to complete 1 rep of exercise/ full exercise -> pencil pushups
+    
+    var rightEyeBlinks: Int? // blinks by right eye -> Blink training
+    var leftEyeBlinks: Int? // blinks by left eye -> Blink training
+    var responsivenessScore: Double? // blink training
     
     var user: User?
 
-    init(type: String, duration: Int, accuracy: Double? = nil, intensity: Float? = nil, errors: Int? = 0) {
+    init(type: String, duration: Int, accuracy: Int? = nil, intensity: Float? = nil, errors: Int? = 0) {
         self.id = UUID()
-        self.date = Date()
+        self.startingDate = Date()
+        self.startingTime = Date()
+        self.endingTime = Date()
         self.type = type
         self.durationSeconds = duration
         self.accuracyScore = accuracy
@@ -61,6 +79,7 @@ final class EyeTestSession {
     init(score: Double, eye: String) {
         self.id = UUID()
         self.startingTime = Date()
+        self.endingTime = Date()
         self.score = score
         self.eyeTested = eye
     }

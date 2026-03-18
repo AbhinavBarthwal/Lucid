@@ -13,7 +13,6 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
     @IBOutlet weak var instructionLabel: UILabel!
     @IBOutlet weak var centerMessageLabel: UILabel!
     @IBOutlet weak var circleView: UIView!
-
         @IBOutlet weak var distanceLabel: UILabel! // New top label for distance
 
         // AR session to run head tracking for distance calculation.
