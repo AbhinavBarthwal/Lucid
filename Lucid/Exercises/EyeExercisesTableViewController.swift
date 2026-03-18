@@ -29,6 +29,14 @@ class ExerciseTableViewController: UITableViewController {
     // 2. Intercept the segue to pass the context
     // ExerciseTableViewController.swift
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier == "ShowExercise" {
+                if let destinationVC = segue.destination as? UIViewController {
+                    // THIS IS THE KEY: It hides the tab bar for the pushed controller
+                    destinationVC.hidesBottomBarWhenPushed = true
+                }
+            }
+        
         if let destinationVC = segue.destination as? SmoothPursuitsViewController {
             destinationVC.modelContext = self.modelContext
         }

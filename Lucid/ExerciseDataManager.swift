@@ -1,5 +1,5 @@
 import Foundation
-
+import SwiftData
 // The Model
 struct DailyExerciseRecord: Codable {
     var date: Date
@@ -7,43 +7,81 @@ struct DailyExerciseRecord: Codable {
     var goalSeconds: Int
 }
 
-// The Manager
+@MainActor
 class ExerciseDataManager {
     static let shared = ExerciseDataManager()
-    private let defaults = UserDefaults.standard
-    private let key = "dailyExerciseData"
     
-    // Preset goal of 20 minutes (1200 seconds)
-    let defaultGoalSeconds = 20 * 60
-    
-    func addExerciseTime(seconds: Int) {
-        var record = fetchTodayRecord()
-        record.completedSeconds += seconds
-        save(record: record)
-    }
-    
-    func fetchTodayRecord() -> DailyExerciseRecord {
-        // 1. Check if we have saved data
-        if let data = defaults.data(forKey: key),
-           let savedRecord = try? JSONDecoder().decode(DailyExerciseRecord.self, from: data) {
-            
-            // 2. Check if the saved record is from today
-            if Calendar.current.isDateInToday(savedRecord.date) {
-                return savedRecord
-            }
-        }
+    // Default goal if user doesn't have one set (20 mins)
+    let dailyGoalSeconds = 1200
+
+    // MARK: - Save Session
+    func addExerciseTime(seconds: Int, type: String = "General") {
+        let user = SwiftDataManager.shared.getOrCreateUser()
+        let newSession = ExerciseSession(type: type, duration: seconds)
         
-        // 3. If no data or it's a new day, return a fresh record starting at 0
+        // Link session to user
+        newSession.user = user
+        
+        SwiftDataManager.shared.context.insert(newSession)
+        
+        do {
+            try SwiftDataManager.shared.context.save()
+            print("✅ Saved \(seconds)s for \(user.name)")
+        } catch {
+            print("❌ Save failed: \(error)")
+        }
+    }
+
+    // MARK: - Fetch Data for Gauge
+    func fetchTodayRecord() -> DailyExerciseRecord {
+        let user = SwiftDataManager.shared.getOrCreateUser()
+        let totalSeconds = getTotalSeconds(for: Date(), user: user)
+        
         return DailyExerciseRecord(
             date: Date(),
-            completedSeconds: 0,
-            goalSeconds: defaultGoalSeconds
+            completedSeconds: totalSeconds,
+            goalSeconds: user.dailyExerciseGoal
         )
     }
-    
-    private func save(record: DailyExerciseRecord) {
-        if let encoded = try? JSONEncoder().encode(record) {
-            defaults.set(encoded, forKey: key)
+
+    // MARK: - Fetch Data for Streak
+    func fetchWeeklyStreak() -> [(date: Date, isCompleted: Bool)] {
+        let user = SwiftDataManager.shared.getOrCreateUser()
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        // Calculate Monday start
+        let weekday = calendar.component(.weekday, from: today)
+        let daysToSubtract = (weekday == 1) ? 6 : (weekday - 2)
+        guard let startOfWeek = calendar.date(byAdding: .day, value: -daysToSubtract, to: today) else { return [] }
+
+        return (0..<7).map { dayOffset in
+            let date = calendar.date(byAdding: .day, value: dayOffset, to: startOfWeek)!
+            let total = getTotalSeconds(for: date, user: user)
+            return (date: date, isCompleted: total >= user.dailyExerciseGoal)
+        }
+    }
+
+    // MARK: - Helper Logic
+    private func getTotalSeconds(for date: Date, user: User) -> Int {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: date)
+        let end = calendar.date(byAdding: .day, value: 1, to: start)!
+        
+        let userId = user.id
+        let predicate = #Predicate<ExerciseSession> { session in
+            session.startingDate >= start &&
+            session.startingDate < end &&
+            session.user?.id == userId
+        }
+        
+        let descriptor = FetchDescriptor<ExerciseSession>(predicate: predicate)
+        
+        do {
+            let sessions = try SwiftDataManager.shared.context.fetch(descriptor)
+            return sessions.reduce(0) { $0 + $1.durationSeconds }
+        } catch {
+            return 0
         }
     }
 }

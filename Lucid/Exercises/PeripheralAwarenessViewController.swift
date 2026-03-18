@@ -47,11 +47,12 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         
         startInitialCountdown()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         guard ARFaceTrackingConfiguration.isSupported else { return }
         let config = ARFaceTrackingConfiguration()
+        self.navigationController?.setNavigationBarHidden(false, animated: animated)
         arSession.run(config, options: [.resetTracking, .removeExistingAnchors])
     }
     

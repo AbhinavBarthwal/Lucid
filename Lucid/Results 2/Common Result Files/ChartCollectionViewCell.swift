@@ -10,6 +10,7 @@ import UIKit
 class ChartCollectionViewCell: UICollectionViewCell {
 
     @IBOutlet weak var resultChart: ResultChart!
+    @IBOutlet weak var descLabel: UILabel!
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -17,13 +18,16 @@ class ChartCollectionViewCell: UICollectionViewCell {
     }
     
     private func setupUI() {
-        // Styling the cell container to match the screenshot
         self.contentView.backgroundColor = UIColor(white: 0.05, alpha: 1.0)
         self.contentView.layer.cornerRadius = 12
         self.contentView.clipsToBounds = true
     }
     
-    func configure(with data: [BlinkBarData]) {
-        resultChart.chartData = data
+    func configure(title: String, data: [BlinkBarData], description: String) {
+        
+        descLabel.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
+        descLabel.textColor = UIColor(white: 0.6, alpha: 1.0)
+        descLabel.text = description
+        resultChart.configureChart(title: title, data: data)
     }
 }

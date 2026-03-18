@@ -1,42 +1,29 @@
-//
-//  SwiftDataManager.swift
-//  Lucid
-//
-//  Created by Abhinav Barthwal on 3/18/26.
-//
-
 import Foundation
 import SwiftData
 
 @MainActor
 class SwiftDataManager {
-    // 1. Creates a single shared instance of the manager
     static let shared = SwiftDataManager()
-    
     let container: ModelContainer
-    
-    // 2. Easy access to the context
-    var context: ModelContext {
-        container.mainContext
-    }
+    var context: ModelContext { container.mainContext }
     
     private init() {
-        // 3. Register all your models here
-        let schema = Schema([
-            User.self,
-            ExerciseSession.self,
-            EyeTestSession.self,
-            OSDIResult.self
-        ])
-        
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
+        let schema = Schema([User.self, ExerciseSession.self, EyeTestSession.self, OSDIResult.self])
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         do {
-            container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            container = try ModelContainer(for: schema, configurations: [config])
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }
+
+    func getOrCreateUser() -> User {
+        let descriptor = FetchDescriptor<User>()
+        let users = (try? context.fetch(descriptor)) ?? []
+        if let user = users.first { return user }
+        
+        let newUser = User(name: "Abhinav", age: 21)
+        context.insert(newUser)
+        return newUser
+    }
 }
-
-

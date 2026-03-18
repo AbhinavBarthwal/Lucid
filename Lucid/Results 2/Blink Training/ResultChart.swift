@@ -1,10 +1,13 @@
+//  THIS IS A WRAPPER CLASS
+
 import UIKit
 import SwiftUI
 
 class ResultChart: UIView {
     private var hostingController: UIHostingController<BlinkBarChartView>?
     
-    // Updated to accept the 3-bar data array
+    var chartTitle: String = ""
+    //var chartDescription: String = ""
     var chartData: [BlinkBarData] = [] {
         didSet { updateChart() }
     }
@@ -19,8 +22,15 @@ class ResultChart: UIView {
         setupHostingController()
     }
     
+    func configureChart(title: String, data: [BlinkBarData], description: String = "") {
+        self.chartTitle = title
+        //self.chartDescription = description
+        self.chartData = data // Triggers the didSet update
+    }
+    
     private func setupHostingController() {
-        let chartView = BlinkBarChartView(data: chartData)
+        //let chartView = BlinkBarChartView(title: chartTitle, description: chartDescription, data: chartData)
+        let chartView = BlinkBarChartView(title: chartTitle, data: chartData)
         let host = UIHostingController(rootView: chartView)
         host.view.backgroundColor = .clear
         host.view.translatesAutoresizingMaskIntoConstraints = false
@@ -36,6 +46,6 @@ class ResultChart: UIView {
     }
     
     private func updateChart() {
-        hostingController?.rootView = BlinkBarChartView(data: chartData)
+        hostingController?.rootView = BlinkBarChartView(title: chartTitle, data: chartData)
     }
 }

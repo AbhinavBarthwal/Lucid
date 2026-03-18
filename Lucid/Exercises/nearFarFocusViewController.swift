@@ -39,10 +39,12 @@ class nearFarFocusViewController: UIViewController,ARSessionDelegate{
         }
         
         override func viewWillAppear(_ animated: Bool) {
-            super.viewWillAppear(animated)
             guard ARFaceTrackingConfiguration.isSupported else { return }
-            
-            // tracking the face
+            super.viewWillAppear(animated)
+
+            self.navigationController?.setNavigationBarHidden(false, animated: animated)
+     
+            self.tabBarController?.tabBar.isHidden = true
             let config = ARFaceTrackingConfiguration()
             arSession.run(config, options: [.resetTracking, .removeExistingAnchors])
         }

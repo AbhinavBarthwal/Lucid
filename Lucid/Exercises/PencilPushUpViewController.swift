@@ -47,9 +47,13 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
             
         override func viewWillAppear(_ animated: Bool) {
             super.viewWillAppear(animated)
+
+            self.navigationController?.setNavigationBarHidden(false, animated: animated)
+     
+            self.tabBarController?.tabBar.isHidden = true
             guard ARFaceTrackingConfiguration.isSupported else { return }
-                
-            // Tracking the face
+
+
             let config = ARFaceTrackingConfiguration()
             arSession.run(config, options: [.resetTracking, .removeExistingAnchors])
         }

@@ -22,8 +22,8 @@ class DailyExerciseCollectionViewCell: UICollectionViewCell {
         }
         
         func configure(current: Int, goal: Int) {
-            currentMinsLabel.text = "\(current)"
-            totalMinsLabel.text = "\(goal)"
+            currentMinsLabel.text = "\(current)m"
+            totalMinsLabel.text = "\(goal)m"
             
             // Safely calculate the progress percentage
             let calculatedProgress = goal > 0 ? CGFloat(current) / CGFloat(goal) : 0

@@ -50,12 +50,11 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Performace Report" largeTitleDisplayMode="never" id="lWB-1c-P0p">
-                        <barButtonItem key="leftBarButtonItem" image="chevron.left" catalog="system" style="plain" id="QPu-7M-N8c">
+                        <barButtonItem key="rightBarButtonItem" style="plain" systemItem="done" id="qfV-IC-aUz">
                             <connections>
-                                <action selector="backButtonTapped:" destination="3NL-Xh-UbS" id="G5q-Jz-rwW"/>
+                                <action selector="backButtonTapped:" destination="3NL-Xh-UbS" id="XXi-1Q-N8S"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" style="plain" systemItem="done" id="qfV-IC-aUz"/>
                     </navigationItem>
                     <connections>
                         <outlet property="collectionView" destination="Z2b-mt-Asl" id="ppW-Na-SuZ"/>
@@ -85,7 +84,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="chevron.left" catalog="system" width="97" height="128"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

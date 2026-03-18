@@ -241,10 +241,19 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource {
                     )
                 return cell
             default:
+                // Inside cellForItemAt for the StreakCell case
                 let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: "StreakCell",
                     for: indexPath
                 ) as! StreakCollectionViewCell
+
+                // FETCH DATA
+                let user = SwiftDataManager.shared.getOrCreateUser()
+                let streakData = ExerciseDataManager.shared.fetchWeeklyStreak()
+
+                // CONFIGURE (Make sure arguments match the new signature above)
+                cell.configure(with: streakData, currentStreak: user.currentStreak)
+
                 return cell
             }
             

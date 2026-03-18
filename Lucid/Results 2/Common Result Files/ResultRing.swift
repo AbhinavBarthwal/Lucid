@@ -7,12 +7,11 @@
 
 import SwiftUI
 
-// MARK: - Custom Shape
 struct RingShape: Shape {
     func path(in rect: CGRect) -> Path {
         // Center the circle in the available space
         let center = CGPoint(x: rect.midX, y: rect.midY)
-        // Leave a small margin (16) so the stroke doesn't clip
+        // small margin so the stroke doesn't clip
         let radius = min(rect.width, rect.height) / 2 - 16
         
         var path = Path()
@@ -27,31 +26,27 @@ struct RingShape: Shape {
     }
 }
 
-// MARK: - Custom Gauge Style
 struct RingGaugeStyle: GaugeStyle {
     func makeBody(configuration: Configuration) -> some View {
         ZStack {
-            // Background Track (The "Ghost" ring)
+            // Background Track
             RingShape()
                 .stroke(
                     Color.gray.opacity(0.2),
                     style: StrokeStyle(lineWidth: 14, lineCap: .round)
                 )
             
-            // Progress Track (The actual data)
+            // Progress Track
             RingShape()
                 .trim(from: 0.0, to: configuration.value)
                 .stroke(
                     Color.orange,
                     style: StrokeStyle(lineWidth: 14, lineCap: .round)
                 )
-                // Rotating -90 degrees is an alternative to setting startAngle in Path
-                // but we handled it in the Shape for precision.
         }
     }
 }
 
-// MARK: - Main SwiftUI View
 struct RingGaugeView: View {
     var completed: Int
     var total: Int

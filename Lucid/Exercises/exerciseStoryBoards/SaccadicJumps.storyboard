@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="0O2-ve-wZe">
+    <device id="retina6_12" orientation="portrait" appearance="dark"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Saccadic Jumps-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController storyboardIdentifier="SaccadicJumpsVC" useStoryboardIdentifierAsRestorationIdentifier="YES" id="BYZ-38-t0r" customClass="SaccadicJumps" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ePg-r2-QVq">
+                                <rect key="frame" x="186.66666666666666" y="443" width="20" height="20"/>
+                                <color key="backgroundColor" systemColor="systemOrangeColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="20" id="ELq-8b-0i0"/>
+                                    <constraint firstAttribute="height" constant="20" id="MVj-os-Ndj"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="50"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Keep your phone at a distance and follow the dot, make sure only to move your eyes and not the phone." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uVm-tc-KfM">
+                                <rect key="frame" x="20" y="401" width="353" height="50"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle3"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="5" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nmT-TC-rw1">
+                                <rect key="frame" x="186.33333333333334" y="405.66666666666669" width="20.333333333333343" height="40.666666666666686"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle0"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QCi-7w-GGO">
+                                <rect key="frame" x="146.66666666666666" y="315" width="100" height="0.0"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="100" id="JrS-Ij-ptu"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
+                                <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="uVm-tc-KfM" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="1Bn-zH-Rmc"/>
+                            <constraint firstItem="QCi-7w-GGO" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Ae4-FO-7xI"/>
+                            <constraint firstItem="uVm-tc-KfM" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Are-b7-mgv"/>
+                            <constraint firstItem="uVm-tc-KfM" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Q7Q-LK-a1Z"/>
+                            <constraint firstItem="ePg-r2-QVq" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" constant="-25" id="Uht-ZN-T0P"/>
+                            <constraint firstItem="uVm-tc-KfM" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="WoM-Wz-FLd"/>
+                            <constraint firstItem="nmT-TC-rw1" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Xqq-le-8XO"/>
+                            <constraint firstItem="uVm-tc-KfM" firstAttribute="top" secondItem="QCi-7w-GGO" secondAttribute="bottom" constant="86" id="Ycf-gm-fFH"/>
+                            <constraint firstItem="QCi-7w-GGO" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="b3H-Fg-mR5"/>
+                            <constraint firstItem="QCi-7w-GGO" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="143" id="i1z-L5-Rg4"/>
+                            <constraint firstAttribute="trailing" secondItem="uVm-tc-KfM" secondAttribute="trailing" constant="20" id="mg6-uS-m4c"/>
+                            <constraint firstItem="nmT-TC-rw1" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="n3i-ur-0pt"/>
+                            <constraint firstItem="ePg-r2-QVq" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="unR-Eq-uk9"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="uTc-N0-bGU"/>
+                    <connections>
+                        <outlet property="centerXConstraint" destination="unR-Eq-uk9" id="4wx-AN-Y04"/>
+                        <outlet property="centerYConstraint" destination="Uht-ZN-T0P" id="63v-5p-Dwf"/>
+                        <outlet property="countdownLabel" destination="nmT-TC-rw1" id="K7q-yP-e76"/>
+                        <outlet property="dotTarget" destination="ePg-r2-QVq" id="u54-IA-cQs"/>
+                        <outlet property="instructionLabel" destination="uVm-tc-KfM" id="m0K-1h-cbe"/>
+                        <outlet property="scoreLabel" destination="QCi-7w-GGO" id="cQh-aT-Ubk"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1521.3740458015266" y="-206.33802816901411"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="9dz-ku-d8t">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="0O2-ve-wZe" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="OKj-xi-r8t">
+                        <rect key="frame" x="0.0" y="118" width="393" height="54"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="pDn-g9-GFh"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="PZ2-iW-qMa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="594.6564885496183" y="-206.33802816901411"/>
+        </scene>
+    </scenes>
+    <resources>
+        <systemColor name="systemOrangeColor">
+            <color red="1" green="0.58431372550000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>

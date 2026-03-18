@@ -36,6 +36,13 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
             0: "4", 45: "5", 90: "6", 135: "7", 180: "8", 225: "1", 270: "2", 315: "3"
         ]
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        self.navigationController?.setNavigationBarHidden(false, animated: animated)
+ 
+        self.tabBarController?.tabBar.isHidden = true
+    }
         override func viewDidLoad() {
             super.viewDidLoad()
             setupUIInitialState()

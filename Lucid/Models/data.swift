@@ -1,5 +1,7 @@
 import Foundation
 import SwiftData
+import Foundation
+import SwiftData
 
 @Model
 final class User {
@@ -7,17 +9,48 @@ final class User {
     var name: String
     var age: Int
     var createdAt: Date
+    var dailyExerciseGoal: Int 
     
     @Relationship(deleteRule: .cascade, inverse: \EyeTestSession.user) var eyeTestSessions: [EyeTestSession] = []
     @Relationship(deleteRule: .cascade, inverse: \ExerciseSession.user) var exerciseSessions: [ExerciseSession] = []
 
-    init(name: String, age: Int) {
+    init(name: String, age: Int, dailyGoal: Int = 60) {
         self.id = UUID()
         self.name = name
         self.age = age
         self.createdAt = Date()
+        self.dailyExerciseGoal = dailyGoal
+    }
+
+
+    var currentStreak: Int {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        // Group sessions by day and check if they met the goal
+        let dayTotals = Dictionary(grouping: exerciseSessions) {
+            calendar.startOfDay(for: $0.startingDate)
+        }.mapValues { sessions in
+            sessions.reduce(0) { $0 + $1.durationSeconds }
+        }
+        
+        var streak = 0
+        var checkDate = today
+        
+        // If today isn't done, start checking from yesterday
+        if (dayTotals[today] ?? 0) < dailyExerciseGoal {
+            checkDate = calendar.date(byAdding: .day, value: -1, to: today)!
+        }
+        
+        while let total = dayTotals[checkDate], total >= dailyExerciseGoal {
+            streak += 1
+            checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate)!
+        }
+        
+        return streak
     }
 }
+
 
 enum EyeDirection: String, CaseIterable, Codable {
     case top, topRight, right, bottomRight, bottom, bottomLeft, left, topLeft
@@ -33,11 +66,11 @@ final class ExerciseSession {
     var type: String // "Blink", "PencilPushup", "SmoothPursuit", "Figure8", "NearFar"
     var durationSeconds: Int
     
-    // Meaningful Data Points extracted from your ViewControllers
-    var accuracyScore: Int? // For Pencil Pushups (1 - average error)
-    var averageBlinkIntensity: Float? // Derived from blinkTraining peaks
+   
+    var accuracyScore: Int?
+    var averageBlinkIntensity: Float? // Derived from blinkTraining
     var errorCount: Int? // Tracking lapses in focus or incorrect blinks
-    var headMovementDegrees: Float?    // Average head rotation during exercise -> smooth pursuits, saccadic jumps, figure 8, pencil pushups
+    var headMovementDegrees: Float?  // Average head rotation during exercise -> smooth pursuits, saccadic jumps, figure 8, pencil pushups
     
     // Using String keys because SwiftData dictionaries require String or Int keys
     var directionErrors: [String: Double]? // Errors in a particular direction -> smooth pursuits, saccadic jumps

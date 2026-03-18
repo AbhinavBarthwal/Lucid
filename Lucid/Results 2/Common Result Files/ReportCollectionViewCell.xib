@@ -21,38 +21,25 @@
                         <rect key="frame" x="-6" y="0.0" width="345" height="355"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="IIh-te-94c">
-                        <rect key="frame" x="132" y="157.66666666666666" width="69" height="39.666666666666657"/>
-                        <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nwn-3c-LCV">
-                                <rect key="frame" x="0.0" y="0.0" width="69" height="21"/>
-                                <fontDescription key="fontDescription" name="SFPro-ExpandedMedium" family="SF Pro" pointSize="18"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="OVERALL" textAlignment="center" lineBreakMode="wordWrap" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aFw-Dk-AYO">
-                                <rect key="frame" x="0.0" y="21" width="69" height="18.666666666666671"/>
-                                <fontDescription key="fontDescription" name="SFPro-CondensedMedium" family="SF Pro" pointSize="16"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                        </subviews>
-                    </stackView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nwn-3c-LCV">
+                        <rect key="frame" x="127.33333333333334" y="159" width="78.333333333333343" height="37.333333333333343"/>
+                        <fontDescription key="fontDescription" name="SFPro-ExpandedMedium" family="SF Pro" pointSize="32"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
             </view>
             <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
             <constraints>
                 <constraint firstAttribute="trailing" secondItem="5FI-Zb-e6S" secondAttribute="trailing" id="1F8-4R-nwT"/>
-                <constraint firstItem="IIh-te-94c" firstAttribute="centerY" secondItem="gTV-IL-0wX" secondAttribute="centerY" id="3aa-hz-zSC"/>
                 <constraint firstItem="5FI-Zb-e6S" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="-6" id="3bz-yw-h0N"/>
+                <constraint firstItem="nwn-3c-LCV" firstAttribute="centerY" secondItem="5FI-Zb-e6S" secondAttribute="centerY" id="Ax0-V9-nrP"/>
                 <constraint firstItem="5FI-Zb-e6S" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="Hwe-Ma-wpe"/>
-                <constraint firstItem="IIh-te-94c" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="132" id="imb-gr-1kh"/>
-                <constraint firstItem="5FI-Zb-e6S" firstAttribute="centerY" secondItem="IIh-te-94c" secondAttribute="centerY" id="jd5-jX-Qcf"/>
-                <constraint firstItem="5FI-Zb-e6S" firstAttribute="centerX" secondItem="IIh-te-94c" secondAttribute="centerX" id="yVj-5K-kNB"/>
+                <constraint firstItem="nwn-3c-LCV" firstAttribute="centerY" secondItem="gTV-IL-0wX" secondAttribute="centerY" id="wQP-7V-Pgt"/>
+                <constraint firstItem="nwn-3c-LCV" firstAttribute="centerX" secondItem="5FI-Zb-e6S" secondAttribute="centerX" id="xj3-AI-3PB"/>
             </constraints>
             <size key="customSize" width="339" height="355"/>
             <connections>
-                <outlet property="detailLabel" destination="aFw-Dk-AYO" id="V5x-fa-Doj"/>
                 <outlet property="ringGauge" destination="5FI-Zb-e6S" id="VwV-gU-7KT"/>
                 <outlet property="scoreLabel" destination="nwn-3c-LCV" id="7uZ-Eh-t6e"/>
             </connections>
