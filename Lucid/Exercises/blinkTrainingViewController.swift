@@ -508,6 +508,8 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
             
             
             
+            
+            
             // 6. Transition to your SwiftUI Summary Screen
             showSummaryScreen(score: responseScore)
             
