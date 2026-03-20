@@ -28,7 +28,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Inject the context into the ROOT view controller
         if let navigationController = window?.rootViewController as? UINavigationController,
            let rootVC = navigationController.viewControllers.first as? ExerciseTableViewController {
-               rootVC.modelContext = sharedModelContainer.mainContext
+               
+            rootVC.modelContext = sharedModelContainer.mainContext
         }
+        
+        ExerciseDataManager.shared.updateDailyGoal(newGoalInSeconds: 900)
     }
+    
 }

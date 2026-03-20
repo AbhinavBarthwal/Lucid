@@ -16,7 +16,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
 
         private var trackLayer: CAShapeLayer?
             
-        // AR session to run head/eye tracking.
+
         private let arSession = ARSession()
         private var isLookingAtScreen = false
         private let errorHapticGenerator = UINotificationFeedbackGenerator()
@@ -26,18 +26,16 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         }
         private var currentPhase: ExercisePhase = .none
             
-        // Monitors gaze and animation state
+
         private var gazeTimer: Timer?
         private var countdownRemaining = 0
         private var isAnimationPaused = false
         
-        // Tracking the actual exercise duration
         private var sessionStartTime: Date?
             
-        // Tracks the 3 loop sequences and the device rotation halves
         private var currentLoopIndex = 0
         private var currentPath: UIBezierPath?
-        private var isSecondPart = false // Becomes true after they rotate the phone
+        private var isSecondPart = false
             
         override func viewDidLoad() {
             super.viewDidLoad()
@@ -69,7 +67,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
             NotificationCenter.default.removeObserver(self)
         }
             
-        // MARK: - UI Setup
+
         private func setupInitialUI() {
             circleView.layer.cornerRadius = circleView.bounds.width / 2
             circleView.backgroundColor = .systemOrange
@@ -93,7 +91,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
             }
         }
             
-        // MARK: - Sequence Phasing
+ 
         private func startInitialCountdown() {
             currentPhase = .none
             countdownRemaining = 5
@@ -140,14 +138,11 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
             instructionLabel.textColor = .lightGray
             instructionLabel.alpha = 1
                 
-            // Generate path based on current orientation bounds
             currentPath = createInfinityPath()
             drawBackgroundTrack(with: currentPath!)
                 
-            // Fade in UI
             fadeTransition(showCenterMessage: false, showExerciseUI: true) {
                     
-                // Wait 2 seconds, fade instruction, start moving
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                     guard self.currentPhase == .tracking else { return }
                         
@@ -161,7 +156,6 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
             }
         }
             
-        // MARK: - Figure Eight Math & Animation
             
         private func createInfinityPath() -> UIBezierPath {
             let path = UIBezierPath()
@@ -173,7 +167,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
                 
             path.move(to: center)
                 
-            // Right Loop
+   
             path.addCurve(to: CGPoint(x: center.x + loopWidth, y: center.y),
                           controlPoint1: CGPoint(x: center.x + loopWidth/2, y: center.y - loopHeight),
                           controlPoint2: CGPoint(x: center.x + loopWidth, y: center.y - loopHeight))
@@ -181,7 +175,6 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
                           controlPoint1: CGPoint(x: center.x + loopWidth, y: center.y + loopHeight),
                           controlPoint2: CGPoint(x: center.x + loopWidth/2, y: center.y + loopHeight))
                 
-            // Left Loop
             path.addCurve(to: CGPoint(x: center.x - loopWidth, y: center.y),
                           controlPoint1: CGPoint(x: center.x - loopWidth/2, y: center.y - loopHeight),
                           controlPoint2: CGPoint(x: center.x - loopWidth, y: center.y - loopHeight))

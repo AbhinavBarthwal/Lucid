@@ -14,7 +14,7 @@ final class User {
     @Relationship(deleteRule: .cascade, inverse: \EyeTestSession.user) var eyeTestSessions: [EyeTestSession] = []
     @Relationship(deleteRule: .cascade, inverse: \ExerciseSession.user) var exerciseSessions: [ExerciseSession] = []
 
-    init(name: String, age: Int, dailyGoal: Int = 60) {
+    init(name: String, age: Int, dailyGoal: Int = 900) {
         self.id = UUID()
         self.name = name
         self.age = age
@@ -26,8 +26,7 @@ final class User {
     var currentStreak: Int {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
-        
-        // Group sessions by day and check if they met the goal
+
         let dayTotals = Dictionary(grouping: exerciseSessions) {
             calendar.startOfDay(for: $0.startingDate)
         }.mapValues { sessions in

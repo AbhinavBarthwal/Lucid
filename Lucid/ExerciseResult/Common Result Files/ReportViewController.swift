@@ -5,17 +5,14 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
     
     @IBOutlet var collectionView: UICollectionView!
     
-    // MARK: - Variables Received From Caller
-    var sessionType: String = "Blink" // "Blink" or "SmoothPursuit"
+    var sessionType: String = "Blink"
     var overallScore: Int = 0
     var totalErrors: Int = 0
     var chartData: [String: [Float]] = [:]
     
-    // Smooth Pursuit Specifics
     var directionErrors: [String: Double] = [:]
     var avgHeadMovement: Float = 0.0
     
-    // MARK: - Processed UI Variables
     private var leftChartData: [BlinkBarData] = []
     private var rightChartData: [BlinkBarData] = []
     private var directionalChartData: [BlinkBarData] = []
@@ -27,13 +24,10 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
         self.title = "Performance Report"
         setupBackground()
         processIncomingData()
-        
-        // Registering standard Header and custom Nibs
         collectionView.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "HeaderView")
         collectionView.register(UINib(nibName: "ReportCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "ReportCell")
         collectionView.register(UINib(nibName: "MetricCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "MetricCell")
         collectionView.register(UINib(nibName: "ChartCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "ChartCell")
-        
         collectionView.collectionViewLayout = createLayout()
         collectionView.dataSource = self
         collectionView.delegate = self
@@ -84,7 +78,6 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
         self.collectionView.backgroundColor = .black
     }
 
-    // MARK: - CollectionView Data Source
     func numberOfSections(in collectionView: UICollectionView) -> Int { return 3 }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -123,7 +116,7 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
             } else {
                 let currentData = (indexPath.item == 0) ? leftChartData : rightChartData
                 let currentTitle = (indexPath.item == 0) ? "Left Eye Intensity" : "Right Eye Intensity"
-                cell.configure(title: currentTitle, data: currentData, description: "Red bars indicate incomplete blinks below the 0.75 threshold.")
+                cell.configure(title: currentTitle, data: currentData, description: "Red bars indicate incomplete blinks i.e. number below the 0.75 threshold.")
             }
             return cell
         }
@@ -131,31 +124,62 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "HeaderView", for: indexPath)
+        
         header.subviews.forEach { $0.removeFromSuperview() }
         
-        let label = UILabel()
-        if indexPath.section == 2 {
-            label.frame = CGRect(x: 16, y: 10, width: header.frame.width - 32, height: 20)
-            label.text = sessionType == "SmoothPursuit" ? "Tracking Analysis" : "Blink Intensity"
-            label.font = .systemFont(ofSize: 20, weight: .bold)
-            label.textColor = .white.withAlphaComponent(0.90)
+        if indexPath.section == 1 {
+            let titleLabel = UILabel()
+            titleLabel.text = sessionType == "Blink" ? "Blink Performance" : "Tracking Metrics"
+            titleLabel.font = .systemFont(ofSize: 20, weight: .bold)
+            titleLabel.textColor = .white
+            titleLabel.translatesAutoresizingMaskIntoConstraints = false
+            
+            let descLabel = UILabel()
+            descLabel.text = sessionType == "Blink" ? "Breakdown of eye intensity peaks." : "Accuracy of movement per direction."
+            descLabel.font = .systemFont(ofSize: 14)
+            descLabel.textColor = .lightGray
+            descLabel.numberOfLines = 0
+            descLabel.translatesAutoresizingMaskIntoConstraints = false
+            
+            header.addSubview(titleLabel)
+            header.addSubview(descLabel)
+            
+            NSLayoutConstraint.activate([
+                titleLabel.topAnchor.constraint(equalTo: header.topAnchor, constant: 15),
+                titleLabel.leadingAnchor.constraint(equalTo: header.leadingAnchor, constant: 16),
+                titleLabel.trailingAnchor.constraint(equalTo: header.trailingAnchor, constant: -16),
+                
+                descLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
+                descLabel.leadingAnchor.constraint(equalTo: header.leadingAnchor, constant: 16),
+                descLabel.trailingAnchor.constraint(equalTo: header.trailingAnchor, constant: -16),
+                descLabel.bottomAnchor.constraint(equalTo: header.bottomAnchor, constant: -10) // This defines the bottom bound
+            ])
+        } else if indexPath.section == 2 {
+            let label = UILabel()
+            label.text = sessionType == "SmoothPursuit" ? "Tracking Analysis" : "Intensity Charts"
+            label.font = .systemFont(ofSize: 18, weight: .bold)
+            label.textColor = .white
+            label.frame = CGRect(x: 16, y: 10, width: header.frame.width - 32, height: 25)
             header.addSubview(label)
         }
+        
         return header
     }
-
-    // MARK: - Compositional Layout
     func createLayout() -> UICollectionViewLayout {
         return UICollectionViewCompositionalLayout { (sectionIndex, layoutEnv) -> NSCollectionLayoutSection? in
             
-            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(50))
-            let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+            let tallHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(120))
+            let tallHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: tallHeaderSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+
+ 
+            let smallHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(40))
+            let smallHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: smallHeaderSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
 
             if sectionIndex == 0 {
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0)))
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(200)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
-                section.contentInsets = .init(top: 20, leading: 16, bottom: 10, trailing: 16)
+                section.contentInsets = .init(top: 10, leading: 16, bottom: 10, trailing: 16)
                 return section
                 
             } else if sectionIndex == 1 {
@@ -165,6 +189,9 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(100)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
                 section.contentInsets = .init(top: 0, leading: 12, bottom: 20, trailing: 12)
+                
+ 
+                section.boundarySupplementaryItems = [tallHeader]
                 return section
                 
             } else {
@@ -172,15 +199,13 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
                 item.contentInsets = .init(top: 8, leading: 8, bottom: 8, trailing: 8)
                 let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(600)), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
-                section.contentInsets = .init(top: 12, leading: 8, bottom: 8, trailing: 8)
-                section.boundarySupplementaryItems = [sectionHeader]
+                section.boundarySupplementaryItems = [smallHeader]
                 return section
             }
         }
     }
     
     @IBAction func backButtonTapped(_ sender: Any) {
-        // Double-dismiss to ensure we clear the report AND the exercise, returning to Care Page
         if let rootPresenter = self.presentingViewController?.presentingViewController {
             rootPresenter.dismiss(animated: true, completion: nil)
         } else if let exercisePresenter = self.presentingViewController {

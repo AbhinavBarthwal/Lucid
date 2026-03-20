@@ -1,10 +1,3 @@
-//
-//  SummaryInsightCollectionViewCell.swift
-//  Lucid
-//
-//  Created by Kanishka Bansal on 13/02/26.
-//
-
 import UIKit
 
 class SummaryInsightCollectionViewCell: UICollectionViewCell {
@@ -45,3 +38,4 @@ class SummaryInsightCollectionViewCell: UICollectionViewCell {
         badge.image = UIImage(systemName: "medal.fill", withConfiguration: config())
     }
 }
+

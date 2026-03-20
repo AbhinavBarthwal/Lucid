@@ -1525,17 +1525,6 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="59s-9f-UH2">
-                                <rect key="frame" x="182.66666666666666" y="644" width="74.999999999999972" height="35"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="35" id="Y3a-x0-odS"/>
-                                </constraints>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Button"/>
-                                <connections>
-                                    <action selector="actionButtonTapped:" destination="16X-tO-ybw" eventType="touchUpInside" id="J1h-24-rVF"/>
-                                </connections>
-                            </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="z5Q-Ph-DlI">
                                 <rect key="frame" x="120" y="288" width="200" height="100"/>
                                 <constraints>
@@ -1558,7 +1547,6 @@
                             <constraint firstItem="z5Q-Ph-DlI" firstAttribute="centerX" secondItem="OG4-Ds-OlN" secondAttribute="centerX" id="DIk-L5-JFC"/>
                             <constraint firstAttribute="trailing" secondItem="izu-7w-soF" secondAttribute="trailing" constant="20" id="DKj-47-sP5"/>
                             <constraint firstItem="FjF-cF-Kfm" firstAttribute="bottom" secondItem="Onb-nR-yLc" secondAttribute="bottom" constant="60" id="HWK-cK-Rc6"/>
-                            <constraint firstItem="59s-9f-UH2" firstAttribute="centerX" secondItem="OG4-Ds-OlN" secondAttribute="centerX" id="Jgx-2E-sar"/>
                             <constraint firstItem="izu-7w-soF" firstAttribute="centerY" secondItem="OG4-Ds-OlN" secondAttribute="centerY" id="KcD-Ok-sie"/>
                             <constraint firstItem="izu-7w-soF" firstAttribute="leading" secondItem="OG4-Ds-OlN" secondAttribute="leading" constant="20" id="MHt-R3-Q7d"/>
                             <constraint firstItem="FjF-cF-Kfm" firstAttribute="bottom" secondItem="gTp-kl-Egs" secondAttribute="bottom" constant="60" id="OVE-97-7Vy"/>
@@ -1567,7 +1555,6 @@
                             <constraint firstItem="ZrR-0c-7Ft" firstAttribute="leading" secondItem="FjF-cF-Kfm" secondAttribute="leading" id="YUd-VY-p4s"/>
                             <constraint firstItem="DSJ-g6-PxL" firstAttribute="centerY" secondItem="OG4-Ds-OlN" secondAttribute="centerY" id="ZUP-zK-H5S"/>
                             <constraint firstItem="E46-5T-htO" firstAttribute="leading" secondItem="DSJ-g6-PxL" secondAttribute="trailing" constant="85" id="ZuO-hG-hsl"/>
-                            <constraint firstItem="gTp-kl-Egs" firstAttribute="top" secondItem="59s-9f-UH2" secondAttribute="bottom" constant="50" id="cQT-kI-sf3"/>
                             <constraint firstItem="Krh-56-xSw" firstAttribute="leading" secondItem="UZX-C3-kfH" secondAttribute="trailing" constant="145" id="cfp-fn-5VF"/>
                             <constraint firstItem="UZX-C3-kfH" firstAttribute="top" secondItem="FjF-cF-Kfm" secondAttribute="top" id="dpE-9k-LlJ"/>
                             <constraint firstItem="DSJ-g6-PxL" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="90X-Bo-Gb0" secondAttribute="trailing" constant="8" symbolic="YES" id="e7U-jr-5Wp"/>
@@ -1593,7 +1580,6 @@
                     </view>
                     <navigationItem key="navigationItem" id="Dun-W0-mpU"/>
                     <connections>
-                        <outlet property="actionButton" destination="59s-9f-UH2" id="SBu-eV-79d"/>
                         <outlet property="instructionLabel" destination="izu-7w-soF" id="SrF-XM-YaH"/>
                         <outlet property="landoltImageView" destination="DSJ-g6-PxL" id="jGx-cF-DLV"/>
                         <outlet property="sceneView" destination="ZrR-0c-7Ft" id="3y4-Wh-lbd"/>
@@ -1635,19 +1621,19 @@
             <color red="1" green="0.50199997425079346" blue="0.15700000524520874" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="linkColor">
-            <color red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="placeholderTextColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.29803921570000003" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.29803921568627451" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemOrangeColor">
-            <color red="1" green="0.58431372550000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.55294117647058827" blue="0.15686274509803921" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

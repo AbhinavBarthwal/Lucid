@@ -284,18 +284,23 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
             calculatedDirectionErrors[direction] = errorPercentage
         }
 
-        // 2. Save Data using Singleton Context
+        // 2. Save Data using SwiftDataManager
         let context = SwiftDataManager.shared.context
-        let newSession = ExerciseSession(type: "SmoothPursuit", duration: elapsedSeconds, accuracy: accuracy, errors: totalErrors)
+        let user = SwiftDataManager.shared.getOrCreateUser()
+        
+        let newSession = ExerciseSession(
+            type: "SmoothPursuit",
+            duration: elapsedSeconds,
+            accuracy: accuracy,
+            errors: totalErrors
+        )
+        
+        newSession.user = user
         newSession.headMovementDegrees = avgHeadMovement
         newSession.directionErrors = calculatedDirectionErrors
+        
         context.insert(newSession)
         
-        ExerciseDataManager.shared.addExerciseTime(seconds: elapsedSeconds)
-        
-        try? context.save()
-
-        // 3. Navigate to Report
         DispatchQueue.main.async {
             let storyboard = UIStoryboard(name: "Report", bundle: nil)
             guard let reportVC = storyboard.instantiateViewController(withIdentifier: "ReportViewController") as? ReportViewController else { return }
@@ -309,15 +314,35 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
             let nav = UINavigationController(rootViewController: reportVC)
             nav.modalPresentationStyle = .fullScreen
             
-            // Standard present, dismissal is handled by ReportViewController's back button
             self.present(nav, animated: true, completion: nil)
         }
+    
+        ExerciseDataManager.shared.addExerciseTime(seconds: elapsedSeconds)
+        
+        do {
+            try context.save()
+            successHapticGenerator.notificationOccurred(.success)
+        } catch {
+            print("Failed to save Smooth Pursuit data: \(error)")
+        }
+
+
+        startTransitionPhase(message: "Nicely Done!") {
+            if let nav = self.navigationController {
+                nav.popViewController(animated: true)
+            } else {
+                self.dismiss(animated: true)
+            }
+        }
     }
+    
 
     private func startTransitionPhase(message: String, nextPhase: @escaping () -> Void) {
+        // Show the "Nicely Done!" message and hide the exercise UI
         fadeTransition(showCenterMessage: true, showExerciseUI: false)
         centerMessageLabel.text = message
 
+        // Wait 2 seconds for the user to read it, then execute the pop
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             self.fadeTransition(showCenterMessage: false, showExerciseUI: false) {
                 nextPhase()

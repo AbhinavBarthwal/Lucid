@@ -1,10 +1,3 @@
-//
-//  AwardsCollectionViewCell.swift
-//  Lucid
-//
-//  Created by Kanishka Bansal on 10/02/26.
-//
-
 import UIKit
 
 class AwardsCollectionViewCell: UICollectionViewCell {
@@ -49,3 +42,4 @@ class AwardsCollectionViewCell: UICollectionViewCell {
         iconImageView.image = UIImage(systemName: "infinity.circle.fill", withConfiguration: config())
     }
 }
+

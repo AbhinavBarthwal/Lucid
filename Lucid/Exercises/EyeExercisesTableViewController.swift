@@ -1,9 +1,8 @@
 import UIKit
-import SwiftData // Make sure to import SwiftData
+import SwiftData 
 
 class ExerciseTableViewController: UITableViewController {
     
-    // 1. You need a reference to the context here first!
     var modelContext: ModelContext?
 
     override func viewDidLoad() {
@@ -26,13 +25,11 @@ class ExerciseTableViewController: UITableViewController {
         }
     }
 
-    // 2. Intercept the segue to pass the context
-    // ExerciseTableViewController.swift
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
         if segue.identifier == "ShowExercise" {
                 if let destinationVC = segue.destination as? UIViewController {
-                    // THIS IS THE KEY: It hides the tab bar for the pushed controller
                     destinationVC.hidesBottomBarWhenPushed = true
                 }
             }
@@ -40,7 +37,7 @@ class ExerciseTableViewController: UITableViewController {
         if let destinationVC = segue.destination as? SmoothPursuitsViewController {
             destinationVC.modelContext = self.modelContext
         }
-        // ADD THIS PART
+
         else if let blinkVC = segue.destination as? blinkTrainingViewController {
             blinkVC.modelContext = self.modelContext
             print("Successfully passed context to Blink VC")

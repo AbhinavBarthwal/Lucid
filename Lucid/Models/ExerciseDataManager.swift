@@ -1,6 +1,5 @@
 import Foundation
 import SwiftData
-// The Model
 struct DailyExerciseRecord: Codable {
     var date: Date
     var completedSeconds: Int
@@ -11,15 +10,13 @@ struct DailyExerciseRecord: Codable {
 class ExerciseDataManager {
     static let shared = ExerciseDataManager()
     
-    // Default goal if user doesn't have one set (20 mins)
     let dailyGoalSeconds = 1200
 
-    // MARK: - Save Session
+    
     func addExerciseTime(seconds: Int, type: String = "General") {
         let user = SwiftDataManager.shared.getOrCreateUser()
         let newSession = ExerciseSession(type: type, duration: seconds)
-        
-        // Link session to user
+
         newSession.user = user
         
         SwiftDataManager.shared.context.insert(newSession)
@@ -31,8 +28,19 @@ class ExerciseDataManager {
             print("❌ Save failed: \(error)")
         }
     }
+    
+    func updateDailyGoal(newGoalInSeconds: Int) {
+            let user = SwiftDataManager.shared.getOrCreateUser()
+            user.dailyExerciseGoal = newGoalInSeconds
+            
+            do {
+                try SwiftDataManager.shared.context.save()
+                print("✅ Daily goal updated to \(newGoalInSeconds) seconds for \(user.name)")
+            } catch {
+                print("❌ Failed to update daily goal: \(error)")
+            }
+        }
 
-    // MARK: - Fetch Data for Gauge
     func fetchTodayRecord() -> DailyExerciseRecord {
         let user = SwiftDataManager.shared.getOrCreateUser()
         let totalSeconds = getTotalSeconds(for: Date(), user: user)
@@ -44,13 +52,12 @@ class ExerciseDataManager {
         )
     }
 
-    // MARK: - Fetch Data for Streak
+
     func fetchWeeklyStreak() -> [(date: Date, isCompleted: Bool)] {
         let user = SwiftDataManager.shared.getOrCreateUser()
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
-        
-        // Calculate Monday start
+
         let weekday = calendar.component(.weekday, from: today)
         let daysToSubtract = (weekday == 1) ? 6 : (weekday - 2)
         guard let startOfWeek = calendar.date(byAdding: .day, value: -daysToSubtract, to: today) else { return [] }
@@ -62,7 +69,6 @@ class ExerciseDataManager {
         }
     }
 
-    // MARK: - Helper Logic
     private func getTotalSeconds(for date: Date, user: User) -> Int {
         let calendar = Calendar.current
         let start = calendar.startOfDay(for: date)

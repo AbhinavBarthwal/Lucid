@@ -85,5 +85,16 @@ class ProfilePageTableViewController: UITableViewController {
         // Pass the selected object to the new view controller.
     }
     */
+    
+    @IBAction func backButtonTapped(_ sender: Any) {
+        // Double-dismiss to ensure we clear the report AND the exercise, returning to Care Page
+        if let rootPresenter = self.presentingViewController?.presentingViewController {
+            rootPresenter.dismiss(animated: true, completion: nil)
+        } else if let exercisePresenter = self.presentingViewController {
+            exercisePresenter.dismiss(animated: true, completion: nil)
+        } else {
+            self.navigationController?.popViewController(animated: true)
+        }
+    }
 
 }

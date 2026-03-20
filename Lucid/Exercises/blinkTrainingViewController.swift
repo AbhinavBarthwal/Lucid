@@ -5,10 +5,8 @@ import AVFoundation
 import SwiftUI
 import SwiftData
 
-//number of times for  blink
-var doubleBlink = 1
-var LeftRighEyeBlink = 1
-// tracking the actual exercise duration
+var doubleBlink = 5
+var LeftRighEyeBlink = 5
 private var sessionStartTime: Date?
 
 enum TypeOfBlink {
@@ -16,7 +14,6 @@ enum TypeOfBlink {
     case singleBlink(eye: String, remaining: Int)
     case completed
     
-    //remaining number of blinks for any type of blink to display
     var remaining: Int {
         switch self {
         case .doubleBlink(let r): return r
@@ -25,7 +22,6 @@ enum TypeOfBlink {
         }
     }
     
-    //decreases the number of blinks every time a user blinks
     mutating func decrement() {
         switch self {
         case .doubleBlink(let r): self = .doubleBlink(remaining: r - 1)
@@ -42,28 +38,23 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
     @IBOutlet var largeCountLabel: UILabel!
     @IBOutlet var centerMessageLAbel: UILabel!
     
-    // MARK: - Properties & State
     private var sessionStartTime: Date?
     
-    // background video
     private var player: AVQueuePlayer?
     private var playerLayer: AVPlayerLayer?
     private var playerLooper: AVPlayerLooper?
     
-    // variable for when exercise is running
     private var currentPhase: TypeOfBlink = .completed
     private var isAcceptingInput = false
     private var isLeftEyeClosed = false
     private var isRightEyeClosed = false
     private let blinkThreshold: Float = 0.75
     
-    // error counts while blinking
     private var totalErrors = 0
     private var failedAttemptsForCurrentBlink = 0
     private var consecutiveErrors = 0
-    private var errorsPerPhase: [Int] = [0, 0, 0] // [Double, Left, Right]
+    private var errorsPerPhase: [Int] = [0, 0, 0]
     
-    // variables needed for timers & results
     private var responseTimer: Timer?
     private var phaseTimer: Timer?
     private var secondsRemaining = 0
@@ -73,30 +64,25 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
     private var currentBlinkMaxLeft: Float = 0.0
     private var currentBlinkMaxRight: Float = 0.0
     
-    // Haptics
     private let impactMed = UIImpactFeedbackGenerator(style: .rigid)
     private let impactHeavy = UIImpactFeedbackGenerator(style: .rigid)
     private let impactRigid = UIImpactFeedbackGenerator(style: .rigid)
     private let notificationGen = UINotificationFeedbackGenerator()
     
-    // Safely handled by SwiftDataManager if nil
     var modelContext: ModelContext?
 
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupBackgroundVideo()
         setupInitialUI()
         
-        // Starts the 5-4-3-2-1 countdown before triggering the first phase
         startInitialCountdown()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.navigationController?.setNavigationBarHidden(true, animated: false)
+        self.navigationController?.setNavigationBarHidden(false, animated: animated)
         
-        // attaches face tracking with the sceneview
         let config = ARFaceTrackingConfiguration()
         sceneView.session.run(config)
     }
@@ -110,7 +96,6 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
     
     override var prefersHomeIndicatorAutoHidden: Bool { return true }
         
-    // MARK: - UI Setup
     private func setupInitialUI() {
         instructionLabel.alpha = 0
         largeCountLabel.alpha = 0
@@ -122,7 +107,7 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         
         centerMessageLAbel.alpha = 1
         sceneView.delegate = self
-        sceneView.alpha = 0.01 // keep AR view hidden
+        sceneView.alpha = 0
     }
     
     private func fadeTransition(showCenterMessage: Bool, showExerciseUI: Bool, completion: (() -> Void)? = nil) {
@@ -136,7 +121,6 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         }
     }
     
-    // MARK: - Phase Management
     private func startInitialCountdown() {
         isAcceptingInput = false
         secondsRemaining = 5
@@ -259,7 +243,6 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         }
     }
     
-    // MARK: - ARKit Face Tracking Delegate
     func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
         guard let faceAnchor = anchor as? ARFaceAnchor, isAcceptingInput else { return }
         
@@ -374,7 +357,7 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         case .doubleBlink:
             self.currentPhase = .singleBlink(eye: "left", remaining: LeftRighEyeBlink)
             startTransitionPhase {
-                self.showPreparationMessage("Blink LEFT eye only\nafter the vibration") {
+                self.showPreparationMessage("Blink left eye only after the vibration") {
                     self.startActiveBlinkPhase()
                 }
             }
@@ -382,7 +365,7 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
             if eye == "left" {
                 self.currentPhase = .singleBlink(eye: "right", remaining: LeftRighEyeBlink)
                 startTransitionPhase {
-                    self.showPreparationMessage("Blink RIGHT eye only\nafter the vibration") {
+                    self.showPreparationMessage("Blink right eye only after the vibration") {
                         self.startActiveBlinkPhase()
                     }
                 }
@@ -399,25 +382,18 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         currentPhase = .completed
         phaseTimer?.invalidate()
         
-        // STOP THE CLOCK AND CALCULATE
         let startTime = sessionStartTime ?? Date()
         let endTime = Date()
         let elapsedSeconds = Int(endTime.timeIntervalSince(startTime))
         
-        // Calculate Average Intensity
         let allPeaks = leftMaxBlinks + rightMaxBlinks
-        let avgIntensity = allPeaks.isEmpty ? 0 : allPeaks.reduce(0, +) / Float(allPeaks.count)
+        let baseScore = allPeaks.isEmpty ? 0 : (allPeaks.reduce(0, +) / Float(allPeaks.count)) * 100
+        let responseScore = Double(max(0, baseScore - Float(totalErrors)))
         
-        // Calculate Responsiveness Score (Percent Success vs Total Attempts)
-        let totalSuccessful = Float(leftMaxBlinks.count + rightMaxBlinks.count)
-        let totalAttempts = totalSuccessful + Float(totalErrors)
-        let responseScore = totalAttempts > 0 ? Double((totalSuccessful / totalAttempts) * 100) : 0
-        
-        // 1. Create the SwiftData Session Object
         let newSession = ExerciseSession(
             type: "Blink",
             duration: elapsedSeconds,
-            intensity: avgIntensity,
+            intensity: allPeaks.isEmpty ? 0 : allPeaks.reduce(0, +) / Float(allPeaks.count),
             errors: totalErrors
         )
         
@@ -430,10 +406,9 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         
         ExerciseDataManager.shared.addExerciseTime(seconds: elapsedSeconds)
 
-        // 👉 2. USE THE SINGLETON DATABASE MANAGER
+
         let context = SwiftDataManager.shared.context
-        
-        // 👉 3. FETCH OR CREATE THE USER TO LINK THE DATA
+
         let fetchDescriptor = FetchDescriptor<User>()
         let users = (try? context.fetch(fetchDescriptor)) ?? []
         
@@ -441,47 +416,40 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         if let firstUser = users.first {
             activeUser = firstUser
         } else {
-            // If no user exists yet, make a default one so relationships don't break
             activeUser = User(name: "Guest Player", age: 0)
             context.insert(activeUser)
         }
-        
-        // 👉 4. LINK THE SESSION TO THE USER
         newSession.user = activeUser
         activeUser.exerciseSessions.append(newSession)
-        
-        // 👉 5. SAVE TO DATABASE
+
         context.insert(newSession)
         
         do {
             try context.save()
-            print("\n✅ BLINK DATA SAVED & LINKED TO: \(activeUser.name) ✅\n")
+            print("\n BLINK DATA SAVED & LINKED TO: \(activeUser.name)")
         } catch {
-            print("\n❌ SWIFTDATA SAVE FAILED: \(error) ❌\n")
+            print("\n SWIFTDATA SAVE FAILED: \(error) \n")
         }
         
-        // 6. Transition to your SwiftUI Summary Screen
         showSummaryScreen(score: responseScore)
     }
 private func showSummaryScreen(score: Double) {
         DispatchQueue.main.async {
-            // 1. Get the Window's Root (The ultimate anchor)
+            
             guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                   let rootVC = windowScene.windows.first?.rootViewController else { return }
             
-            // 2. Setup the Report Modal
+            
             let storyboard = UIStoryboard(name: "Report", bundle: nil)
             guard let reportVC = storyboard.instantiateViewController(withIdentifier: "ReportViewController") as? ReportViewController else {
-                print("❌ ERROR: Could not find ReportViewController in Report.storyboard")
+                print(" ERROR: Could not find ReportViewController in Report.storyboard")
                 return
             }
             
-            // Pass the calculated parameters
             reportVC.overallScore = Int(score)
             reportVC.totalErrors = self.totalErrors
             
-            // NOTE: Adjust this depending on what type 'chartData' is in your ReportViewController
-            // Here, I am passing the peaks as a dictionary.
+
             reportVC.chartData = [
                 "Left": self.leftMaxBlinks,
                 "Right": self.rightMaxBlinks
@@ -490,17 +458,13 @@ private func showSummaryScreen(score: Double) {
             let navWrapper = UINavigationController(rootViewController: reportVC)
             navWrapper.modalPresentationStyle = .pageSheet
             
-            // 3. Handle the Background Navigation
-            // If it's a push/show: it pops. If it's a showDetail: it handles the transition.
             if let nav = self.navigationController {
                 nav.popViewController(animated: false)
             } else {
-                // If navigationController is nil, we dismiss the current detail
                 self.dismiss(animated: false)
             }
             
-            // 4. Present from the Root
-            // This ensures the modal stays alive even if 'self' is killed
+
             rootVC.present(navWrapper, animated: true)
         }
     }
@@ -520,3 +484,4 @@ private func showSummaryScreen(score: Double) {
     }
     
 }
+

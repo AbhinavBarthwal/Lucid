@@ -148,11 +148,11 @@
             </objects>
             <point key="canvasLocation" x="6840.4580152671751" y="-2.1126760563380285"/>
         </scene>
-        <!--Item-->
+        <!--Summary-->
         <scene sceneID="qYy-Bb-zVk">
             <objects>
                 <navigationController storyboardIdentifier="Summary" automaticallyAdjustsScrollViewInsets="NO" useStoryboardIdentifierAsRestorationIdentifier="YES" id="xEp-X4-Xjo" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Item" image="heart.text.clipboard" catalog="system" selectedImage="heart.text.clipboard.fill" id="OdE-CY-vKt"/>
+                    <tabBarItem key="tabBarItem" title="Summary" image="heart.text.clipboard" catalog="system" selectedImage="heart.text.clipboard.fill" id="OdE-CY-vKt"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="5JF-Ss-tTJ">
                         <rect key="frame" x="0.0" y="118" width="393" height="106"/>

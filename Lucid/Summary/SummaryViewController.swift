@@ -1,10 +1,3 @@
-//
-//  SummaryViewController.swift
-//  Lucid
-//
-//  Created by Kanishka Bansal on 08/02/26.
-//
-
 import UIKit
 import SwiftUI
 
@@ -331,3 +324,4 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource {
         }
     }
 }
+
