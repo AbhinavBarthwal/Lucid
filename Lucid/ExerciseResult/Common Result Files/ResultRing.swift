@@ -40,7 +40,7 @@ struct RingGaugeStyle: GaugeStyle {
             RingShape()
                 .trim(from: 0.0, to: configuration.value)
                 .stroke(
-                    Color.orange,
+                    .accent,
                     style: StrokeStyle(lineWidth: 14, lineCap: .round)
                 )
         }

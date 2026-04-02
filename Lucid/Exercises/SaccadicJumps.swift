@@ -1,75 +1,199 @@
 import UIKit
 import ARKit
-import SwiftData
+import AVFoundation
 
 class SaccadicJumps: UIViewController, ARSessionDelegate {
-    
 
-    @IBOutlet weak var dotTarget: UIView!
-    @IBOutlet weak var instructionLabel: UILabel!
-    @IBOutlet weak var scoreLabel: UILabel!
-    @IBOutlet weak var countdownLabel: UILabel!
+    @IBOutlet weak var centerMessageLabel: UILabel!
     
-    @IBOutlet weak var centerXConstraint: NSLayoutConstraint!
-    @IBOutlet weak var centerYConstraint: NSLayoutConstraint!
-    
-
+    private let speechSynthesizer = AVSpeechSynthesizer()
     private let notificationGenerator = UINotificationFeedbackGenerator()
     private let impactGenerator = UIImpactFeedbackGenerator(style: .medium)
-    
-
-    enum Position: CaseIterable {
-        case center, topLeft, topRight, bottomLeft, bottomRight
-    }
-    
-    private var lastPosition: Position = .center
-    private var dotCount = 0
-    private var successfulFollows = 0
-    private var hasLookedAtCurrentDot = false
     private let faceTrackingSession = ARSession()
-    private var currentGazePoint = CGPoint.zero
-    
-    private var exerciseTimer: Timer?
-    private var sessionTimer: Timer?
-    private var countdownTimer: Timer?
-    private var countdownTime = 5
-    
-    private var sessionStartTime: Date?
 
-    override var prefersStatusBarHidden: Bool {
-        return true
+    private enum Direction: String, CaseIterable {
+        case top = "Top", bottom = "Bottom", left = "Left", right = "Right"
     }
+    
+    private var currentDirection: Direction?
+    private var repCount = 0
+    private let totalReps = 16
+    private var successfulFollows = 0
+    private var isTracking = false
+    private var hasLookedInDirection = false
+    
+    private let speedTiers: [Double] = [2.5 , 2.2 , 2.0 , 1.8]
+    
+    private let exerciseInstructions: [InstructionStep] = [
+        InstructionStep(message: "3", duration: 0.8),
+        InstructionStep(message: "2", duration: 0.8),
+        InstructionStep(message: "1", duration: 0.8),
+        InstructionStep(message: "Move your eyes in the\ndirection announced", duration: 3.0),
+        InstructionStep(message: "Keep your head still", duration: 2.5)
+    ]
 
+    private var sessionStartTime: Date?
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        configureAudioSession()
         prepareInitialState()
         setupEyeTracking()
+        
         notificationGenerator.prepare()
         impactGenerator.prepare()
         
-        startCountdownPhase()
+        runInstructionSequence(index: 0)
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.setNavigationBarHidden(false, animated: animated)
-        self.tabBarController?.tabBar.isHidden = true
+
+    // MARK: - Audio Configuration
+    private func configureAudioSession() {
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playback, mode: .default, options: [.duckOthers])
+            try session.setActive(true)
+        } catch {
+            print("Audio Session error: \(error)")
+        }
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+
+    private func runInstructionSequence(index: Int) {
+        if index < exerciseInstructions.count {
+            let step = exerciseInstructions[index]
+            
+            UIView.animate(withDuration: 0.4, animations: {
+                self.centerMessageLabel.alpha = 0
+            }) { _ in
+                self.centerMessageLabel.text = step.message
+                UIView.animate(withDuration: 0.4, animations: {
+                    self.centerMessageLabel.alpha = 1
+                }) { _ in
+                    DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) {
+                        self.runInstructionSequence(index: index + 1)
+                    }
+                }
+            }
+        } else {
+            UIView.animate(withDuration: 0.5, animations: {
+                self.centerMessageLabel.alpha = 0
+            }) { _ in
+                self.startExercise()
+            }
+        }
+    }
+
+
+        func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
+            guard isTracking, let faceAnchor = anchors.first as? ARFaceAnchor else { return }
+            let lookAt = faceAnchor.lookAtPoint
+            
+            // General threshold for Left, Right, Top
+            let threshold: Float = 0.14
+            // Specific threshold for Bottom to make it more deliberate
+            let bottomThreshold: Float = 0.05
+            
+            DispatchQueue.main.async {
+                guard let target = self.currentDirection, !self.hasLookedInDirection else { return }
+                
+                var success = false
+                switch target {
+                case .top:    success = lookAt.y > threshold
+                case .left:   success = lookAt.x < -threshold
+                case .right:  success = lookAt.x > threshold
+                case .bottom:
+                    // Using a stricter negative threshold for downward gaze
+                    success = lookAt.y < -bottomThreshold
+                }
+                
+                if success {
+                    self.handleSuccessfulLook()
+                }
+            }
+        }
+    private func handleSuccessfulLook() {
+        hasLookedInDirection = true
+        successfulFollows += 1
+        impactGenerator.impactOccurred()
+    }
+
+    private func startExercise() {
+        self.sessionStartTime = Date()
+        self.isTracking = true
+        triggerNextRep()
+    }
+
+    private func triggerNextRep() {
+        guard repCount < totalReps else {
+            endExercise()
+            return
+        }
+        
+        repCount += 1
+        hasLookedInDirection = false
+        
+        
+        // Select direction (ensuring it's not the same as last time for better variety)
+        let nextDir = Direction.allCases.filter { $0 != currentDirection }.randomElement() ?? .top
+        currentDirection = nextDir
+        
+        let currentTier = (repCount - 1) / 4
+        let duration = speedTiers[currentTier]
+        
+        speak(nextDir.rawValue)
+        
+        // Show direction text briefly
+        centerMessageLabel.text = nextDir.rawValue
+        UIView.animate(withDuration: 0.2) {
+            self.centerMessageLabel.alpha = 1
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+            if !self.hasLookedInDirection {
+                self.notificationGenerator.notificationOccurred(.error)
+            }
+            // Fade out text before next rep starts
+            UIView.animate(withDuration: 0.2) { self.centerMessageLabel.alpha = 0 }
+            self.triggerNextRep()
+        }
+    }
+
+    private func speak(_ text: String) {
+        // Stop any current speech to prevent overlapping buffer errors
+        if speechSynthesizer.isSpeaking {
+            speechSynthesizer.stopSpeaking(at: .immediate)
+        }
+        
+        let utterance = AVSpeechUtterance(string: text)
+        utterance.voice = AVSpeechSynthesisVoice(language: "en-IN")
+        utterance.rate = 0.52
+        utterance.volume = 1.0
+        speechSynthesizer.speak(utterance)
+    }
+
+    private func endExercise() {
+        isTracking = false
         faceTrackingSession.pause()
-        exerciseTimer?.invalidate()
-        sessionTimer?.invalidate()
-        countdownTimer?.invalidate()
-        self.tabBarController?.tabBar.isHidden = false
+        
+        if let startTime = sessionStartTime {
+            let elapsed = Int(Date().timeIntervalSince(startTime))
+            ExerciseDataManager.shared.addExerciseTime(seconds: elapsed)
+        }
+        
+        notificationGenerator.notificationOccurred(.success)
+        
+        UIView.animate(withDuration: 0.5, animations: {
+            self.centerMessageLabel.text = "Finished!\nScore: \(self.successfulFollows)/16"
+            self.centerMessageLabel.alpha = 1
+        }) { _ in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                self.navigationController?.popViewController(animated: true)
+            }
+        }
     }
-    
+
     private func prepareInitialState() {
-        dotTarget.layer.cornerRadius = dotTarget.frame.size.width / 2
-        dotTarget.clipsToBounds = true
-        [dotTarget, countdownLabel, instructionLabel, scoreLabel].forEach { $0?.alpha = 0 }
+ centerMessageLabel.alpha = 0
     }
 
     private func setupEyeTracking() {
@@ -77,174 +201,5 @@ class SaccadicJumps: UIViewController, ARSessionDelegate {
         faceTrackingSession.delegate = self
         let configuration = ARFaceTrackingConfiguration()
         faceTrackingSession.run(configuration, options: [.resetTracking, .removeExistingAnchors])
-    }
-    
-
-    func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
-        guard let faceAnchor = anchors.first as? ARFaceAnchor else { return }
-        let rawLookAt = faceAnchor.lookAtPoint
-        
-        DispatchQueue.main.async {
-            self.currentGazePoint = self.calculateHighSensitivityPoint(rawLookAt)
-            if !self.hasLookedAtCurrentDot && self.dotTarget.alpha == 1 {
-                self.detectMagneticFocus()
-            }
-        }
-    }
-    
-    private func calculateHighSensitivityPoint(_ lookAt: simd_float3) -> CGPoint {
-        guard let windowScene = view.window?.windowScene else { return .zero }
-        let screen = windowScene.screen.bounds
-        let sensitivity: CGFloat = 8.0
-        let x = (screen.width / 2) + (CGFloat(lookAt.x) * screen.width * sensitivity)
-        let yOffset = screen.height * 0.08
-        let y = (screen.height / 2) - (CGFloat(lookAt.y) * screen.height * sensitivity) + yOffset
-        return CGPoint(x: x, y: y)
-    }
-
-    private func detectMagneticFocus() {
-        let targetCenter = dotTarget.center
-        let distance = sqrt(pow(targetCenter.x - currentGazePoint.x, 2) + pow(targetCenter.y - currentGazePoint.y, 2))
-        
-        if distance < 180 {
-            hasLookedAtCurrentDot = true
-            successfulFollows += 1
-            
-            impactGenerator.impactOccurred()
-            
-            
-            UIView.animate(withDuration: 0.1) {
-                self.dotTarget.backgroundColor = .systemGreen
-                self.dotTarget.transform = CGAffineTransform(scaleX: 1.5, y: 1.5)
-            }
-        }
-    }
-
-    private func performSaccadicJump() {
-        if !hasLookedAtCurrentDot && dotCount > 0 {
-            notificationGenerator.notificationOccurred(.error)
-        }
-        
-        hasLookedAtCurrentDot = false
-        dotTarget.backgroundColor = .systemOrange
-        dotTarget.transform = .identity
-        
-        let screenWidth = view.bounds.width
-        let screenHeight = view.bounds.height
-        let horizontalPadding: CGFloat = 60
-        let verticalPadding: CGFloat = 120
-        
-        let maxX = (screenWidth / 2) - horizontalPadding
-        let maxY = (screenHeight / 2) - verticalPadding
-        
-        let available = Position.allCases.filter { $0 != lastPosition }
-        if let next = available.randomElement() {
-            switch next {
-            case .center:
-                centerXConstraint.constant = 0
-                centerYConstraint.constant = 0
-            case .topLeft:
-                centerXConstraint.constant = -maxX
-                centerYConstraint.constant = -maxY
-            case .topRight:
-                centerXConstraint.constant = maxX
-                centerYConstraint.constant = -maxY
-            case .bottomLeft:
-                centerXConstraint.constant = -maxX
-                centerYConstraint.constant = maxY
-            case .bottomRight:
-                centerXConstraint.constant = maxX
-                centerYConstraint.constant = maxY
-            }
-            lastPosition = next
-            dotCount += 1
-        }
-        
-        UIView.animate(withDuration: 0.2) { self.view.layoutIfNeeded() }
-    }
-
-
-    private func startInstructionPhase() {
-        instructionLabel.text = "Keep the center dot between your eyes\nand hold the phone straight."
-        
-        UIView.animate(withDuration: 1.0) {
-            self.instructionLabel.alpha = 1
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-            UIView.animate(withDuration: 1.0) {
-                self.instructionLabel.alpha = 0
-            } completion: { _ in
-                self.transitionToExercise()
-            }
-        }
-    }
-
-    private func startCountdownPhase() {
-        countdownLabel.alpha = 1
-        countdownTime = 5
-        countdownLabel.text = "\(countdownTime)"
-        
-        countdownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
-            guard let self = self else { return }
-            self.countdownTime -= 1
-            if self.countdownTime > 0 {
-                self.countdownLabel.text = "\(self.countdownTime)"
-            } else {
-                timer.invalidate()
-                
-                self.startInstructionPhase()
-            }
-        }
-    }
-    
-    private func transitionToExercise() {
-        setNeedsStatusBarAppearanceUpdate()
-        UIView.animate(withDuration: 0.5) {
-            self.dotTarget.alpha = 1
-            self.scoreLabel.alpha = 1
-            self.countdownLabel.alpha = 0
-        }
-        startExercise()
-    }
-
-    private func startExercise() {
-        self.sessionStartTime = Date()
-        notificationGenerator.notificationOccurred(.success)
-        
-        exerciseTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
-            self?.performSaccadicJump()
-        }
-        
-        sessionTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: false) { [weak self] _ in
-            self?.endExercise()
-        }
-    }
-    
-    private func endExercise() {
-        exerciseTimer?.invalidate()
-        sessionTimer?.invalidate()
-        faceTrackingSession.pause()
-        
-
-        if let startTime = sessionStartTime {
-            let elapsedSeconds = Int(Date().timeIntervalSince(startTime))
-            ExerciseDataManager.shared.addExerciseTime(seconds: elapsedSeconds, type: "SaccadicJumps")
-        }
-        
-        notificationGenerator.notificationOccurred(.success)
-        
-        UIView.animate(withDuration: 1.0) {
-            self.dotTarget.alpha = 0
-            self.scoreLabel.text = "Final Score: \(self.successfulFollows)"
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            if let nav = self.navigationController {
-                nav.popViewController(animated: true)
-            } else {
-                self.dismiss(animated: true)
-            }
-        }
     }
 }

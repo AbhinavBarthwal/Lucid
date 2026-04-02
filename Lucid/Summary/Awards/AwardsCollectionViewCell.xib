@@ -4,6 +4,7 @@
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
         <capability name="Image references" minToolsVersion="12.0"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -27,19 +28,20 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Wmq-Ja-2fS">
-                                <rect key="frame" x="230" y="0.66666666666666607" width="50" height="22.666666666666671"/>
+                                <rect key="frame" x="230" y="2" width="50" height="20.333333333333332"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="24" id="hM4-iw-orm"/>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="24" id="qrF-vY-fIq"/>
                                     <constraint firstAttribute="width" constant="50" id="qtQ-Ls-WVb"/>
                                 </constraints>
-                                <imageReference key="image" image="chevron.right.circle.fill" catalog="system" renderingMode="hierarchical-single">
+                                <imageReference key="image" image="chevron.right" catalog="system" renderingMode="hierarchical-single">
                                     <hierarchicalColors>
-                                        <color red="0.1058823529" green="0.1058823529" blue="0.1058823529" alpha="0.69999999999999996" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                        <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <color red="0.1058823529" green="0.1058823529" blue="0.1058823529" alpha="0.69999999999999996" colorSpace="custom" customColorSpace="calibratedRGB"/>
                                     </hierarchicalColors>
                                 </imageReference>
+                                <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="default"/>
                             </imageView>
                         </subviews>
                         <constraints>
@@ -53,20 +55,21 @@
                             <constraint firstItem="Fqa-dw-Xj2" firstAttribute="top" secondItem="Y16-3e-VHR" secondAttribute="top" id="p2i-9j-6Ca"/>
                         </constraints>
                     </stackView>
-                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Eza-UJ-b9u">
-                        <rect key="frame" x="26" y="41" width="240" height="175"/>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="infinity.circle.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Eza-UJ-b9u">
+                        <rect key="frame" x="26" y="41.666666666666671" width="240" height="173.66666666666669"/>
+                        <color key="tintColor" name="AccentColor"/>
                     </imageView>
                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" alignment="center" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="JP4-Ew-KHW">
-                        <rect key="frame" x="125" y="214" width="42" height="37.333333333333343"/>
+                        <rect key="frame" x="83.666666666666686" y="214" width="125" height="37.333333333333343"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="J3H-vB-wJF">
-                                <rect key="frame" x="0.0" y="0.0" width="42" height="19.333333333333332"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Focused Champ" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="J3H-vB-wJF">
+                                <rect key="frame" x="0.0" y="0.0" width="125" height="19.333333333333332"/>
                                 <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="16"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="InZ-1K-PuR">
-                                <rect key="frame" x="6.3333333333333446" y="23.333333333333343" width="29.666666666666671" height="14"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="21/03/26" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="InZ-1K-PuR">
+                                <rect key="frame" x="38.333333333333329" y="23.333333333333343" width="48.333333333333329" height="14"/>
                                 <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="12"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -78,7 +81,7 @@
                         </constraints>
                     </stackView>
                 </subviews>
-                <color key="backgroundColor" red="0.1058823529" green="0.1058823529" blue="0.1058823529" alpha="0.79000000000000004" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
                     <constraint firstAttribute="bottom" secondItem="JP4-Ew-KHW" secondAttribute="bottom" constant="13.666666666666686" id="4CV-nK-Df8"/>
                     <constraint firstItem="Eza-UJ-b9u" firstAttribute="leading" secondItem="Y16-3e-VHR" secondAttribute="leading" constant="14" id="Cgd-vL-p4g"/>
@@ -90,6 +93,12 @@
                     <constraint firstItem="JP4-Ew-KHW" firstAttribute="top" secondItem="Eza-UJ-b9u" secondAttribute="bottom" constant="-2" id="n0n-6U-Z7L"/>
                     <constraint firstItem="Y16-3e-VHR" firstAttribute="leading" secondItem="0EM-Ui-cBW" secondAttribute="leading" constant="12" id="pzQ-5x-mc1"/>
                 </constraints>
+                <userDefinedRuntimeAttributes>
+                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                        <integer key="value" value="20"/>
+                    </userDefinedRuntimeAttribute>
+                    <userDefinedRuntimeAttribute type="boolean" keyPath="clipsToBounds" value="YES"/>
+                </userDefinedRuntimeAttributes>
             </collectionViewCellContentView>
             <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="calibratedRGB"/>
             <size key="customSize" width="378" height="357"/>
@@ -100,9 +109,7 @@
                 <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
             </userDefinedRuntimeAttributes>
             <connections>
-                <outlet property="arrowImageView" destination="Wmq-Ja-2fS" id="zOT-8r-wp4"/>
                 <outlet property="awardNameLabel" destination="J3H-vB-wJF" id="YGj-gD-Gg4"/>
-                <outlet property="containerView" destination="0EM-Ui-cBW" id="NAm-l7-PPJ"/>
                 <outlet property="dateLabel" destination="InZ-1K-PuR" id="zHr-AA-KdU"/>
                 <outlet property="iconImageView" destination="Eza-UJ-b9u" id="6w8-CW-LBA"/>
             </connections>
@@ -110,6 +117,10 @@
         </collectionViewCell>
     </objects>
     <resources>
-        <image name="chevron.right.circle.fill" catalog="system" width="128" height="123"/>
+        <image name="chevron.right" catalog="system" width="97" height="128"/>
+        <image name="infinity.circle.fill" catalog="system" width="128" height="123"/>
+        <namedColor name="AccentColor">
+            <color red="1" green="0.50199997425079346" blue="0.15700000524520874" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
     </resources>
 </document>

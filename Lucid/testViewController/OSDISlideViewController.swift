@@ -20,18 +20,23 @@ class OSDIViewController: UIViewController {
     private let options = ["None of the time", "Some of the time", "Half of the time", "Most of the time", "All of the time"]
     
     private let questionnaire: [(cat: String, q: String)] = [
-        ("Symptoms", "Eyes that are \n sensitive to light?"),
-        ("Symptoms", "Eyes that feel gritty?"),
-        ("Symptoms", "Painful or sore eyes?"),
-        ("Symptoms", "Blurred vision?"),
-        ("Vision Functionality", "Problems reading?"),
-        ("Vision Functionality", "Driving at night?"),
-        ("Vision Functionality", "Working with a computer?"),
-        ("Vision Functionality", "Watching TV?"),
-        ("Environmental Triggers", "In windy conditions?"),
-        ("Environmental Triggers", "In places with low humidity?"),
-        ("Environmental Triggers", "In air conditioned areas?"),
-        ("Environmental Triggers", "Do you notice redness or stinging \n when you are near traffic,\n dust, or smoke?")
+
+        ("Symptoms", "Do bright lights or sunlight bother your eyes?"),
+        ("Symptoms", "Eyes feeling like they  have dust or in them?"),
+        ("Symptoms", "Eyes feeling sore, stinging, or burning?"),
+        ("Symptoms", "Vision getting hazy or out of focus?"),
+        
+  
+        ("Vision Functionality", "Hard to read books  or long phone messages?"),
+        ("Vision Functionality", "Difficulty driving at night due to headlight glare?"),
+        ("Vision Functionality", "Trouble using your smartphone, laptop, or an ATM?"),
+        ("Vision Functionality", "Eyes getting tired while watching a movie or a match?"),
+        
+   
+        ("Environmental Triggers", "Discomfort when it's windy or while riding a bike?"),
+        ("Environmental Triggers", "Eyes feeling 'too dry' during peak summer?"),
+        ("Environmental Triggers", "Dryness in AC rooms  or in front of a cooler or fan?"),
+        ("Environmental Triggers", "Redness or stinging when near heavy traffic, dust, or smoke?")
     ]
 
     override func viewDidLoad() {

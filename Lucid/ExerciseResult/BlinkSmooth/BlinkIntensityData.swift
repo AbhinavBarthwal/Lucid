@@ -38,12 +38,12 @@ struct BlinkBarChartView: View {
                 
                 // 2. TARGET LINE (Rendered SECOND and forced to the FRONT)
                 RuleMark(y: .value("Threshold", 0.75))
-                    .foregroundStyle(Color.orange.opacity(0.9))
+                    .foregroundStyle(.accent)
                     .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
                     .annotation(position: .top, alignment: .leading) {
                         Text("Optimal")
                             .font(.system(size: 10))
-                            .foregroundColor(.orange)
+                            .foregroundColor(.accent)
                     }
                     .zIndex(1)
             }
@@ -54,7 +54,7 @@ struct BlinkBarChartView: View {
                     AxisValueLabel() {
                         if let doubleValue = value.as(Double.self) {
                             Text(String(format: "%.2f", doubleValue))
-                                .foregroundColor(doubleValue == 0.75 ? .orange : .gray)
+                                .foregroundColor(doubleValue == 0.75 ? .accent : .gray)
                         }
                     }
                 }

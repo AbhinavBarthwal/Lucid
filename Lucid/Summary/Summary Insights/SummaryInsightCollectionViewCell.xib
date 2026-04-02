@@ -49,7 +49,7 @@
                         </constraints>
                     </stackView>
                 </subviews>
-                <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
                     <constraint firstAttribute="bottom" secondItem="RgL-59-oJi" secondAttribute="bottom" constant="10" id="BRm-nU-L6b"/>
                     <constraint firstAttribute="trailing" secondItem="RgL-59-oJi" secondAttribute="trailing" constant="10" id="Bwp-am-Off"/>

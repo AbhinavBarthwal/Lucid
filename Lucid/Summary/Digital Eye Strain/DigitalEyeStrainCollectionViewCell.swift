@@ -8,16 +8,11 @@ class DigitalEyeStrainCollectionViewCell: UICollectionViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        setupUI()
         setupChart()
         configure(with: [75, 25, 60, 45, 80, 70, 48])
     }
     
-    private func setupUI() {
-        containerView.layer.cornerRadius = 20
-        containerView.backgroundColor = UIColor(white: 1.0, alpha: 0.05)
-    }
-    
+
     private func setupChart() {
         barChartView.chartDescription.enabled = false
         barChartView.legend.enabled = false

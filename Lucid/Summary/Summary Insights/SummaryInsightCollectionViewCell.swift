@@ -14,9 +14,7 @@ class SummaryInsightCollectionViewCell: UICollectionViewCell {
     }
 
     private func setupUI() {
-        containerView.layer.cornerRadius = 20
-        containerView.backgroundColor = UIColor(white: 1.0, alpha: 0.05)
-        containerView.clipsToBounds = true
+
         
         let config = UIImage.SymbolConfiguration.preferringMulticolor
         badge.preferredSymbolConfiguration = config()

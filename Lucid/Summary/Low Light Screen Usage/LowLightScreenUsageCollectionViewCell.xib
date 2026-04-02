@@ -57,7 +57,7 @@
                         </constraints>
                     </stackView>
                 </subviews>
-                <color key="backgroundColor" red="0.1058823529" green="0.1058823529" blue="0.1058823529" alpha="0.69999999999999996" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
                     <constraint firstItem="ju2-tu-KBx" firstAttribute="centerX" secondItem="ctS-q6-lbg" secondAttribute="centerX" id="6gr-h5-2px"/>
                     <constraint firstItem="vFT-zn-neY" firstAttribute="centerX" secondItem="ctS-q6-lbg" secondAttribute="centerX" id="G7a-Im-7NZ"/>

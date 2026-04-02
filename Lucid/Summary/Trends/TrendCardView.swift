@@ -23,10 +23,10 @@ struct TrendCardView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
                 Image(systemName: "flask.fill")
-                    .foregroundColor(.orange)
+                    .foregroundColor(.accent)
                 Text(title)
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.orange)
+                    .foregroundColor(.accent)
             }
             
             HStack(alignment: .bottom) {
@@ -53,7 +53,7 @@ struct TrendCardView: View {
                     }
                     
                     RuleMark(y: .value("Goal", 65))
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(.accent)
                         .lineStyle(StrokeStyle(lineWidth: 1))
                 }
                 .frame(width: 160, height: 100)

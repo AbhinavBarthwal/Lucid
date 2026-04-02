@@ -32,7 +32,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             rootVC.modelContext = sharedModelContainer.mainContext
         }
         
-        ExerciseDataManager.shared.updateDailyGoal(newGoalInSeconds: 900)
+        ExerciseDataManager.shared.updateDailyGoal(newGoalInSeconds: 180)
     }
     
 }

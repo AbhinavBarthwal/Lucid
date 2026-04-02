@@ -289,7 +289,7 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource {
                     withReuseIdentifier: "AwardsCell",
                     for: indexPath
                 ) as! AwardsCollectionViewCell
-                cell.configure(name: "Focused Champ", date: "21/11/2025")
+                        cell.configure(name: "Focused Champ", date: "21/11/2025" , image: "awardPlaceholderImage")
                 return cell
             }
         } else {

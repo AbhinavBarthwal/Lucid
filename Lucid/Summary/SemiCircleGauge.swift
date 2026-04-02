@@ -23,18 +23,17 @@ struct SemiCircleShape: Shape {
 struct SemiCircleGaugeStyle: GaugeStyle {
     func makeBody(configuration: Configuration) -> some View {
         ZStack {
-            // Background Track
+
             SemiCircleShape()
                 .stroke(
                     Color(white: 1.0, opacity: 0.1),
                     style: StrokeStyle(lineWidth: 14, lineCap: .round)
                 )
-            
-            // Progress Track
+
             SemiCircleShape()
                 .trim(from: 0.0, to: configuration.value)
                 .stroke(
-                    Color.orange,
+                    .accent,
                     style: StrokeStyle(lineWidth: 14, lineCap: .round)
                 )
         }

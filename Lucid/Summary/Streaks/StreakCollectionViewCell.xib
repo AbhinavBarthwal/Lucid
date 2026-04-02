@@ -256,7 +256,7 @@
                 </subviews>
             </view>
             <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
-            <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.40000000000000002" colorSpace="custom" customColorSpace="calibratedRGB"/>
+            <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="calibratedRGB"/>
             <constraints>
                 <constraint firstItem="Hmx-Sd-pr6" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="14" id="1ff-b2-uvL"/>
                 <constraint firstItem="Hmx-Sd-pr6" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="11" id="KpE-VH-Gh5"/>

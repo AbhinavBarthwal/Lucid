@@ -10,15 +10,9 @@ class LowLightScreenUsageCollectionViewCell: UICollectionViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        setupUI()
     }
 
-    private func setupUI() {
-        containerView.layer.cornerRadius = 20
-        containerView.backgroundColor = UIColor(white: 1.0, alpha: 0.05)
-        
-        containerView.bringSubviewToFront(timeLabel)
-    }
+
 
     func configure(usage: String, progress: CGFloat) {
         layoutIfNeeded()

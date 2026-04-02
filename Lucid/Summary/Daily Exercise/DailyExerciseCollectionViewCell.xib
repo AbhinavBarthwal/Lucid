@@ -73,7 +73,7 @@
                         </constraints>
                     </stackView>
                 </subviews>
-                <color key="backgroundColor" red="0.1058823529" green="0.1058823529" blue="0.1058823529" alpha="0.69999999999999996" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
                     <constraint firstItem="JMq-Tw-5JL" firstAttribute="top" secondItem="zJP-B7-m9K" secondAttribute="top" constant="8" id="1ty-lg-GAM"/>
                     <constraint firstItem="NDu-5o-9bA" firstAttribute="centerX" secondItem="zJP-B7-m9K" secondAttribute="centerX" id="CfP-3h-Tlq"/>
@@ -99,7 +99,6 @@
                 <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
             </userDefinedRuntimeAttributes>
             <connections>
-                <outlet property="containerView" destination="zJP-B7-m9K" id="Hjz-Rb-6Vz"/>
                 <outlet property="currentMinsLabel" destination="Vk2-FP-ndb" id="fuq-3i-nrX"/>
                 <outlet property="gaugeView" destination="NDu-5o-9bA" id="tdR-AL-pfA"/>
                 <outlet property="totalMinsLabel" destination="cpX-3Z-ZnI" id="TlZ-Ax-vg6"/>

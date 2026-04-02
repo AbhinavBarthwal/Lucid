@@ -22,7 +22,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         private let errorHapticGenerator = UINotificationFeedbackGenerator()
             
         private enum ExercisePhase {
-            case none, tracking, waitingForRotation
+            case none, tracking
         }
         private var currentPhase: ExercisePhase = .none
             
@@ -62,7 +62,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
             gazeTimer?.invalidate()
             circleView.layer.removeAllAnimations()
             trackLayer?.removeFromSuperlayer()
-                
+            self.tabBarController?.tabBar.isHidden = false
             UIDevice.current.endGeneratingDeviceOrientationNotifications()
             NotificationCenter.default.removeObserver(self)
         }
@@ -94,7 +94,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
  
         private func startInitialCountdown() {
             currentPhase = .none
-            countdownRemaining = 5
+            countdownRemaining = 3
             centerMessageLabel.text = "\(countdownRemaining)"
                 
             gazeTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
@@ -308,7 +308,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
             layer.beginTime = 0.0
         }
             
-        // MARK: - Rotation & Completion
+
             
         private func promptRotationPhase() {
             currentPhase = .none
@@ -322,41 +322,13 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
             centerMessageLabel.text = "Nicely done !"
             fadeTransition(showCenterMessage: true, showExerciseUI: false)
                 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                self.currentPhase = .waitingForRotation
-                self.centerMessageLabel.text = "Rotate your device"
-                    
-                // Listen for the device flipping over
-                UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-                NotificationCenter.default.addObserver(self, selector: #selector(self.deviceDidRotate), name: UIDevice.orientationDidChangeNotification, object: nil)
-            }
+
         }
-            
-        // Catches the standard device orientation change (if portrait lock is off)
-        override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-            super.viewWillTransition(to: size, with: coordinator)
-                
-            coordinator.animate(alongsideTransition: nil) { [weak self] _ in
-                guard let self = self else { return }
-                if self.currentPhase == .waitingForRotation {
-                    self.startSecondPhase()
-                }
-            }
-        }
-            
-        // Fallback catching raw gyro changes just in case view transition gets missed
-        @objc private func deviceDidRotate() {
-            guard currentPhase == .waitingForRotation else { return }
-            if UIDevice.current.orientation.isValidInterfaceOrientation {
-                startSecondPhase()
-            }
-        }
-            
+        
         private func startSecondPhase() {
             UIDevice.current.endGeneratingDeviceOrientationNotifications()
             NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
-                
-            // This will redraw the path using the new landscape/portrait bounds automatically!
+
             startFigureEightPhase()
         }
             
@@ -380,7 +352,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
                 
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 print("Exercise Completed - Transitioning to summary")
-                // Handle dismissal or segue
+                
             }
         }
     }

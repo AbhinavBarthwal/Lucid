@@ -122,7 +122,7 @@ class PreviousConditionsViewController: UITableViewController {
                     .padding(.vertical, 10)
                     .background(
                         selected.contains(tag)
-                        ? Color.orange.opacity(0.9)
+                        ? .accent
                         : Color.white.opacity(0.12)
                     )
                     .foregroundColor(.white)
