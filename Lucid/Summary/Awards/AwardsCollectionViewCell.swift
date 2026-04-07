@@ -13,7 +13,7 @@ class AwardsCollectionViewCell: UICollectionViewCell {
     func configure(name: String, date: String , image : String) {
         awardNameLabel.text = name
         dateLabel.text = date
-        iconImageView.image = UIImage(named: image)
+        iconImageView.image = UIImage(systemName: image)
     }
     
 }

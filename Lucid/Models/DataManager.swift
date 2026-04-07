@@ -8,7 +8,7 @@ class SwiftDataManager {
     var context: ModelContext { container.mainContext }
     
     private init() {
-        let schema = Schema([User.self, ExerciseSession.self, EyeTestSession.self, OSDIResult.self])
+        let schema = Schema([User.self, ExerciseSession.self, CTestSession.self, OSDISession.self])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         do {
             container = try ModelContainer(for: schema, configurations: [config])

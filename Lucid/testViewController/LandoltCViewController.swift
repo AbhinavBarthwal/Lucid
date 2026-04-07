@@ -251,19 +251,23 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
     }
 
     private func completeTest() {
-        let leftSnellen = getSnellenScore(for: leftEyeScore)
-        let rightSnellen = getSnellenScore(for: rightEyeScore)
-        
-        fadeTransition(text: "Test Complete.\nL: \(leftSnellen) | R: \(rightSnellen)") {
-            self.landoltImageView.alpha = 0
-            self.statusLabel.alpha = 0
-            self.numbers.forEach { $0.alpha = 0 }
+            let leftSnellen = getSnellenScore(for: leftEyeScore)
+            let rightSnellen = getSnellenScore(for: rightEyeScore)
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                self.navigationController?.popViewController(animated: true)
+            // Save using the new manager
+            EyeTestDataManager.shared.saveEyeTestScore(score: Double(leftEyeScore), eye: "Left")
+            EyeTestDataManager.shared.saveEyeTestScore(score: Double(rightEyeScore), eye: "Right")
+            
+            fadeTransition(text: "Test Complete.\nL: \(leftSnellen) | R: \(rightSnellen)") {
+                self.landoltImageView.alpha = 0
+                self.statusLabel.alpha = 0
+                self.numbers.forEach { $0.alpha = 0 }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                    self.navigationController?.popViewController(animated: true)
+                }
             }
         }
-    }
 
     func getSnellenScore(for points: Int) -> String {
         let mapping = [0: "20/200", 1: "20/100", 2: "20/70", 3: "20/50", 4: "20/40", 5: "20/25", 6: "20/20"]

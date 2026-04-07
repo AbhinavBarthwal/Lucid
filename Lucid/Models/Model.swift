@@ -9,9 +9,9 @@ final class User {
     var createdAt: Date
     var dailyExerciseGoal: Int 
     
-    @Relationship(deleteRule: .cascade, inverse: \EyeTestSession.user) var eyeTestSessions: [EyeTestSession] = []
+    @Relationship(deleteRule: .cascade, inverse: \CTestSession.user) var eyeTestSessions: [CTestSession] = []
     @Relationship(deleteRule: .cascade, inverse: \ExerciseSession.user) var exerciseSessions: [ExerciseSession] = []
-
+    @Relationship(deleteRule: .cascade, inverse: \OSDISession.user) var osdiSessions: [OSDISession] = []
     init(name: String, age: Int, dailyGoal: Int = 900) {
         self.id = UUID()
         self.name = name
@@ -97,7 +97,7 @@ final class ExerciseSession {
 
 // MARK: - Vision Tests & Surveys
 @Model
-final class EyeTestSession {
+final class CTestSession {
     var id: UUID
     var startingTime: Date
     var endingTime : Date
@@ -115,11 +115,12 @@ final class EyeTestSession {
     }
 }
 
+
 @Model
-final class OSDIResult {
+final class OSDISession {
     var id: UUID
     var date: Date
-    var rawScore: Double
+    var score: Double
     var severity: String // "Normal", "Mild", "Moderate", "Severe"
     
     var user: User?
@@ -127,7 +128,7 @@ final class OSDIResult {
     init(score: Double, severity: String) {
         self.id = UUID()
         self.date = Date()
-        self.rawScore = score
+        self.score = score
         self.severity = severity
     }
 }

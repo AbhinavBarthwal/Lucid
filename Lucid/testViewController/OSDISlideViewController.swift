@@ -96,27 +96,39 @@ class OSDIViewController: UIViewController {
     private func calculateScore() {
         let sum = scores.reduce(0, +)
         let finalOSDI = (Double(sum) * 25.0) / 12.0
-        showResultScreen(score: finalOSDI)
+        
+        // Determine severity here so we can save it to SwiftData
+        var severity = ""
+        if finalOSDI <= 12 { severity = "Normal" }
+        else if finalOSDI <= 22 { severity = "Mild" }
+        else if finalOSDI <= 32 { severity = "Moderate" }
+        else { severity = "Severe" }
+        
+        // Save to SwiftData
+        OSDIDataManager.shared.saveOSDIScore(score: finalOSDI, severity: severity)
+        
+        // Pass both to the UI
+        showResultScreen(score: finalOSDI, severity: severity)
     }
 
-    private func showResultScreen(score: Double) {
-        var severity = ""
+    // Update the signature of showResultScreen to accept the severity string
+    private func showResultScreen(score: Double, severity: String) {
         var color: UIColor = .white
         
-        if score <= 12 { severity = "Normal"; color = .systemGreen }
-        else if score <= 22 { severity = "Mild"; color = .systemYellow }
-        else if score <= 32 { severity = "Moderate"; color = .systemOrange }
-        else { severity = "Severe"; color = .systemRed }
-
-        
-
+        // Set the color based on the pre-calculated severity
+        switch severity {
+        case "Normal": color = .systemGreen
+        case "Mild": color = .systemYellow
+        case "Moderate": color = .systemOrange
+        default: color = .systemRed // "Severe"
+        }
 
         let resultView = UIView(frame: self.view.bounds)
         resultView.backgroundColor = UIColor.black.withAlphaComponent(0.95)
         resultView.alpha = 0
         
         let scoreLabel = UILabel()
-        scoreLabel.text = "Your OSDI Score: \(Int(score))"
+        scoreLabel.text = String(format: "Your OSDI Score: %.1f", score) // Formatted to 1 decimal
         scoreLabel.textColor = .white
         scoreLabel.font = .systemFont(ofSize: 24, weight: .bold)
         scoreLabel.textAlignment = .center

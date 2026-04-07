@@ -1,14 +1,30 @@
 import UIKit
 import SwiftUI
 
-class SummaryViewController: UIViewController, UICollectionViewDataSource {
+class SummaryViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
     
     @IBOutlet var collectionView: UICollectionView!
     
+    // MARK: - State Properties
+    var isAlertDismissed: Bool = false // Tracks if the insight alert has been closed
+    
+    // MARK: - Data Properties for Trends
+    var accuracyTrends: [TrendData] = []
+    var accuracyAverage: String = "0"
+    
+    var eyeTestTrends: [TrendData] = []
+    var eyeTestAverage: String = "0"
+    
+    var osdiTrends: [TrendData] = []
+    var osdiAverage: String = "0"
+    
     override func viewWillAppear(_ animated: Bool) {
-            super.viewWillAppear(animated)
+        super.viewWillAppear(animated)
+        
+        // Fetch the data right before reloading
+        loadTrendsData()
             
-            // Reloads the data so the gauge updates immediately when returning from an exercise
+        // Reloads the data so the gauge updates immediately when returning from an exercise
         collectionView.reloadData()
         
         setupBackground()
@@ -63,6 +79,24 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource {
         
         collectionView.collectionViewLayout = createLayout()
         collectionView.dataSource = self
+        collectionView.delegate = self
+    }
+    
+    private func loadTrendsData() {
+        // Fetch Exercise Accuracy
+        let accuracyResult = TrendDataManager.shared.getExerciseAccuracyTrends()
+        self.accuracyAverage = accuracyResult.average
+        self.accuracyTrends = accuracyResult.data
+        
+        // Fetch Eye Test Scores (Full Checkup)
+        let testResult = TrendDataManager.shared.getEyeTestTrends()
+        self.eyeTestAverage = testResult.average
+        self.eyeTestTrends = testResult.data
+        
+        // Fetch OSDI Scores
+        let osdiResult = TrendDataManager.shared.getOSDITrends()
+        self.osdiAverage = osdiResult.average
+        self.osdiTrends = osdiResult.data
     }
     
     private func setupBackground() {
@@ -156,9 +190,9 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource {
                 )
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
                 item.contentInsets = NSDirectionalEdgeInsets(
-                    top: 8,
+                    top: 4,
                     leading: 8,
-                    bottom: 8,
+                    bottom: 4,
                     trailing: 8
                 )
                 
@@ -168,9 +202,9 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource {
                 )
                 let section = NSCollectionLayoutSection(group: group)
                 section.contentInsets = NSDirectionalEdgeInsets(
-                    top: 8,
+                    top: 0,
                     leading: 0,
-                    bottom: 20,
+                    bottom: 0,
                     trailing: 0
                 )
                 section.boundarySupplementaryItems = [sectionHeader]
@@ -212,29 +246,46 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
-            return 2
+            // Adjust the number of items depending on if the alert is visible or dismissed
+            return isAlertDismissed ? 1 : 2
         } else if section == 1 {
             return 4
         }
-        return 2
+        return 3
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
-            switch indexPath.item {
-            case 0:
+            
+            // If the alert isn't dismissed and we are at the first item, show the alert
+            if !isAlertDismissed && indexPath.item == 0 {
                 let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: "AlertCell",
                     for: indexPath
                 ) as! SummaryInsightCollectionViewCell
-                cell
-                    .configure(
-                        name: "Excellent Work!!!",
-                        description: "Your Overall Eye Health Score improved by 5 points this month, moving you closer to the ideal 100."
-                    )
+                
+                cell.configure(
+                    name: "Excellent Work!!!",
+                    description: "Your Overall Eye Health Score improved by 5 points this month, moving you closer to the ideal 100."
+                )
+                
+                // Set the closure to handle what happens when the close button is tapped
+                cell.onDismiss = { [weak self] in
+                    guard let self = self else { return }
+                    
+                    // Update state so numberOfItemsInSection returns 1
+                    self.isAlertDismissed = true
+                    
+                    // Animate the cell away
+                    self.collectionView.performBatchUpdates({
+                        self.collectionView.deleteItems(at: [IndexPath(item: 0, section: 0)])
+                    }, completion: nil)
+                }
+                
                 return cell
-            default:
-                // Inside cellForItemAt for the StreakCell case
+                
+            } else {
+                // If the alert is dismissed OR we are at index 1, show the Streak Cell
                 let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: "StreakCell",
                     for: indexPath
@@ -244,32 +295,31 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource {
                 let user = SwiftDataManager.shared.getOrCreateUser()
                 let streakData = ExerciseDataManager.shared.fetchWeeklyStreak()
 
-                // CONFIGURE (Make sure arguments match the new signature above)
+                // CONFIGURE
                 cell.configure(with: streakData, currentStreak: user.currentStreak)
 
                 return cell
             }
             
-            
         } else if indexPath.section == 1 {
-                    switch indexPath.item {
-                    case 0:
-                        let cell = collectionView.dequeueReusableCell(
-                            withReuseIdentifier: "DailyExerciseCell",
-                            for: indexPath
-                        ) as! DailyExerciseCollectionViewCell
-                        
-                        // 1. Fetch today's exact record from UserDefaults
-                        let todayRecord = ExerciseDataManager.shared.fetchTodayRecord()
-                        
-                        // 2. Convert the stored seconds into minutes for the UI
-                        let completedMins = todayRecord.completedSeconds / 60
-                        let goalMins = todayRecord.goalSeconds / 60
-                        
-                        // 3. Pass the dynamic data to the cell
-                        cell.configure(current: completedMins, goal: goalMins)
-                        
-                        return cell
+            switch indexPath.item {
+            case 0:
+                let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: "DailyExerciseCell",
+                    for: indexPath
+                ) as! DailyExerciseCollectionViewCell
+                
+                // 1. Fetch today's exact record
+                let todayRecord = ExerciseDataManager.shared.fetchTodayRecord()
+                
+                // 2. Convert the stored seconds into minutes for the UI
+                let completedMins = todayRecord.completedSeconds / 60
+                let goalMins = todayRecord.goalSeconds / 60
+                
+                // 3. Pass the dynamic data to the cell
+                cell.configure(current: completedMins, goal: goalMins)
+                
+                return cell
             case 1:
                 let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: "LowLightCell",
@@ -289,7 +339,7 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource {
                     withReuseIdentifier: "AwardsCell",
                     for: indexPath
                 ) as! AwardsCollectionViewCell
-                        cell.configure(name: "Focused Champ", date: "21/11/2025" , image: "awardPlaceholderImage")
+                cell.configure(name: "Focused Champ", date: "21/11/2025" , image: "trophy.circle")
                 return cell
             }
         } else {
@@ -298,30 +348,46 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource {
                 for: indexPath
             )
             
-            let months = ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov"]
-            let values1 = [50, 58, 50, 70, 75, 85]
-            let values2 = [70, 75, 72, 80, 85, 90]
+            let currentTitle: String
+            let currentAverage: String
+            let currentData: [TrendData]
+            let currentMax: Double
             
-            let chartData = (0..<6).map {
-                TrendData(
-                    month: months[$0],
-                    value: Double(
-                        indexPath.item == 0 ? values1[$0] : values2[$0]
-                    )
-                )
+            if indexPath.item == 0 {
+                currentTitle = "Exercise Accuracy"
+                currentAverage = accuracyAverage
+                currentData = accuracyTrends
+                currentMax = 100 // Scales to 100%
+            }
+            else if indexPath.item == 1 {
+                currentTitle = "C Test Score"
+                currentAverage = eyeTestAverage
+                currentData = eyeTestTrends
+                currentMax = 6 // Scales to 6 (your Landolt C max score)
+            } else {
+                currentTitle = "OSDI score"
+                currentAverage = osdiAverage
+                currentData = osdiTrends
+                currentMax = 100 // Scales to 100
             }
             
             cell.contentConfiguration = UIHostingConfiguration {
                 TrendCardView(
-                    title: indexPath.item == 0 ? "Full checkup" : "Exercise Accuracy",
-                    averageScore: indexPath.item == 0 ? "78" : "89",
-                    data: chartData
+                    title: currentTitle,
+                    averageScore: currentAverage,
+                    data: currentData,
+                    yAxisMax: currentMax
                 )
             }
-            //.background(.clear)
-            
             return cell
         }
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if indexPath.section == 1 && indexPath.item == 3 {
+            let storyboard = UIStoryboard(name: "Summary", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "AwardsViewController")
+            navigationController?.pushViewController(vc, animated: true)
+        }
+    }
 }
-

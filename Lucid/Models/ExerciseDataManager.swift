@@ -1,5 +1,7 @@
 import Foundation
 import SwiftData
+
+
 struct DailyExerciseRecord: Codable {
     var date: Date
     var completedSeconds: Int

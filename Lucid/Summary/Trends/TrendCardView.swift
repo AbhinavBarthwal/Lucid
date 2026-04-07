@@ -3,7 +3,6 @@
 //  Lucid
 //
 //  Created by Kanishka Bansal on 11/02/26.
-//
 
 import SwiftUI
 import Charts
@@ -18,9 +17,16 @@ struct TrendCardView: View {
     let title: String
     let averageScore: String
     let data: [TrendData]
+    let yAxisMax: Double // 👈 New property
+    
+    var averageValue: Double {
+        let nonZeroValues = data.map { $0.value }.filter { $0 != 0 }
+        guard !nonZeroValues.isEmpty else { return 0 }
+        return nonZeroValues.reduce(0, +) / Double(nonZeroValues.count)
+    }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 8) {
                 Image(systemName: "flask.fill")
                     .foregroundColor(.accent)
@@ -46,17 +52,23 @@ struct TrendCardView: View {
                         BarMark(
                             x: .value("Month", item.month),
                             y: .value("Value", item.value),
-                            width: .fixed(10) // THIN BARS
+                            width: .fixed(10)
                         )
                         .foregroundStyle(Color(white: 1.0, opacity: 0.5))
                         .cornerRadius(5)
                     }
                     
-                    RuleMark(y: .value("Goal", 65))
-                        .foregroundStyle(.accent)
+
+                        RuleMark(y: .value("\(yAxisMax)", yAxisMax))
+                            .foregroundStyle(.gray)
+                            .lineStyle(StrokeStyle(lineWidth: 1))
+                    
+                    RuleMark(y: .value("", 0.0))
+                        .foregroundStyle(.gray)
                         .lineStyle(StrokeStyle(lineWidth: 1))
+                
                 }
-                .frame(width: 160, height: 100)
+                .frame(width: 160, height: 120)
                 .chartXAxis {
                     AxisMarks(values: .automatic) { value in
                         AxisValueLabel()
@@ -65,18 +77,8 @@ struct TrendCardView: View {
                     }
                 }
                 .chartYAxis(.hidden)
+                .chartYScale(domain: 0...yAxisMax)
             }
         }
-//        .padding(20)
-//        .background(Color(white: 1.0, opacity: 0.08))
-//        .cornerRadius(24)
-//        .overlay(
-//            RoundedRectangle(cornerRadius: 24)
-//                .stroke(Color.white.opacity(0.1), lineWidth: 1)
-//        )
-        
     }
 }
-
-
-
