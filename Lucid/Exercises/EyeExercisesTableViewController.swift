@@ -3,6 +3,7 @@ import SwiftData
 
 class ExerciseTableViewController: UITableViewController {
     
+    var onTestComplete: (() -> Void)?
     // This array drives TableView rows and logic
     let exercises = ["Blink", "SmoothPursuit", "PencilPushup", "Figure8", "NearFar"]
     

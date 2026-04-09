@@ -543,7 +543,7 @@
         <!--Near Far Focus View Controller-->
         <scene sceneID="W0n-UE-yod">
             <objects>
-                <viewController id="0ce-i1-YqH" customClass="nearFarFocusViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="nearFarFocusViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="0ce-i1-YqH" customClass="nearFarFocusViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="adv-k2-edC">
                         <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -605,7 +605,7 @@
         <!--Care-->
         <scene sceneID="Ta7-ke-4JX">
             <objects>
-                <tableViewController id="2Lp-TM-vDn" customClass="ExerciseTableViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="ExerciseTableViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="2Lp-TM-vDn" customClass="ExerciseTableViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="insetGrouped" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" id="AYt-DY-7bo">
                         <rect key="frame" x="0.0" y="0.0" width="440" height="1713"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -988,7 +988,7 @@
                             <tableViewSection headerTitle="Tests" id="0l6-AR-eDX">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" rowHeight="108" id="5Th-Ip-w9p">
-                                        <rect key="frame" x="20" y="867.33333015441906" width="400" height="108"/>
+                                        <rect key="frame" x="20" y="867.33333015441895" width="400" height="108"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="5Th-Ip-w9p" id="pS7-Fh-fG6">
                                             <rect key="frame" x="0.0" y="0.0" width="369.66666666666669" height="108"/>
@@ -1199,7 +1199,7 @@
         <!--OSDI-->
         <scene sceneID="hYy-r1-LaN">
             <objects>
-                <viewController id="b3d-JU-azO" customClass="OSDIViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="OSDIViewController" id="b3d-JU-azO" customClass="OSDIViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="pFt-lq-Bcb">
                         <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1404,7 +1404,7 @@
         <!--LandoltC View Controller-->
         <scene sceneID="EH8-TZ-Hj4">
             <objects>
-                <viewController id="16X-tO-ybw" customClass="LandoltCViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="LandoltCViewController" id="16X-tO-ybw" customClass="LandoltCViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="OG4-Ds-OlN">
                         <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1611,19 +1611,19 @@
             <color red="1" green="0.50199997425079346" blue="0.15700000524520874" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="linkColor">
-            <color red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="placeholderTextColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.29803921570000003" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.29803921568627451" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemOrangeColor">
-            <color red="1" green="0.58431372550000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.55294117647058827" blue="0.15686274509803921" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

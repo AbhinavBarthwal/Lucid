@@ -1,7 +1,8 @@
-
 import UIKit
 
 class OSDIViewController: UIViewController {
+
+    var onTestComplete: (() -> Void)?  // ← added
 
     @IBOutlet weak var pageControl: UIPageControl!
     @IBOutlet weak var categoryLabel: UILabel!
@@ -11,14 +12,13 @@ class OSDIViewController: UIViewController {
     @IBOutlet weak var responseSlider: UISlider!
     @IBOutlet weak var nextButton: UIButton!
 
-
     private var currentIndex = 0
     private var scores: [Int] = Array(repeating: 0, count: 12)
     private var originalCenter: CGPoint = .zero
     private var FirstLoad = true
-    
+
     private let options = ["None of the time", "Some of the time", "Half of the time", "Most of the time", "All of the time"]
-    
+
     private let questionnaire: [(cat: String, q: String)] = [
         ("Symptoms", "Eyes that are \n sensitive to light?"),
         ("Symptoms", "Eyes that feel gritty?"),
@@ -56,11 +56,11 @@ class OSDIViewController: UIViewController {
 
     private func handleCategoryTransition() {
         [instructionLabel, questionLabel, valueLabel, responseSlider, nextButton, pageControl].forEach { $0?.alpha = 0 }
-        
+
         categoryLabel.text = questionnaire[currentIndex].cat
         categoryLabel.font = .systemFont(ofSize: 34, weight: .bold)
         categoryLabel.center = view.center
-        
+
         UIView.animate(withDuration: 0.5, animations: {
             self.categoryLabel.alpha = 1.0
         }) { _ in
@@ -75,18 +75,15 @@ class OSDIViewController: UIViewController {
     }
 
     private func moveToHeaderAndReveal() {
-
         categoryLabel.font = .systemFont(ofSize: 32, weight: .semibold)
         categoryLabel.center = originalCenter
-        
         updateContent()
-        
         UIView.animate(withDuration: 0.5) {
             self.categoryLabel.alpha = 1.0
-            [self.instructionLabel, self.questionLabel, self.valueLabel, self.responseSlider, self.nextButton, self.pageControl].forEach { $0?.alpha = 1.0 }
+            [self.instructionLabel, self.questionLabel, self.valueLabel,
+             self.responseSlider, self.nextButton, self.pageControl].forEach { $0?.alpha = 1.0 }
         }
     }
-
 
     private func calculateScore() {
         let sum = scores.reduce(0, +)
@@ -97,49 +94,61 @@ class OSDIViewController: UIViewController {
     private func showResultScreen(score: Double) {
         var severity = ""
         var color: UIColor = .white
-        
+
         if score <= 12 { severity = "Normal"; color = .systemGreen }
         else if score <= 22 { severity = "Mild"; color = .systemYellow }
         else if score <= 32 { severity = "Moderate"; color = .systemOrange }
         else { severity = "Severe"; color = .systemRed }
 
-        
-
-
         let resultView = UIView(frame: self.view.bounds)
         resultView.backgroundColor = UIColor.black.withAlphaComponent(0.95)
         resultView.alpha = 0
-        
+
         let scoreLabel = UILabel()
         scoreLabel.text = "Your OSDI Score: \(Int(score))"
         scoreLabel.textColor = .white
         scoreLabel.font = .systemFont(ofSize: 24, weight: .bold)
         scoreLabel.textAlignment = .center
-        
+
         let severityLabel = UILabel()
         severityLabel.text = severity
         severityLabel.textColor = color
         severityLabel.font = .systemFont(ofSize: 40, weight: .black)
         severityLabel.textAlignment = .center
-        
-        let stack = UIStackView(arrangedSubviews: [scoreLabel, severityLabel])
+
+        // ← Continue button fires onTestComplete
+        let continueButton = UIButton(type: .system)
+        continueButton.setTitle("Continue →", for: .normal)
+        continueButton.titleLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
+        continueButton.tintColor = .orange
+        continueButton.addTarget(self, action: #selector(resultContinueTapped), for: .touchUpInside)
+
+        let stack = UIStackView(arrangedSubviews: [scoreLabel, severityLabel, continueButton])
         stack.axis = .vertical
         stack.spacing = 20
         stack.translatesAutoresizingMaskIntoConstraints = false
-        
+
         resultView.addSubview(stack)
         self.view.addSubview(resultView)
-        
+
         NSLayoutConstraint.activate([
             stack.centerXAnchor.constraint(equalTo: resultView.centerXAnchor),
             stack.centerYAnchor.constraint(equalTo: resultView.centerYAnchor)
         ])
-        
+
         UIView.animate(withDuration: 0.6) {
             resultView.alpha = 1.0
         }
     }
 
+    @objc private func resultContinueTapped() {
+        // Save test date and fire completion chain
+        UserDefaults.standard.set(Date(), forKey: "lastEyeTestDate")
+        onTestComplete?()
+        if onTestComplete == nil {
+            navigationController?.popViewController(animated: true)
+        }
+    }
 
     @IBAction func sliderValueChanged(_ sender: UISlider) {
         let roundedValue = Int(round(sender.value))
