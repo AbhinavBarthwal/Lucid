@@ -49,12 +49,15 @@
                         </constraints>
                     </stackView>
                     <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="close" lineBreakMode="middleTruncation" role="cancel" translatesAutoresizingMaskIntoConstraints="NO" id="g64-n0-tQF">
-                        <rect key="frame" x="322" y="8" width="20" height="20"/>
+                        <rect key="frame" x="318" y="10" width="20" height="20"/>
                         <constraints>
+                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="20" id="W30-jA-ZgV"/>
                             <constraint firstAttribute="width" constant="20" id="pcb-n8-ETY"/>
                             <constraint firstAttribute="height" constant="20" id="tGZ-GV-6z9"/>
                         </constraints>
-                        <buttonConfiguration key="configuration" style="gray"/>
+                        <buttonConfiguration key="configuration" style="gray">
+                            <color key="baseBackgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </buttonConfiguration>
                         <connections>
                             <action selector="closeButtonTapped:" destination="nou-Jh-dLH" eventType="touchUpInside" id="0Ca-hK-2TW"/>
                         </connections>
@@ -64,10 +67,10 @@
                 <constraints>
                     <constraint firstAttribute="bottom" secondItem="RgL-59-oJi" secondAttribute="bottom" constant="10" id="BRm-nU-L6b"/>
                     <constraint firstAttribute="trailing" secondItem="RgL-59-oJi" secondAttribute="trailing" constant="10" id="Bwp-am-Off"/>
-                    <constraint firstItem="g64-n0-tQF" firstAttribute="top" secondItem="mFo-Gq-I7X" secondAttribute="top" constant="8" id="Gh8-Aw-sYg"/>
+                    <constraint firstItem="g64-n0-tQF" firstAttribute="top" secondItem="mFo-Gq-I7X" secondAttribute="top" constant="10" id="mgp-In-6ph"/>
+                    <constraint firstAttribute="trailing" secondItem="g64-n0-tQF" secondAttribute="trailing" constant="12" id="nCd-kF-xwE"/>
                     <constraint firstItem="RgL-59-oJi" firstAttribute="top" secondItem="mFo-Gq-I7X" secondAttribute="top" constant="10" id="qg7-Gt-5qt"/>
                     <constraint firstItem="RgL-59-oJi" firstAttribute="leading" secondItem="mFo-Gq-I7X" secondAttribute="leading" constant="10" id="sAV-1c-JYz"/>
-                    <constraint firstAttribute="trailing" secondItem="g64-n0-tQF" secondAttribute="trailing" constant="8" id="ynv-ds-nsn"/>
                 </constraints>
             </collectionViewCellContentView>
             <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="calibratedRGB"/>

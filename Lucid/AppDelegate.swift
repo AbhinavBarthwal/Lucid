@@ -11,32 +11,32 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
-//
-//    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-//        
-//        let appearance = UINavigationBarAppearance()
-//
-//  
-//        let expandedFont = UIFont.systemFont(ofSize: 20, weight: .bold, width: .expanded)
-//        let largeExpandedFont = UIFont.systemFont(ofSize: 34, weight: .bold, width: .expanded)
-//
-//
-//        appearance.titleTextAttributes = [
-//            .font: expandedFont,
-//            .foregroundColor: UIColor.white
-//        ]
-//        
-//        appearance.largeTitleTextAttributes = [
-//            .font: largeExpandedFont,
-//            .foregroundColor: UIColor.white
-//        ]
-//
-//        UINavigationBar.appearance().standardAppearance = appearance
-//        UINavigationBar.appearance().scrollEdgeAppearance = appearance
-//        UINavigationBar.appearance().compactAppearance = appearance
-//        
-//        return true
-//    }
+
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
+        let appearance = UINavigationBarAppearance()
+
+  
+        let expandedFont = UIFont.systemFont(ofSize: 20, weight: .bold, width: .expanded)
+        let largeExpandedFont = UIFont.systemFont(ofSize: 34, weight: .bold, width: .expanded)
+
+
+        appearance.titleTextAttributes = [
+            .font: expandedFont,
+            .foregroundColor: UIColor.white
+        ]
+        
+        appearance.largeTitleTextAttributes = [
+            .font: largeExpandedFont,
+            .foregroundColor: UIColor.white
+        ]
+
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        UINavigationBar.appearance().compactAppearance = appearance
+        
+        return true
+    }
 
     // MARK: UISceneSession Lifecycle
 

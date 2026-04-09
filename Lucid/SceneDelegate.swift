@@ -25,7 +25,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let _ = (scene as? UIWindowScene) else { return }
 
         if let navigationController = window?.rootViewController as? UINavigationController,
-           let rootVC = navigationController.viewControllers.first as? ExerciseTableViewController {
+           let rootVC = navigationController.viewControllers.first as? ExerciseCollectionViewController {
                
             rootVC.modelContext = sharedModelContainer.mainContext
         }

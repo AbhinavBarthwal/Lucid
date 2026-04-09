@@ -12,29 +12,24 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
 
     @IBOutlet weak var instructionLabel: UILabel!
     @IBOutlet weak var centerMessageLabel: UILabel!
-    
-    // We need two dots for this exercise
     @IBOutlet weak var centerDotView: UIView!
     @IBOutlet weak var peripheralDotView: UIView!
     
-    // AR session to run head/eye tracking.
     private let arSession = ARSession()
     private let errorHapticGenerator = UINotificationFeedbackGenerator()
     private var sessionStartTime: Date?
-
     private let successHapticGenerator = UINotificationFeedbackGenerator()
+    private var isExerciseActive = true
     
     private enum ExercisePhase {
         case none, tracking
     }
     private var currentPhase: ExercisePhase = .none
     
-    // Monitors gaze and animation state
     private var gazeTimer: Timer?
     private var countdownRemaining = 0
     private var isAnimationPaused = false
     
-    // Tracks the loops
     private var currentLoopIndex = 0
     private let totalLoops = 3
     private var currentPath: UIBezierPath?
@@ -43,13 +38,13 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         super.viewDidLoad()
         setupInitialUI()
         errorHapticGenerator.prepare()
-        successHapticGenerator.prepare() // Add this
-        
+        successHapticGenerator.prepare()
         startInitialCountdown()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        isExerciseActive = true
         guard ARFaceTrackingConfiguration.isSupported else { return }
         let config = ARFaceTrackingConfiguration()
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
@@ -58,22 +53,22 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        isExerciseActive = false
         arSession.pause()
         gazeTimer?.invalidate()
         peripheralDotView.layer.removeAllAnimations()
+        centerDotView.layer.removeAllAnimations()
+        instructionLabel.layer.removeAllAnimations()
+        centerMessageLabel.layer.removeAllAnimations()
+        currentPhase = .none
     }
     
-    // MARK: - UI Setup
     private func setupInitialUI() {
-        // Style the center dot (Orange/Yellow)
         centerDotView.layer.cornerRadius = centerDotView.bounds.width / 2
         centerDotView.backgroundColor = .systemOrange
-        
-        // Style the peripheral dot (White)
         peripheralDotView.layer.cornerRadius = peripheralDotView.bounds.width / 2
         peripheralDotView.backgroundColor = .white
         
-        // Initial opacities
         instructionLabel.alpha = 0
         centerDotView.alpha = 0
         peripheralDotView.alpha = 0
@@ -84,9 +79,8 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         peripheralDotView.isHidden = false
         centerMessageLabel.isHidden = false
         
-        // Snap peripheral dot to the bottom center to start
         view.layoutIfNeeded()
-        let startY = view.bounds.height - 120 // 120 padding from bottom
+        let startY = view.bounds.height - 120
         peripheralDotView.center = CGPoint(x: view.bounds.midX, y: startY)
     }
     
@@ -99,22 +93,22 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         UIView.animate(withDuration: 0.5, animations: {
             self.centerMessageLabel.alpha = showCenterMessage ? 1 : 0
             self.instructionLabel.alpha = showDots ? 1 : 0
-            
-            // Only fade center dot initially, peripheral dot is handled separately in sequence
             if showDots { self.centerDotView.alpha = 1 }
         }) { _ in
             completion?()
         }
     }
     
-    // MARK: - Sequence Phasing
     private func startInitialCountdown() {
         currentPhase = .none
         countdownRemaining = 5
         centerMessageLabel.text = "\(countdownRemaining)"
         
         gazeTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
-            guard let self = self else { return }
+            guard let self = self, self.isExerciseActive else {
+                timer.invalidate()
+                return
+            }
             self.countdownRemaining -= 1
             
             if self.countdownRemaining > 0 {
@@ -122,6 +116,7 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
             } else {
                 timer.invalidate()
                 self.fadeTransition(showCenterMessage: false, showDots: false) {
+                    guard self.isExerciseActive else { return }
                     self.showPreparationSequence()
                 }
             }
@@ -131,15 +126,14 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
     private func showPreparationSequence() {
         currentPhase = .none
         centerMessageLabel.text = "Keep your phone at\narm's length"
-        
         fadeTransition(showCenterMessage: true, showDots: false)
         
-        // Wait 3 seconds, then show the center dot
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             self.fadeTransition(showCenterMessage: false, showDots: true, instructionText: "Focus on the yellow dot,\nkeeping the white dot in your vision") {
-                
-                // Wait 4 seconds, then reveal the white dot
+                guard self.isExerciseActive else { return }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+                    guard self.isExerciseActive else { return }
                     self.revealPeripheralDot()
                 }
             }
@@ -148,13 +142,12 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
     
     private func revealPeripheralDot() {
         instructionLabel.text = "Try to keep the white\ndot in check"
-        
         UIView.animate(withDuration: 0.5) {
             self.peripheralDotView.alpha = 1
         }
         
-        // Wait 3 seconds, then start the exercise!
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             self.startPeripheralPhase()
         }
     }
@@ -163,77 +156,52 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         currentPhase = .tracking
         currentLoopIndex = 0
         isAnimationPaused = false
-        
-        // START THE CLOCK HERE
         self.sessionStartTime = Date()
-        
         resetLayerSpeed(layer: peripheralDotView.layer)
-
-    
-        // Generate the orbit path
         currentPath = createPeripheralTrack()
         
-        // Fade out instruction label
         UIView.animate(withDuration: 0.5) {
             self.instructionLabel.alpha = 0
         } completion: { _ in
+            guard self.isExerciseActive else { return }
             self.startGazeMonitor()
             self.startOrbitAnimation()
         }
     }
     
-    // MARK: - Peripheral Math & Animation
-    
-    // Creates a smooth rounded rectangle around the edges of the screen
     private func createPeripheralTrack() -> UIBezierPath {
         view.layoutIfNeeded()
         let path = UIBezierPath()
-        
         let padX: CGFloat = 20
-        let padY: CGFloat = 140 // Keeps it away from top/bottom safe areas
-        
+        let padY: CGFloat = 140
         let minX = padX
         let maxX = view.bounds.width - padX
         let minY = padY
         let maxY = view.bounds.height - padY
         let midX = view.bounds.midX
-        
         let cornerRadius: CGFloat = 40
         
-        // 1. Start exactly at bottom-center (where the dot is spawned)
         path.move(to: CGPoint(x: midX, y: maxY))
-        
-        // 2. Go Left to Bottom-Left corner
         path.addLine(to: CGPoint(x: minX + cornerRadius, y: maxY))
         path.addQuadCurve(to: CGPoint(x: minX, y: maxY - cornerRadius), controlPoint: CGPoint(x: minX, y: maxY))
-        
-        // 3. Go Up to Top-Left corner
         path.addLine(to: CGPoint(x: minX, y: minY + cornerRadius))
         path.addQuadCurve(to: CGPoint(x: minX + cornerRadius, y: minY), controlPoint: CGPoint(x: minX, y: minY))
-        
-        // 4. Go Right to Top-Right corner
         path.addLine(to: CGPoint(x: maxX - cornerRadius, y: minY))
         path.addQuadCurve(to: CGPoint(x: maxX, y: minY + cornerRadius), controlPoint: CGPoint(x: maxX, y: minY))
-        
-        // 5. Go Down to Bottom-Right corner
         path.addLine(to: CGPoint(x: maxX, y: maxY - cornerRadius))
         path.addQuadCurve(to: CGPoint(x: maxX - cornerRadius, y: maxY), controlPoint: CGPoint(x: maxX, y: maxY))
-        
-        // 6. Return to Bottom-Center
         path.addLine(to: CGPoint(x: midX, y: maxY))
-        
         return path
     }
     
     private func startOrbitAnimation() {
-        guard currentPhase == .tracking, let path = currentPath else { return }
+        guard isExerciseActive, currentPhase == .tracking, let path = currentPath else { return }
         
         if currentLoopIndex >= totalLoops {
             finishExercise()
             return
         }
         
-        // Peripheral vision gets harder if it moves faster. Let's start slow and gradually increase.
         let loopDurations: [CFTimeInterval] = [12.0 , 10.0 , 8.0]
         let currentDuration = loopDurations[currentLoopIndex]
         
@@ -244,7 +212,6 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         animation.calculationMode = .paced
         animation.fillMode = .forwards
         animation.isRemovedOnCompletion = false
-        
         animation.delegate = self
         
         peripheralDotView.layer.removeAllAnimations()
@@ -252,31 +219,24 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
     }
     
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
-        if flag && currentPhase == .tracking {
+        if isExerciseActive && flag && currentPhase == .tracking {
             currentLoopIndex += 1
-            
             resetLayerSpeed(layer: peripheralDotView.layer)
             isAnimationPaused = false
-            
             startOrbitAnimation()
         }
     }
     
-    // MARK: - Pausing & Gaze Monitoring
-    
     private func startGazeMonitor() {
         gazeTimer?.invalidate()
-        
-        // Check every 0.1s. The user MUST keep looking at the center!
         gazeTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
-            guard let self = self, self.currentPhase == .tracking else { return }
+            guard let self = self, self.isExerciseActive, self.currentPhase == .tracking else { return }
             
             var isLookingAtCenter = false
             if let frame = self.arSession.currentFrame,
                let faceAnchor = frame.anchors.compactMap({ $0 as? ARFaceAnchor }).first,
                faceAnchor.isTracked {
                 let lookAt = faceAnchor.lookAtPoint
-                // Strict bounds to ensure they look at the center, not the moving white dot
                 isLookingAtCenter = abs(lookAt.x) < 0.2 && abs(lookAt.y) < 0.2
             }
             
@@ -293,7 +253,6 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
                     self.pauseLayer(layer: self.peripheralDotView.layer)
                     self.isAnimationPaused = true
                     self.errorHapticGenerator.notificationOccurred(.error)
-                    
                     self.instructionLabel.layer.removeAllAnimations()
                     self.instructionLabel.textColor = .systemRed
                     self.instructionLabel.text = "⚠️ Keep your eyes strictly on the yellow dot!"
@@ -324,20 +283,15 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         layer.beginTime = 0.0
     }
     
-    // MARK: - Completion
-    
     private func finishExercise() {
         currentPhase = .none
         gazeTimer?.invalidate()
         peripheralDotView.layer.removeAllAnimations()
         
-        // STOP THE CLOCK AND SAVE
         if let startTime = sessionStartTime {
             let elapsedTime = Date().timeIntervalSince(startTime)
             let elapsedSeconds = Int(elapsedTime)
             ExerciseDataManager.shared.addExerciseTime(seconds: elapsedSeconds)
-            
-            // Optional: Trigger success haptic
             successHapticGenerator.notificationOccurred(.success)
         }
         
@@ -353,10 +307,9 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
             self.instructionLabel.alpha = 0
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             print("Exercise Completed - Transitioning to summary")
-            // Your dismissal/segue logic
         }
-    
     }
 }

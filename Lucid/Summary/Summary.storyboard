@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="0ok-Ym-9if">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="0ok-Ym-9if">
     <device id="retina6_12" orientation="portrait" appearance="dark"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
@@ -62,7 +62,13 @@
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Item" image="heart.text.clipboard" catalog="system" selectedImage="heart.text.clipboard.fill" id="51d-No-Ja2"/>
-                    <navigationItem key="navigationItem" title="Summary" id="NxW-yM-mnc"/>
+                    <navigationItem key="navigationItem" title="Summary" largeTitleDisplayMode="always" id="NxW-yM-mnc">
+                        <barButtonItem key="rightBarButtonItem" image="person.fill" catalog="system" id="a5v-3U-zd9">
+                            <connections>
+                                <segue destination="aZo-cf-HIo" kind="show" id="k3V-g9-dfA"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="collectionView" destination="RBp-kR-te8" id="1CZ-Gs-319"/>
                     </connections>
@@ -70,6 +76,16 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Xx9-8h-X0z" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="4690.8396946564881" y="-2.1126760563380285"/>
+        </scene>
+        <!--Profile-->
+        <scene sceneID="8BB-is-Lua">
+            <objects>
+                <viewControllerPlaceholder storyboardIdentifier="Profile" storyboardName="ProfilePage" referencedIdentifier="Profile" id="aZo-cf-HIo" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="LDq-WJ-Wux"/>
+                </viewControllerPlaceholder>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="zGp-mw-P2X" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="5237" y="-375"/>
         </scene>
         <!--Awards-->
         <scene sceneID="9mL-Cn-i8j">
@@ -240,6 +256,7 @@
         <image name="chevron.left" catalog="system" width="97" height="128"/>
         <image name="heart.text.clipboard" catalog="system" width="103" height="128"/>
         <image name="heart.text.clipboard.fill" catalog="system" width="103" height="128"/>
+        <image name="person.fill" catalog="system" width="128" height="120"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

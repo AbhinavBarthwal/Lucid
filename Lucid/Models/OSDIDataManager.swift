@@ -22,8 +22,11 @@ class OSDIDataManager {
         do {
             try SwiftDataManager.shared.context.save()
             print("✅ Saved OSDI Score: \(score) (\(severity)) for \(user.name)")
+            RecommendationEngine.shared.generateRecommendations()
         } catch {
             print("❌ OSDI Save failed: \(error)")
         }
     }
 }
+
+

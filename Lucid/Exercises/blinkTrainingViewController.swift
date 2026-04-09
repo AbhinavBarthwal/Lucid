@@ -7,7 +7,7 @@ import SwiftData
 
 var doubleBlink = 5
 var LeftRighEyeBlink = 5
-private var sessionStartTime: Date?
+private var globalSessionStartTime: Date? // Renamed to avoid shadow warning
 
 enum TypeOfBlink {
     case doubleBlink(remaining: Int)
@@ -39,10 +39,10 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
     @IBOutlet var centerMessageLAbel: UILabel!
     
     private var sessionStartTime: Date?
-    
     private var player: AVQueuePlayer?
     private var playerLayer: AVPlayerLayer?
     private var playerLooper: AVPlayerLooper?
+    private var isExerciseActive = true
     
     private var currentPhase: TypeOfBlink = .completed
     private var isAcceptingInput = false
@@ -75,23 +75,31 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         super.viewDidLoad()
         setupBackgroundVideo()
         setupInitialUI()
-        
         startInitialCountdown()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        isExerciseActive = true
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
-        
         let config = ARFaceTrackingConfiguration()
         sceneView.session.run(config)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        isExerciseActive = false
         sceneView.session.pause()
-        phaseTimer?.invalidate()
-        responseTimer?.invalidate()
+        phaseTimer?.invalidate(); phaseTimer = nil
+        responseTimer?.invalidate(); responseTimer = nil
+        player?.pause()
+        playerLayer?.removeFromSuperlayer(); playerLayer = nil
+        sceneView.delegate = nil
+        isAcceptingInput = false
+        currentPhase = .completed
+        instructionLabel.layer.removeAllAnimations()
+        largeCountLabel.layer.removeAllAnimations()
+        centerMessageLAbel.layer.removeAllAnimations()
     }
     
     override var prefersHomeIndicatorAutoHidden: Bool { return true }
@@ -100,11 +108,9 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         instructionLabel.alpha = 0
         largeCountLabel.alpha = 0
         playerLayer?.opacity = 0
-        
         instructionLabel.isHidden = false
         largeCountLabel.isHidden = false
         centerMessageLAbel.isHidden = false
-        
         centerMessageLAbel.alpha = 1
         sceneView.delegate = self
         sceneView.alpha = 0
@@ -127,7 +133,10 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         centerMessageLAbel.text = "\(secondsRemaining)"
         
         phaseTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
-            guard let self = self else { return }
+            guard let self = self, self.isExerciseActive else {
+                timer.invalidate()
+                return
+            }
             self.secondsRemaining -= 1
             
             if self.secondsRemaining > 0 {
@@ -135,10 +144,11 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
             } else {
                 timer.invalidate()
                 self.fadeTransition(showCenterMessage: false, showExerciseUI: false) {
-                    
+                    guard self.isExerciseActive else { return }
                     self.sessionStartTime = Date()
                     self.currentPhase = .doubleBlink(remaining: doubleBlink)
                     self.showPreparationMessage("Blink both eyes after the vibration") {
+                        guard self.isExerciseActive else { return }
                         self.startActiveBlinkPhase()
                     }
                 }
@@ -151,8 +161,10 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         centerMessageLAbel.text = message
         fadeTransition(showCenterMessage: true, showExerciseUI: false)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             self.fadeTransition(showCenterMessage: false, showExerciseUI: false) {
+                guard self.isExerciseActive else { return }
                 completion()
             }
         }
@@ -166,19 +178,23 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         centerMessageLAbel.text = "Nicely Done!"
         fadeTransition(showCenterMessage: true, showExerciseUI: false)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             self.fadeTransition(showCenterMessage: false, showExerciseUI: false) {
+                guard self.isExerciseActive else { return }
                 nextPhase()
             }
         }
     }
     
     private func startActiveBlinkPhase() {
+        guard isExerciseActive else { return }
         secondsRemaining = 25
         largeCountLabel.text = "\(currentPhase.remaining)"
         instructionLabel.text = ""
         
-        fadeTransition(showCenterMessage: false, showExerciseUI: true) {
+        fadeTransition(showCenterMessage: false, showExerciseUI: true) { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             self.triggerNextCue()
             self.startPhaseTimer()
         }
@@ -187,13 +203,17 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
     private func startPhaseTimer() {
         phaseTimer?.invalidate()
         phaseTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
-            guard let self = self else { return }
+            guard let self = self, self.isExerciseActive else {
+                timer.invalidate()
+                return
+            }
             self.secondsRemaining -= 1
             
             if self.secondsRemaining <= 0 {
                 timer.invalidate()
                 self.centerMessageLAbel.text = "Time's Up!"
                 self.startTransitionPhase {
+                    guard self.isExerciseActive else { return }
                     self.advancePhase()
                 }
             }
@@ -201,12 +221,14 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
     }
         
     private func triggerNextCue() {
+        guard isExerciseActive else { return }
         isAcceptingInput = false
         hideNudge()
         currentBlinkMaxLeft = 0.0
         currentBlinkMaxRight = 0.0
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             self.impactMed.impactOccurred()
             self.impactMed.impactOccurred()
             self.isAcceptingInput = true
@@ -217,34 +239,36 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
     private func startResponseTimer() {
         responseTimer?.invalidate()
         responseTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { [weak self] _ in
-            self?.showContextualNudge()
-            self?.impactMed.impactOccurred()
-            self?.impactMed.impactOccurred()
+            guard let self = self, self.isExerciseActive else { return }
+            self.showContextualNudge()
+            self.impactMed.impactOccurred()
+            self.impactMed.impactOccurred()
         }
     }
     
     private func showContextualNudge() {
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             let nudgeText: String
             switch self.currentPhase {
             case .doubleBlink: nudgeText = "Please, try a double blink"
             case .singleBlink(let eye, _): nudgeText = "Please, blink your \(eye) eye"
             default: return
             }
-            
             self.instructionLabel.text = nudgeText
             UIView.animate(withDuration: 0.5) { self.instructionLabel.alpha = 1.0 }
         }
     }
     
     private func hideNudge() {
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 0 }
         }
     }
     
     func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
-        guard let faceAnchor = anchor as? ARFaceAnchor, isAcceptingInput else { return }
+        guard isExerciseActive, let faceAnchor = anchor as? ARFaceAnchor, isAcceptingInput else { return }
         
         let realLeftValue = faceAnchor.blendShapes[.eyeBlinkRight]?.floatValue ?? 0.0
         let realRightValue = faceAnchor.blendShapes[.eyeBlinkLeft]?.floatValue ?? 0.0
@@ -280,13 +304,9 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
                 leftMaxBlinks.append(currentBlinkMaxLeft)
                 rightMaxBlinks.append(currentBlinkMaxRight)
             case .singleBlink(let eye, _):
-                if eye == "left" {
-                    leftMaxBlinks.append(currentBlinkMaxLeft)
-                } else if eye == "right" {
-                    rightMaxBlinks.append(currentBlinkMaxRight)
-                }
-            default:
-                break
+                if eye == "left" { leftMaxBlinks.append(currentBlinkMaxLeft) }
+                else if eye == "right" { rightMaxBlinks.append(currentBlinkMaxRight) }
+            default: break
             }
             
             consecutiveErrors = 0
@@ -313,7 +333,8 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         self.impactHeavy.impactOccurred()
         self.impactHeavy.impactOccurred()
         
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             UIView.animate(withDuration: 0.2, animations: {
                 self.largeCountLabel.textColor = .systemRed
             }) { _ in
@@ -334,7 +355,8 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         isAcceptingInput = false
         hideNudge()
         
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             self.currentPhase.decrement()
             self.largeCountLabel.text = "\(self.currentPhase.remaining)"
             self.impactRigid.impactOccurred()
@@ -352,25 +374,31 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
     }
     
     private func advancePhase() {
+        guard isExerciseActive else { return }
         consecutiveErrors = 0
         switch currentPhase {
         case .doubleBlink:
             self.currentPhase = .singleBlink(eye: "left", remaining: LeftRighEyeBlink)
-            startTransitionPhase {
+            startTransitionPhase { [weak self] in
+                guard let self = self, self.isExerciseActive else { return }
                 self.showPreparationMessage("Blink left eye only after the vibration") {
+                    guard self.isExerciseActive else { return }
                     self.startActiveBlinkPhase()
                 }
             }
         case .singleBlink(let eye, _):
             if eye == "left" {
                 self.currentPhase = .singleBlink(eye: "right", remaining: LeftRighEyeBlink)
-                startTransitionPhase {
+                startTransitionPhase { [weak self] in
+                    guard let self = self, self.isExerciseActive else { return }
                     self.showPreparationMessage("Blink right eye only after the vibration") {
+                        guard self.isExerciseActive else { return }
                         self.startActiveBlinkPhase()
                     }
                 }
             } else {
-                startTransitionPhase {
+                startTransitionPhase { [weak self] in
+                    guard let self = self, self.isExerciseActive else { return }
                     self.finishSession()
                 }
             }
@@ -406,9 +434,7 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         
         ExerciseDataManager.shared.addExerciseTime(seconds: elapsedSeconds)
 
-
         let context = SwiftDataManager.shared.context
-
         let fetchDescriptor = FetchDescriptor<User>()
         let users = (try? context.fetch(fetchDescriptor)) ?? []
         
@@ -433,23 +459,20 @@ class blinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         
         showSummaryScreen(score: responseScore)
     }
-private func showSummaryScreen(score: Double) {
-        DispatchQueue.main.async {
-            
+
+    private func showSummaryScreen(score: Double) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                   let rootVC = windowScene.windows.first?.rootViewController else { return }
             
-            
             let storyboard = UIStoryboard(name: "Report", bundle: nil)
             guard let reportVC = storyboard.instantiateViewController(withIdentifier: "ReportViewController") as? ReportViewController else {
-                print(" ERROR: Could not find ReportViewController in Report.storyboard")
                 return
             }
             
             reportVC.overallScore = Int(score)
             reportVC.totalErrors = self.totalErrors
-            
-
             reportVC.chartData = [
                 "Left": self.leftMaxBlinks,
                 "Right": self.rightMaxBlinks
@@ -464,11 +487,9 @@ private func showSummaryScreen(score: Double) {
                 self.dismiss(animated: false)
             }
             
-
             rootVC.present(navWrapper, animated: true)
         }
     }
-
 
     private func setupBackgroundVideo() {
         guard let path = Bundle.main.path(forResource: "eyeBlinkBackground", ofType: "mp4") else { return }
@@ -482,6 +503,4 @@ private func showSummaryScreen(score: Double) {
         view.layer.insertSublayer(playerLayer!, at: 0)
         player?.play()
     }
-    
 }
-

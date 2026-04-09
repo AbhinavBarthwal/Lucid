@@ -13,6 +13,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
     private let errorHapticGenerator = UINotificationFeedbackGenerator()
     private let successHapticGenerator = UINotificationFeedbackGenerator()
     private let heavyHapticGenerator = UIImpactFeedbackGenerator(style: .heavy)
+    private var isExerciseActive = true
     
     private enum ExercisePhase {
         case none, bringingCloser, waitingForReset
@@ -38,42 +39,56 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         InstructionStep(message: "Bring the phone closer slowly", duration: 3.0)
     ]
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        // RESTORE the tab bar here
-        self.tabBarController?.tabBar.isHidden = false
-        
-        arSession.pause()
-        gazeTimer?.invalidate()
-        circleView.layer.removeAllAnimations()
-    }
     override func viewDidLoad() {
         super.viewDidLoad()
         setupInitialUI()
-        
         arSession.delegate = self
         errorHapticGenerator.prepare()
         successHapticGenerator.prepare()
         heavyHapticGenerator.prepare()
-        
         centerMessageLabel.alpha = 0
         runInstructionSequence(index: 0)
     }
 
-    // MARK: - Instruction Sequence
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        isExerciseActive = true
+        self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        self.tabBarController?.tabBar.isHidden = true
+        guard ARFaceTrackingConfiguration.isSupported else { return }
+        let config = ARFaceTrackingConfiguration()
+        arSession.run(config, options: [.resetTracking, .removeExistingAnchors])
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        isExerciseActive = false
+        self.tabBarController?.tabBar.isHidden = false
+        arSession.pause()
+        gazeTimer?.invalidate(); gazeTimer = nil
+        circleView.layer.removeAllAnimations()
+        centerMessageLabel.layer.removeAllAnimations()
+        instructionLabel.layer.removeAllAnimations()
+        currentPhase = .none
+        isLookingAtScreen = false
+    }
+
     private func runInstructionSequence(index: Int) {
+        guard isExerciseActive else { return }
+        
         if index < exerciseInstructions.count {
             let step = exerciseInstructions[index]
             
             UIView.animate(withDuration: 0.4, animations: {
                 self.centerMessageLabel.alpha = 0
             }) { _ in
+                guard self.isExerciseActive else { return }
                 self.centerMessageLabel.text = step.message
                 UIView.animate(withDuration: 0.4, animations: {
                     self.centerMessageLabel.alpha = 1
                 }) { _ in
-                    DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self] in
+                        guard let self = self, self.isExerciseActive else { return }
                         self.runInstructionSequence(index: index + 1)
                     }
                 }
@@ -82,6 +97,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
             UIView.animate(withDuration: 0.5, animations: {
                 self.centerMessageLabel.alpha = 0
             }) { _ in
+                guard self.isExerciseActive else { return }
                 self.sessionStartTime = Date()
                 self.startBringingCloserPhase()
             }
@@ -89,26 +105,25 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
     }
 
     private func startBringingCloserPhase() {
+        guard isExerciseActive else { return }
         currentPhase = .bringingCloser
-        
-        // Prepare UI state while hidden
         self.instructionLabel.textColor = .lightGray
         self.instructionLabel.text = "Bring phone closer"
         self.circleView.transform = .identity
         
-        // Fade out any lingering center messages first
         UIView.animate(withDuration: 0.3, animations: {
             self.centerMessageLabel.alpha = 0
         }) { _ in
-            // Now show exercise UI
+            guard self.isExerciseActive else { return }
             self.fadeTransition(showCenterMessage: false, showExerciseUI: true) {
+                guard self.isExerciseActive else { return }
                 self.startGazeMonitor()
             }
         }
     }
 
-    // MARK: - Rep Logic
     private func handleFullRepCompletion() {
+        guard isExerciseActive else { return }
         successHapticGenerator.notificationOccurred(.success)
         successHapticGenerator.prepare()
         gazeTimer?.invalidate()
@@ -117,22 +132,21 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
             currentRep += 1
             currentPhase = .waitingForReset
             
-            // Hide exercise UI and show reset message
-            fadeTransition(showCenterMessage: false, showExerciseUI: false) {
+            fadeTransition(showCenterMessage: false, showExerciseUI: false) { [weak self] in
+                guard let self = self, self.isExerciseActive else { return }
                 self.centerMessageLabel.text = "Get back to the initial position"
                 UIView.animate(withDuration: 0.5) {
                     self.centerMessageLabel.alpha = 1
                 }
             }
         } else {
-            // Final rep finished - skip reset and go to finish
             currentPhase = .none
             finishExercise()
         }
     }
 
     private func finishExercise() {
-        // Stop everything immediately
+        guard isExerciseActive else { return }
         gazeTimer?.invalidate()
         currentPhase = .none
         
@@ -143,13 +157,14 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         
         heavyHapticGenerator.impactOccurred()
         
-        // Full UI reset to clean state
-        fadeTransition(showCenterMessage: false, showExerciseUI: false) {
+        fadeTransition(showCenterMessage: false, showExerciseUI: false) { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             self.centerMessageLabel.text = "Exercise Complete!"
             UIView.animate(withDuration: 0.5, animations: {
                 self.centerMessageLabel.alpha = 1
             }) { _ in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                    guard self.isExerciseActive else { return }
                     if let nav = self.navigationController {
                         nav.popViewController(animated: true)
                     } else {
@@ -160,7 +175,6 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         }
     }
 
-    // MARK: - Tracking & Goals
     private func checkDistanceGoal() {
         if currentPhase == .bringingCloser {
             if currentFaceDistance > 0 && currentFaceDistance <= 0.21 && isLookingAtScreen {
@@ -176,7 +190,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
     }
 
     func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
-        guard let faceAnchor = anchors.compactMap({ $0 as? ARFaceAnchor }).first else {
+        guard isExerciseActive, let faceAnchor = anchors.compactMap({ $0 as? ARFaceAnchor }).first else {
             isLookingAtScreen = false
             return
         }
@@ -188,7 +202,8 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         let distance = sqrt(pow(transform.columns.3.x, 2) + pow(transform.columns.3.y, 2) + pow(transform.columns.3.z, 2))
         self.currentFaceDistance = distance
         
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             if self.currentPhase != .none {
                 let distanceInCM = Int(self.currentFaceDistance * 100)
                 self.distanceLabel.text = "\(distanceInCM) cm"
@@ -197,7 +212,6 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         }
     }
 
-    // MARK: - Helpers
     private func setupInitialUI() {
         circleView.layer.cornerRadius = circleView.bounds.width / 2
         circleView.backgroundColor = .systemOrange
@@ -221,7 +235,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
     private func startGazeMonitor() {
         gazeTimer?.invalidate()
         gazeTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
-            guard let self = self, self.currentPhase == .bringingCloser else { return }
+            guard let self = self, self.isExerciseActive, self.currentPhase == .bringingCloser else { return }
             self.totalFramesChecked += 1
             
             if self.isLookingAtScreen {
@@ -237,15 +251,4 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
             }
         }
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.setNavigationBarHidden(false, animated: animated)
-        self.tabBarController?.tabBar.isHidden = true
-        guard ARFaceTrackingConfiguration.isSupported else { return }
-        let config = ARFaceTrackingConfiguration()
-        arSession.run(config, options: [.resetTracking, .removeExistingAnchors])
-    }
-    
-
 }

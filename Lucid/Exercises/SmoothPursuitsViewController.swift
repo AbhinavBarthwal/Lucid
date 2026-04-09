@@ -17,6 +17,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     private var isLookingAtScreen = false
     private let errorHapticGenerator = UINotificationFeedbackGenerator()
     private let successHapticGenerator = UINotificationFeedbackGenerator()
+    private var isExerciseActive = true
 
     private var sessionStartTime: Date?
     private enum ExercisePhase { case none, tracking }
@@ -54,50 +55,77 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         runInstructionSequence(index: 0)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        isExerciseActive = true
+        guard ARFaceTrackingConfiguration.isSupported else { return }
+        self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        self.tabBarController?.tabBar.isHidden = true
+        let config = ARFaceTrackingConfiguration()
+        arSession.run(config, options: [.resetTracking, .removeExistingAnchors])
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        isExerciseActive = false
+        arSession.pause()
+        gazeTimer?.invalidate(); gazeTimer = nil
+        circleView.layer.removeAllAnimations()
+        centerMessageLabel.layer.removeAllAnimations()
+        instructionLabel.layer.removeAllAnimations()
+        currentPhase = .none
+        isLookingAtScreen = false
+        self.tabBarController?.tabBar.isHidden = false
+    }
+
     private func runInstructionSequence(index: Int) {
+        guard isExerciseActive else { return }
+        
         if index < exerciseInstructions.count {
             let step = exerciseInstructions[index]
             
-
             UIView.animate(withDuration: 0.4, animations: {
                 self.centerMessageLabel.alpha = 0
             }) { _ in
-   
+                guard self.isExerciseActive else { return }
                 self.centerMessageLabel.text = step.message
                 
                 UIView.animate(withDuration: 0.4, animations: {
                     self.centerMessageLabel.alpha = 1
                 }) { _ in
-                    DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self] in
+                        guard let self = self, self.isExerciseActive else { return }
                         self.runInstructionSequence(index: index + 1)
                     }
                 }
             }
         } else {
-
             UIView.animate(withDuration: 0.5, animations: {
                 self.centerMessageLabel.alpha = 0
             }) { _ in
+                guard self.isExerciseActive else { return }
                 self.startSmoothPursuitPhase()
             }
         }
     }
 
     private func startSmoothPursuitPhase() {
+        guard isExerciseActive else { return }
         currentPhase = .tracking
         if sessionStartTime == nil { sessionStartTime = Date() }
 
         instructionLabel.textColor = .lightGray
         instructionLabel.text = "Keep your head still and follow the dot"
         
-        // Show exercise UI
-        fadeTransition(showCenterMessage: false, showExerciseUI: true) {
+        fadeTransition(showCenterMessage: false, showExerciseUI: true) { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                guard self.currentPhase == .tracking else { return }
+                guard self.isExerciseActive, self.currentPhase == .tracking else { return }
                 
                 UIView.animate(withDuration: 0.5) {
                     self.instructionLabel.alpha = 0
                 } completion: { _ in
+                    guard self.isExerciseActive else { return }
                     self.startGazeMonitor()
                     self.startStarPathAnimation(targetIndex: 0)
                 }
@@ -106,7 +134,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     }
 
     private func startStarPathAnimation(targetIndex: Int) {
-        guard currentPhase == .tracking else { return }
+        guard isExerciseActive, currentPhase == .tracking else { return }
 
         let padX: CGFloat = 40
         let padY: CGFloat = 80
@@ -133,11 +161,11 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         UIView.animate(withDuration: currentDuration, delay: 0, options: [.curveEaseInOut]) {
             self.circleView.transform = CGAffineTransform(translationX: nextPoint.x, y: nextPoint.y)
         } completion: { _ in
-            guard self.currentPhase == .tracking else { return }
+            guard self.isExerciseActive, self.currentPhase == .tracking else { return }
             UIView.animate(withDuration: currentDuration, delay: 0, options: [.curveEaseInOut]) {
                 self.circleView.transform = .identity
             } completion: { _ in
-                if self.currentPhase == .tracking {
+                if self.isExerciseActive && self.currentPhase == .tracking {
                     self.startStarPathAnimation(targetIndex: targetIndex + 1)
                 }
             }
@@ -145,72 +173,50 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     }
 
     private func handlePhaseTransition() {
-            currentSpeedLevel += 1
-            
-            // Trigger haptic to signal the phase is complete
-            successHapticGenerator.notificationOccurred(.success)
-            // Re-prepare so it's ready for the next trigger without delay
-            successHapticGenerator.prepare()
+        guard isExerciseActive else { return }
+        currentSpeedLevel += 1
+        successHapticGenerator.notificationOccurred(.success)
+        successHapticGenerator.prepare()
 
-            if currentSpeedLevel > 2 {
-                // If we've finished all 3 speeds, wrap it up
-                finishExercise()
-            } else {
-                // Pause the monitor for the mid-exercise break
-                gazeTimer?.invalidate()
-                
-                let message = currentSpeedLevel == 1 ? "Good, Let's ramp up the speed" : "Final round! Maximum speed"
-                
-                showTransitionMessage(message) {
-                    self.startSmoothPursuitPhase()
-                }
+        if currentSpeedLevel > 2 {
+            finishExercise()
+        } else {
+            gazeTimer?.invalidate()
+            let message = currentSpeedLevel == 1 ? "Good, Let's ramp up the speed" : "Final round! Maximum speed"
+            
+            showTransitionMessage(message) { [weak self] in
+                guard let self = self, self.isExerciseActive else { return }
+                self.startSmoothPursuitPhase()
             }
         }
+    }
 
-        private func showTransitionMessage(_ message: String, completion: @escaping () -> Void) {
-            currentPhase = .none
-            
-            // Smooth cinematic fade for the phase transition message
+    private func showTransitionMessage(_ message: String, completion: @escaping () -> Void) {
+        currentPhase = .none
+        
+        UIView.animate(withDuration: 0.4, animations: {
+            self.centerMessageLabel.alpha = 0
+        }) { _ in
+            guard self.isExerciseActive else { return }
+            self.centerMessageLabel.text = message
             UIView.animate(withDuration: 0.4, animations: {
-                self.centerMessageLabel.alpha = 0
+                self.centerMessageLabel.alpha = 1
             }) { _ in
-                self.centerMessageLabel.text = message
-                UIView.animate(withDuration: 0.4, animations: {
-                    self.centerMessageLabel.alpha = 1
-                }) { _ in
-                    // Give them a moment to read the "Ramp up" text
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                        UIView.animate(withDuration: 0.4, animations: {
-                            self.centerMessageLabel.alpha = 0
-                        }) { _ in
-                            completion()
-                        }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { [weak self] in
+                    guard let self = self, self.isExerciseActive else { return }
+                    UIView.animate(withDuration: 0.4, animations: {
+                        self.centerMessageLabel.alpha = 0
+                    }) { _ in
+                        guard self.isExerciseActive else { return }
+                        completion()
                     }
                 }
             }
         }
-
-    // MARK: - ARSession, UI Helpers, and Restored Logic
-    // (Rest of the logic including startGazeMonitor, session, and finishExercise remains identical to your code)
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        guard ARFaceTrackingConfiguration.isSupported else { return }
-        self.navigationController?.setNavigationBarHidden(false, animated: animated)
-        self.tabBarController?.tabBar.isHidden = true
-        let config = ARFaceTrackingConfiguration()
-        arSession.run(config, options: [.resetTracking, .removeExistingAnchors])
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        arSession.pause()
-        gazeTimer?.invalidate()
-        circleView.layer.removeAllAnimations()
     }
 
     func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
-        guard let faceAnchor = anchors.compactMap({ $0 as? ARFaceAnchor }).first else {
+        guard isExerciseActive, let faceAnchor = anchors.compactMap({ $0 as? ARFaceAnchor }).first else {
             isLookingAtScreen = false
             return
         }
@@ -245,7 +251,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     private func startGazeMonitor() {
         gazeTimer?.invalidate()
         gazeTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
-            guard let self = self, self.currentPhase == .tracking else { return }
+            guard let self = self, self.isExerciseActive, self.currentPhase == .tracking else { return }
             self.totalFramesChecked += 1
             let currentDirection = self.getDirectionName(for: self.currentTargetDirectionIndex)
             self.directionChecks[currentDirection, default: 0] += 1
@@ -288,7 +294,8 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         newSession.directionErrors = calculatedDirectionErrors
         context.insert(newSession)
         
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             let storyboard = UIStoryboard(name: "Report", bundle: nil)
             guard let reportVC = storyboard.instantiateViewController(withIdentifier: "ReportViewController") as? ReportViewController else { return }
             reportVC.sessionType = "SmoothPursuit"; reportVC.overallScore = accuracy; reportVC.totalErrors = self.totalErrors; reportVC.avgHeadMovement = avgHeadMovement; reportVC.directionErrors = calculatedDirectionErrors
@@ -297,7 +304,8 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         }
         ExerciseDataManager.shared.addExerciseTime(seconds: elapsedSeconds)
         do { try context.save(); successHapticGenerator.notificationOccurred(.success) } catch { print("Error: \(error)") }
-        startTransitionPhase(message: "Nicely Done!") {
+        startTransitionPhase(message: "Nicely Done!") { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             if let nav = self.navigationController { nav.popViewController(animated: true) } else { self.dismiss(animated: true) }
         }
     }
@@ -305,8 +313,12 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     private func startTransitionPhase(message: String, nextPhase: @escaping () -> Void) {
         fadeTransition(showCenterMessage: true, showExerciseUI: false)
         centerMessageLabel.text = message
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.fadeTransition(showCenterMessage: false, showExerciseUI: false) { nextPhase() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
+            self.fadeTransition(showCenterMessage: false, showExerciseUI: false) {
+                guard self.isExerciseActive else { return }
+                nextPhase()
+            }
         }
     }
 }

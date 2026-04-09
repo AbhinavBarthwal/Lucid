@@ -10,6 +10,7 @@ class SaccadicJumps: UIViewController, ARSessionDelegate {
     private let notificationGenerator = UINotificationFeedbackGenerator()
     private let impactGenerator = UIImpactFeedbackGenerator(style: .medium)
     private let faceTrackingSession = ARSession()
+    private var isExerciseActive = true
 
     private enum Direction: String, CaseIterable {
         case top = "Top", bottom = "Bottom", left = "Left", right = "Right"
@@ -36,18 +37,34 @@ class SaccadicJumps: UIViewController, ARSessionDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         configureAudioSession()
         prepareInitialState()
         setupEyeTracking()
-        
         notificationGenerator.prepare()
         impactGenerator.prepare()
-        
         runInstructionSequence(index: 0)
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        isExerciseActive = true
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        isExerciseActive = false
+        faceTrackingSession.pause()
+        if speechSynthesizer.isSpeaking {
+            speechSynthesizer.stopSpeaking(at: .immediate)
+        }
+        isTracking = false
+        hasLookedInDirection = false
+        currentDirection = nil
+        repCount = totalReps // Break the loop
+        centerMessageLabel.layer.removeAllAnimations()
+        centerMessageLabel.alpha = 0
+    }
 
-    // MARK: - Audio Configuration
     private func configureAudioSession() {
         do {
             let session = AVAudioSession.sharedInstance()
@@ -59,17 +76,21 @@ class SaccadicJumps: UIViewController, ARSessionDelegate {
     }
 
     private func runInstructionSequence(index: Int) {
+        guard isExerciseActive else { return }
+        
         if index < exerciseInstructions.count {
             let step = exerciseInstructions[index]
             
             UIView.animate(withDuration: 0.4, animations: {
                 self.centerMessageLabel.alpha = 0
             }) { _ in
+                guard self.isExerciseActive else { return }
                 self.centerMessageLabel.text = step.message
                 UIView.animate(withDuration: 0.4, animations: {
                     self.centerMessageLabel.alpha = 1
                 }) { _ in
-                    DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self] in
+                        guard let self = self, self.isExerciseActive else { return }
                         self.runInstructionSequence(index: index + 1)
                     }
                 }
@@ -78,39 +99,37 @@ class SaccadicJumps: UIViewController, ARSessionDelegate {
             UIView.animate(withDuration: 0.5, animations: {
                 self.centerMessageLabel.alpha = 0
             }) { _ in
+                guard self.isExerciseActive else { return }
                 self.startExercise()
             }
         }
     }
 
-
-        func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
-            guard isTracking, let faceAnchor = anchors.first as? ARFaceAnchor else { return }
-            let lookAt = faceAnchor.lookAtPoint
+    func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
+        guard isExerciseActive, isTracking, let faceAnchor = anchors.first as? ARFaceAnchor else { return }
+        let lookAt = faceAnchor.lookAtPoint
+        
+        let threshold: Float = 0.14
+        let bottomThreshold: Float = 0.05
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
+            guard let target = self.currentDirection, !self.hasLookedInDirection else { return }
             
-            // General threshold for Left, Right, Top
-            let threshold: Float = 0.14
-            // Specific threshold for Bottom to make it more deliberate
-            let bottomThreshold: Float = 0.05
+            var success = false
+            switch target {
+            case .top:    success = lookAt.y > threshold
+            case .left:   success = lookAt.x < -threshold
+            case .right:  success = lookAt.x > threshold
+            case .bottom: success = lookAt.y < -bottomThreshold
+            }
             
-            DispatchQueue.main.async {
-                guard let target = self.currentDirection, !self.hasLookedInDirection else { return }
-                
-                var success = false
-                switch target {
-                case .top:    success = lookAt.y > threshold
-                case .left:   success = lookAt.x < -threshold
-                case .right:  success = lookAt.x > threshold
-                case .bottom:
-                    // Using a stricter negative threshold for downward gaze
-                    success = lookAt.y < -bottomThreshold
-                }
-                
-                if success {
-                    self.handleSuccessfulLook()
-                }
+            if success {
+                self.handleSuccessfulLook()
             }
         }
+    }
+    
     private func handleSuccessfulLook() {
         hasLookedInDirection = true
         successfulFollows += 1
@@ -118,12 +137,14 @@ class SaccadicJumps: UIViewController, ARSessionDelegate {
     }
 
     private func startExercise() {
+        guard isExerciseActive else { return }
         self.sessionStartTime = Date()
         self.isTracking = true
         triggerNextRep()
     }
 
     private func triggerNextRep() {
+        guard isExerciseActive else { return }
         guard repCount < totalReps else {
             endExercise()
             return
@@ -132,8 +153,6 @@ class SaccadicJumps: UIViewController, ARSessionDelegate {
         repCount += 1
         hasLookedInDirection = false
         
-        
-        // Select direction (ensuring it's not the same as last time for better variety)
         let nextDir = Direction.allCases.filter { $0 != currentDirection }.randomElement() ?? .top
         currentDirection = nextDir
         
@@ -142,28 +161,26 @@ class SaccadicJumps: UIViewController, ARSessionDelegate {
         
         speak(nextDir.rawValue)
         
-        // Show direction text briefly
         centerMessageLabel.text = nextDir.rawValue
         UIView.animate(withDuration: 0.2) {
             self.centerMessageLabel.alpha = 1
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration) { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
             if !self.hasLookedInDirection {
                 self.notificationGenerator.notificationOccurred(.error)
             }
-            // Fade out text before next rep starts
             UIView.animate(withDuration: 0.2) { self.centerMessageLabel.alpha = 0 }
             self.triggerNextRep()
         }
     }
 
     private func speak(_ text: String) {
-        // Stop any current speech to prevent overlapping buffer errors
+        guard isExerciseActive else { return }
         if speechSynthesizer.isSpeaking {
             speechSynthesizer.stopSpeaking(at: .immediate)
         }
-        
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "en-IN")
         utterance.rate = 0.52
@@ -186,14 +203,15 @@ class SaccadicJumps: UIViewController, ARSessionDelegate {
             self.centerMessageLabel.text = "Finished!\nScore: \(self.successfulFollows)/16"
             self.centerMessageLabel.alpha = 1
         }) { _ in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
+                guard let self = self, self.isExerciseActive else { return }
                 self.navigationController?.popViewController(animated: true)
             }
         }
     }
 
     private func prepareInitialState() {
- centerMessageLabel.alpha = 0
+        centerMessageLabel.alpha = 0
     }
 
     private func setupEyeTracking() {

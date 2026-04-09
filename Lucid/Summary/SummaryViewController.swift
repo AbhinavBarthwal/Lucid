@@ -322,17 +322,17 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                 return cell
             case 1:
                 let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: "LowLightCell",
-                    for: indexPath
-                ) as! LowLightScreenUsageCollectionViewCell
-                cell.configure(usage: "1h 20m", progress: 0.70)
-                return cell
-            case 2:
-                let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: "EyeStrainCell",
                     for: indexPath
                 ) as! DigitalEyeStrainCollectionViewCell
                 cell.configure(with: [70, 22, 60, 42, 80, 75, 48])
+                return cell
+            case 2:
+                let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: "LowLightCell",
+                    for: indexPath
+                ) as! EyeTestSummaryCell
+                
                 return cell
             default:
                 let cell = collectionView.dequeueReusableCell(
@@ -387,6 +387,11 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
         if indexPath.section == 1 && indexPath.item == 3 {
             let storyboard = UIStoryboard(name: "Summary", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "AwardsViewController")
+            navigationController?.pushViewController(vc, animated: true)
+        }
+        else if indexPath.section == 1 && indexPath.item == 2 {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "EyeTestStoryBoard")
             navigationController?.pushViewController(vc, animated: true)
         }
     }

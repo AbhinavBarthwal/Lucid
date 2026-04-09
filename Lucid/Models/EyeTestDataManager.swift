@@ -22,6 +22,7 @@ class EyeTestDataManager {
         do {
             try SwiftDataManager.shared.context.save()
             print("✅ Saved Eye Test Score: \(score) (\(eye) Eye) for \(user.name)")
+            RecommendationEngine.shared.generateRecommendations()
         } catch {
             print("❌ Eye Test Save failed: \(error)")
         }
