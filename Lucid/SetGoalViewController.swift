@@ -1,4 +1,5 @@
 import UIKit
+import SwiftData
 
 class SetGoalViewController: UIViewController {
 
@@ -66,18 +67,30 @@ class SetGoalViewController: UIViewController {
     }
 
     @IBAction func changeGoalTapped(_ sender: UIButton) {
-        UserDefaults.standard.set(minutes, forKey: "exerciseGoal")
-        showAlert()
+        let user = SwiftDataManager.shared.getCurrentUser()
+            
+            let seconds = minutes * 60
+            user.dailyExerciseGoal = seconds
+            
+            do {
+                try SwiftDataManager.shared.context.save()
+            } catch {
+                print("❌ Failed to save goal:", error)
+            }
+            
+            showAlert()
     }
 
     func loadSavedGoal() {
-        let saved = UserDefaults.standard.integer(forKey: "exerciseGoal")
-        
-        if saved >= 10 && saved <= 30 {
-            minutes = saved
-        } else {
-            minutes = 10
-        }
+        let user = SwiftDataManager.shared.getCurrentUser()
+           
+           let savedMinutes = user.dailyExerciseGoal / 60
+           
+           if savedMinutes >= 10 && savedMinutes <= 30 {
+               minutes = savedMinutes
+           } else {
+               minutes = 10
+           }
     }
 
     func animateLabel() {

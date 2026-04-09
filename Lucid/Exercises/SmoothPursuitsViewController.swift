@@ -285,7 +285,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
             calculatedDirectionErrors[direction] = totalChecks > 0 ? (Double(fails) / Double(totalChecks)) * 100.0 : 0.0
         }
         let context = SwiftDataManager.shared.context
-        let user = SwiftDataManager.shared.getOrCreateUser()
+        let user = SwiftDataManager.shared.getCurrentUser()
         let newSession = ExerciseSession(type: "SmoothPursuit", duration: elapsedSeconds, accuracy: accuracy, errors: totalErrors)
         newSession.user = user
         newSession.headMovementDegrees = avgHeadMovement

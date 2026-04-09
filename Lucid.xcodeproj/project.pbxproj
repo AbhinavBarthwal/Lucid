@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AD4309AA2F5FD8C800915CF3 /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = AD4309A92F5FD8C800915CF3 /* DGCharts */; };
+		AD196BBC2F67BB1A0005D82E /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = AD196BBB2F67BB1A0005D82E /* DGCharts */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -53,25 +53,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AD4309AA2F5FD8C800915CF3 /* DGCharts in Frameworks */,
+				AD196BBC2F67BB1A0005D82E /* DGCharts in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		AD43099D2F5FD41E00915CF3 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		ADCBCE912F14ACAD008D4CCE = {
 			isa = PBXGroup;
 			children = (
 				ADCBCE9C2F14ACAD008D4CCE /* Lucid */,
-				AD43099D2F5FD41E00915CF3 /* Frameworks */,
 				ADCBCE9B2F14ACAD008D4CCE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -105,7 +97,7 @@
 			);
 			name = Lucid;
 			packageProductDependencies = (
-				AD4309A92F5FD8C800915CF3 /* DGCharts */,
+				AD196BBB2F67BB1A0005D82E /* DGCharts */,
 			);
 			productName = Lucid;
 			productReference = ADCBCE9A2F14ACAD008D4CCE /* Lucid.app */;
@@ -119,7 +111,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2620;
-				LastUpgradeCheck = 2620;
+				LastUpgradeCheck = 2630;
 				TargetAttributes = {
 					ADCBCE992F14ACAD008D4CCE = {
 						CreatedOnToolsVersion = 26.2;
@@ -136,7 +128,7 @@
 			mainGroup = ADCBCE912F14ACAD008D4CCE;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				AD4309A82F5FD8C800915CF3 /* XCRemoteSwiftPackageReference "Charts" */,
+				AD196BBA2F67BB1A0005D82E /* XCRemoteSwiftPackageReference "Charts" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = ADCBCE9B2F14ACAD008D4CCE /* Products */;
@@ -186,7 +178,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UIStatusBarStyle = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
@@ -195,7 +187,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = test.com.Lucid;
+				PRODUCT_BUNDLE_IDENTIFIER = qwertyuio.Lucid;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -224,7 +216,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UIStatusBarStyle = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
@@ -233,7 +225,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = test.com.Lucid;
+				PRODUCT_BUNDLE_IDENTIFIER = qwertyuio.Lucid;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -304,6 +296,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -361,6 +354,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -390,7 +384,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		AD4309A82F5FD8C800915CF3 /* XCRemoteSwiftPackageReference "Charts" */ = {
+		AD196BBA2F67BB1A0005D82E /* XCRemoteSwiftPackageReference "Charts" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ChartsOrg/Charts";
 			requirement = {
@@ -401,9 +395,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AD4309A92F5FD8C800915CF3 /* DGCharts */ = {
+		AD196BBB2F67BB1A0005D82E /* DGCharts */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AD4309A82F5FD8C800915CF3 /* XCRemoteSwiftPackageReference "Charts" */;
+			package = AD196BBA2F67BB1A0005D82E /* XCRemoteSwiftPackageReference "Charts" */;
 			productName = DGCharts;
 		};
 /* End XCSwiftPackageProductDependency section */

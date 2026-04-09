@@ -25,8 +25,12 @@ class MedicalProfileViewController: UITableViewController {
         setupProfileImage()
         setupGenderMenu()
         loadSavedGender()
+<<<<<<< Updated upstream:Lucid/MedicalProfileViewController.swift
         loadMedicalProfile()
         
+=======
+        loadUserProfile()
+>>>>>>> Stashed changes:Lucid/ProfilePage/MedicalProfileViewController.swift
     }
     
     func setupProfileImage() {
@@ -36,6 +40,48 @@ class MedicalProfileViewController: UITableViewController {
         profileImageView.layer.borderColor = UIColor.systemGray5.cgColor
         profileImageView.contentMode = .scaleAspectFill
     }
+<<<<<<< Updated upstream:Lucid/MedicalProfileViewController.swift
+=======
+    
+    func loadUserProfile() {
+        let user = SwiftDataManager.shared.getCurrentUser()
+
+        if let left = user.leftEyePower {
+            leftEyeField.text = String(format: "%.2f", left)
+            leftStepper.value = left
+        }
+
+        if let right = user.rightEyePower {
+            rightEyeField.text = String(format: "%.2f", right)
+            rightStepper.value = right
+        }
+
+        if let gender = user.gender {
+            selectedGender = gender
+            genderButton.setTitle(gender, for: .normal)
+        }
+
+        if let conditions = user.conditions {
+            updateConditions(conditions)
+        }
+    }
+    
+    func setupSteppers() {
+        
+        leftStepper.minimumValue = -10
+        leftStepper.maximumValue = 10
+        leftStepper.stepValue = 0.25
+        leftStepper.value = 0
+        
+        rightStepper.minimumValue = -10
+        rightStepper.maximumValue = 10
+        rightStepper.stepValue = 0.25
+        rightStepper.value = 0
+        
+        leftEyeField.text = "0.00"
+        rightEyeField.text = "0.00"
+    }
+>>>>>>> Stashed changes:Lucid/ProfilePage/MedicalProfileViewController.swift
 
     
     @IBAction func leftStepperChanged(_ sender: UIStepper) {
@@ -44,6 +90,42 @@ class MedicalProfileViewController: UITableViewController {
 
     @IBAction func rightStepperChanged(_ sender: UIStepper) {
         rightEyeField.text = String(format: "%.2f", sender.value)
+    }
+    
+    
+    @IBAction func saveProfileTapped(_ sender: Any) {
+        let user = SwiftDataManager.shared.getCurrentUser()
+            
+            // Save eye values
+            user.leftEyePower = Double(leftEyeField.text ?? "0")
+            user.rightEyePower = Double(rightEyeField.text ?? "0")
+            
+            // Save gender
+            user.gender = selectedGender
+            
+            // Save conditions
+            user.conditions = selectedConditions
+            
+            do {
+                try SwiftDataManager.shared.context.save()
+                print("✅ Medical profile saved")
+                
+                showSaveSuccess()
+                
+            } catch {
+                print("❌ Failed to save:", error)
+            }
+    }
+    
+    func showSaveSuccess() {
+        let alert = UIAlertController(
+            title: "Saved ✅",
+            message: "Your profile has been updated",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
     
     func setupGenderMenu() {
@@ -182,6 +264,7 @@ class MedicalProfileViewController: UITableViewController {
             vc.delegate = self
         }
     }
+    
 }
 
 extension MedicalProfileViewController: PreviousConditionsDelegate {
@@ -189,3 +272,4 @@ extension MedicalProfileViewController: PreviousConditionsDelegate {
         updateConditions(conditions)
     }
 }
+

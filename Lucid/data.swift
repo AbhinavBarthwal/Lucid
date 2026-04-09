@@ -49,9 +49,11 @@ final class NotificationSettings {
 @Model
 final class User {
     @Attribute(.unique) var id: UUID
+    var authUserId: String
     var name: String
     var age: Int
     var createdAt: Date
+<<<<<<< Updated upstream:Lucid/data.swift
     
     @Relationship
     var medicalProfile: MedicalProfile
@@ -62,11 +64,61 @@ final class User {
     @Relationship(deleteRule: .cascade, inverse: \ExerciseSession.user) var exerciseSessions: [ExerciseSession] = []
 
     init(name: String, age: Int) {
+=======
+    var dailyExerciseGoal: Int
+    
+    var leftEyePower: Double?
+    var rightEyePower: Double?
+    var gender: String?
+    var conditions: [String]?
+    
+    @Relationship(deleteRule: .cascade, inverse: \CTestSession.user)
+    var eyeTestSessions: [CTestSession] = []
+    
+    @Relationship(deleteRule: .cascade, inverse: \ExerciseSession.user)
+    var exerciseSessions: [ExerciseSession] = []
+    
+    @Relationship(deleteRule: .cascade, inverse: \OSDISession.user)
+    var osdiSessions: [OSDISession] = []
+
+    init(name: String, age: Int, authUserId: String, dailyGoal: Int = 900) {
+>>>>>>> Stashed changes:Lucid/Models/Model.swift
         self.id = UUID()
+        self.authUserId = authUserId
         self.name = name
         self.age = age
         self.createdAt = Date()
+<<<<<<< Updated upstream:Lucid/data.swift
         self.medicalProfile = MedicalProfile() 
+=======
+        self.dailyExerciseGoal = dailyGoal
+    }
+    
+    var currentStreak: Int {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+
+        let dayTotals = Dictionary(grouping: exerciseSessions) {
+            calendar.startOfDay(for: $0.startingDate)
+        }.mapValues { sessions in
+            sessions.reduce(0) { $0 + $1.durationSeconds }
+        }
+        
+        var streak = 0
+        var checkDate = today
+        
+        // If today's goal not met, start from yesterday
+        if (dayTotals[today] ?? 0) < dailyExerciseGoal {
+            checkDate = calendar.date(byAdding: .day, value: -1, to: today)!
+        }
+        
+        while let total = dayTotals[checkDate], total >= dailyExerciseGoal {
+            streak += 1
+            checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate)!
+        }
+        
+        return streak
+>>>>>>> Stashed changes:Lucid/Models/Model.swift
     }
 }
 
@@ -115,6 +167,7 @@ final class ExerciseSession {
         self.errorCount = errors
     }
 }
+
 
 // MARK: - Vision Tests & Surveys
 @Model
