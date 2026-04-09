@@ -639,7 +639,10 @@
                         </connections>
                     </tableView>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
                     <navigationItem key="navigationItem" title="Medical Profile" id="Iok-7h-7gS">
                         <barButtonItem key="rightBarButtonItem" style="done" systemItem="save" id="BgW-C9-0NJ">
                             <connections>
@@ -648,6 +651,9 @@
                         </barButtonItem>
                     </navigationItem>
                     <size key="freeformSize" width="440" height="1010"/>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                     <connections>
                         <outlet property="profileImageView" destination="CPw-7m-8Ew" id="r0v-Mq-GVA"/>
@@ -656,8 +662,11 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="hJe-e5-gVk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             <point key="canvasLocation" x="3063.3587786259541" y="934.50704225352115"/>
 =======
+=======
+>>>>>>> Stashed changes
             <point key="canvasLocation" x="647.32824427480909" y="1718.3098591549297"/>
         </scene>
         <!--Navigation Controller-->
@@ -960,9 +969,12 @@
 >>>>>>> Stashed changes
         <systemColor name="systemRedColor">
             <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+<<<<<<< Updated upstream
         </systemColor>
         <systemColor name="tableCellGroupedBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+=======
+>>>>>>> Stashed changes
         </systemColor>
     </resources>
 </document>

@@ -26,8 +26,12 @@ class MedicalProfileViewController: UITableViewController {
         setupGenderMenu()
         loadSavedGender()
 <<<<<<< Updated upstream:Lucid/MedicalProfileViewController.swift
+<<<<<<< Updated upstream:Lucid/MedicalProfileViewController.swift
         loadMedicalProfile()
         
+=======
+        loadUserProfile()
+>>>>>>> Stashed changes:Lucid/ProfilePage/MedicalProfileViewController.swift
 =======
         loadUserProfile()
 >>>>>>> Stashed changes:Lucid/ProfilePage/MedicalProfileViewController.swift
@@ -42,6 +46,29 @@ class MedicalProfileViewController: UITableViewController {
     }
 <<<<<<< Updated upstream:Lucid/MedicalProfileViewController.swift
 =======
+    
+    func loadUserProfile() {
+        let user = SwiftDataManager.shared.getCurrentUser()
+
+        if let left = user.leftEyePower {
+            leftEyeField.text = String(format: "%.2f", left)
+            leftStepper.value = left
+        }
+
+        if let right = user.rightEyePower {
+            rightEyeField.text = String(format: "%.2f", right)
+            rightStepper.value = right
+        }
+
+        if let gender = user.gender {
+            selectedGender = gender
+            genderButton.setTitle(gender, for: .normal)
+        }
+
+        if let conditions = user.conditions {
+            updateConditions(conditions)
+        }
+    }
     
     func loadUserProfile() {
         let user = SwiftDataManager.shared.getCurrentUser()

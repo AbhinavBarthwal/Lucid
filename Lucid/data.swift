@@ -54,6 +54,7 @@ final class User {
     var age: Int
     var createdAt: Date
 <<<<<<< Updated upstream:Lucid/data.swift
+<<<<<<< Updated upstream:Lucid/data.swift
     
     @Relationship
     var medicalProfile: MedicalProfile
@@ -67,6 +68,10 @@ final class User {
 =======
     var dailyExerciseGoal: Int
     
+=======
+    var dailyExerciseGoal: Int
+    
+>>>>>>> Stashed changes:Lucid/Models/Model.swift
     var leftEyePower: Double?
     var rightEyePower: Double?
     var gender: String?
@@ -82,6 +87,9 @@ final class User {
     var osdiSessions: [OSDISession] = []
 
     init(name: String, age: Int, authUserId: String, dailyGoal: Int = 900) {
+<<<<<<< Updated upstream:Lucid/data.swift
+>>>>>>> Stashed changes:Lucid/Models/Model.swift
+=======
 >>>>>>> Stashed changes:Lucid/Models/Model.swift
         self.id = UUID()
         self.authUserId = authUserId
