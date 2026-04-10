@@ -18,11 +18,16 @@ struct TrendCardView: View {
     let averageScore: String
     let data: [TrendData]
     let yAxisMax: Double // 👈 New property
+    let betterDirection: Int // 0 = lower is better, 1 = higher is better
     
     var averageValue: Double {
         let nonZeroValues = data.map { $0.value }.filter { $0 != 0 }
         guard !nonZeroValues.isEmpty else { return 0 }
         return nonZeroValues.reduce(0, +) / Double(nonZeroValues.count)
+    }
+    
+    var hasAverageData: Bool {
+        return averageValue != 0
     }
     
     var body: some View {
@@ -43,41 +48,51 @@ struct TrendCardView: View {
                     Text(averageScore)
                         .font(.system(size: 42, weight: .bold))
                         .foregroundColor(.white)
+                    Text(betterDirection == 1 ? "Higher is better" : "Lower is better")
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundColor(.gray)
                 }
                 
                 Spacer()
                 
-                Chart {
-                    ForEach(data) { item in
-                        BarMark(
-                            x: .value("Month", item.month),
-                            y: .value("Value", item.value),
-                            width: .fixed(10)
-                        )
-                        .foregroundStyle(Color(white: 1.0, opacity: 0.5))
-                        .cornerRadius(5)
-                    }
-                    
+                if hasAverageData {
+                    Chart {
+                        ForEach(data) { item in
+                            BarMark(
+                                x: .value("Month", item.month),
+                                y: .value("Value", item.value),
+                                width: .fixed(10)
+                            )
+                            .foregroundStyle(Color(white: 1.0, opacity: 0.5))
+                            .cornerRadius(5)
+                        }
 
                         RuleMark(y: .value("\(yAxisMax)", yAxisMax))
                             .foregroundStyle(.gray)
                             .lineStyle(StrokeStyle(lineWidth: 1))
-                    
-                    RuleMark(y: .value("", 0.0))
-                        .foregroundStyle(.gray)
-                        .lineStyle(StrokeStyle(lineWidth: 1))
-                
-                }
-                .frame(width: 160, height: 120)
-                .chartXAxis {
-                    AxisMarks(values: .automatic) { value in
-                        AxisValueLabel()
-                            .font(.system(size: 10))
-                            .foregroundStyle(.white)
+
+                        RuleMark(y: .value("", 0.0))
+                            .foregroundStyle(.gray)
+                            .lineStyle(StrokeStyle(lineWidth: 1))
                     }
+                    .frame(width: 160, height: 120)
+                    .chartXAxis {
+                        AxisMarks(values: .automatic) { value in
+                            AxisValueLabel()
+                                .font(.system(size: 10))
+                                .foregroundStyle(.white)
+                        }
+                    }
+                    .chartYAxis(.hidden)
+                    .chartYScale(domain: 0...yAxisMax)
+                } else {
+                    VStack(alignment: .center) {
+                        Text("No data found")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.gray)
+                    }
+                    .frame(width: 160, height: 120)
                 }
-                .chartYAxis(.hidden)
-                .chartYScale(domain: 0...yAxisMax)
             }
         }
     }

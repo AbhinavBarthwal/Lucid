@@ -10,6 +10,9 @@ final class User {
     var dailyExerciseGoal: Int 
     var recommendedExercises: [String] = []
     
+    
+    var previousConditions: [String] = []
+    
     @Relationship(deleteRule: .cascade, inverse: \CTestSession.user) var eyeTestSessions: [CTestSession] = []
     @Relationship(deleteRule: .cascade, inverse: \ExerciseSession.user) var exerciseSessions: [ExerciseSession] = []
     @Relationship(deleteRule: .cascade, inverse: \OSDISession.user) var osdiSessions: [OSDISession] = []

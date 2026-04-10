@@ -65,7 +65,7 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
     
     private func setupInitialUI() {
         centerDotView.layer.cornerRadius = centerDotView.bounds.width / 2
-        centerDotView.backgroundColor = .systemOrange
+        centerDotView.backgroundColor = .accent
         peripheralDotView.layer.cornerRadius = peripheralDotView.bounds.width / 2
         peripheralDotView.backgroundColor = .white
         

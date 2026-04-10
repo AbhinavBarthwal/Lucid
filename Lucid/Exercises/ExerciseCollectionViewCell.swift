@@ -10,7 +10,7 @@ class ExerciseCollectionViewCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        self.layer.cornerRadius = 16
+
         self.titleLabel.textColor = .white
         self.descriptionLabel.textColor = .lightGray
         self.descriptionLabel.numberOfLines = 0

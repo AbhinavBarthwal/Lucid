@@ -1,4 +1,5 @@
 import UIKit
+import SwiftData
 
 class SetGoalViewController: UIViewController {
 
@@ -66,7 +67,11 @@ class SetGoalViewController: UIViewController {
     }
 
     @IBAction func changeGoalTapped(_ sender: UIButton) {
+
         UserDefaults.standard.set(minutes, forKey: "exerciseGoal")
+
+        ExerciseDataManager.shared.updateDailyGoal(newGoalInSeconds: minutes*60)
+        
         showAlert()
     }
 

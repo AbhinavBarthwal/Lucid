@@ -357,26 +357,29 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                 currentTitle = "Exercise Accuracy"
                 currentAverage = accuracyAverage
                 currentData = accuracyTrends
-                currentMax = 100 // Scales to 100%
+                currentMax = 100 // Scale to 100%
             }
             else if indexPath.item == 1 {
                 currentTitle = "C Test Score"
                 currentAverage = eyeTestAverage
                 currentData = eyeTestTrends
-                currentMax = 6 // Scales to 6 (your Landolt C max score)
+                currentMax = 6 // Scale to 6 ( Landolt C max score)
             } else {
                 currentTitle = "OSDI score"
                 currentAverage = osdiAverage
                 currentData = osdiTrends
-                currentMax = 100 // Scales to 100
+                currentMax = 100 // Scale to 100
             }
+            
+            let betterDirection: Int = (indexPath.item == 2) ? 0 : 1
             
             cell.contentConfiguration = UIHostingConfiguration {
                 TrendCardView(
                     title: currentTitle,
                     averageScore: currentAverage,
                     data: currentData,
-                    yAxisMax: currentMax
+                    yAxisMax: currentMax,
+                    betterDirection: betterDirection
                 )
             }
             return cell

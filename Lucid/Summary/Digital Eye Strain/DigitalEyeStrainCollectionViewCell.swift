@@ -73,7 +73,7 @@ class DigitalEyeStrainCollectionViewCell: UICollectionViewCell {
         let entries = values.enumerated().map { BarChartDataEntry(x: Double($0), y: $1) }
         let set = BarChartDataSet(entries: entries)
         
-        set.colors = values.map { $0 > 50 ? .systemGray4 : .systemOrange }
+        set.colors = values.map { $0 > 50 ? .systemRed : .accent }
         set.drawValuesEnabled = false
         
         let data = BarChartData(dataSet: set)

@@ -119,7 +119,7 @@ class OSDIViewController: UIViewController {
         switch severity {
         case "Normal": color = .systemGreen
         case "Mild": color = .systemYellow
-        case "Moderate": color = .systemOrange
+        case "Moderate": color = .accent
         default: color = .systemRed // "Severe"
         }
 

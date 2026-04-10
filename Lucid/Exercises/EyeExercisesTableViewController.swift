@@ -86,8 +86,10 @@ class ExerciseCollectionViewController: UICollectionViewController {
 
             // Section
             let section = NSCollectionLayoutSection(group: group)
-            section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 16, bottom: 20, trailing: 16)
-            section.interGroupSpacing = 8
+            section.contentInsetsReference = .layoutMargins
+            section.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 0, bottom: 24, trailing: 0)
+            section.interGroupSpacing = 0
+            
 
             // Header
             let headerSize = NSCollectionLayoutSize(
@@ -143,7 +145,7 @@ class ExerciseCollectionViewController: UICollectionViewController {
         header.subviews.forEach { $0.removeFromSuperview() }
         
         // Hide header for the recommended section if there are no recommendations
-        if recommendedExercises.isEmpty && indexPath.section == 0 || indexPath.section == 1{
+        if recommendedExercises.isEmpty && indexPath.section == 0 {
             header.isHidden = true
             return header
         } else {
@@ -156,7 +158,7 @@ class ExerciseCollectionViewController: UICollectionViewController {
         label.textColor = .white
         
         if indexPath.section == 0 {
-            label.text = recommendedExercises.isEmpty ? "" : "✨ Recommended for You"
+            label.text = recommendedExercises.isEmpty ? "" : "Recommended for You"
         } else {
             label.text = "All Exercises"
         }

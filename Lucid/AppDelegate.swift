@@ -17,7 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let appearance = UINavigationBarAppearance()
 
   
-        let expandedFont = UIFont.systemFont(ofSize: 20, weight: .bold, width: .expanded)
+        let expandedFont = UIFont                                                                        .systemFont(ofSize: 20, weight: .bold, width: .expanded)
         let largeExpandedFont = UIFont.systemFont(ofSize: 34, weight: .bold, width: .expanded)
 
 

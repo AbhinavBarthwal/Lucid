@@ -81,7 +81,7 @@ class PencilPushupExerciseViewController: UIViewController, ARSCNViewDelegate {
         }
 
         else {
-            targetDot.backgroundColor = .systemOrange
+            targetDot.backgroundColor = .accent
             instructionLabel.text = "Move closer: \(Int(dist))cm"
             doneButton.isHidden = true
         }

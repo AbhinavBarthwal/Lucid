@@ -214,7 +214,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
 
     private func setupInitialUI() {
         circleView.layer.cornerRadius = circleView.bounds.width / 2
-        circleView.backgroundColor = .systemOrange
+        circleView.backgroundColor = .accent
         distanceLabel.alpha = 0
         instructionLabel.alpha = 0
         circleView.alpha = 0

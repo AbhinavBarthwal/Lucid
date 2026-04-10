@@ -24,6 +24,7 @@ class SwiftDataManager {
         
         let newUser = User(name: "Abhinav", age: 21)
         context.insert(newUser)
+        ExerciseDataManager.shared.updateDailyGoal(newGoalInSeconds: 600)
         return newUser
     }
 }

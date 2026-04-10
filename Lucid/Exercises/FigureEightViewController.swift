@@ -67,7 +67,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
 
     private func setupInitialUI() {
         circleView.layer.cornerRadius = circleView.bounds.width / 2
-        circleView.backgroundColor = .systemOrange
+        circleView.backgroundColor = .accent
         instructionLabel.alpha = 0
         circleView.alpha = 0
         centerMessageLabel.alpha = 1
