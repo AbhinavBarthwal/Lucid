@@ -88,7 +88,7 @@ class ExerciseCollectionViewController: UICollectionViewController {
             let section = NSCollectionLayoutSection(group: group)
             section.contentInsetsReference = .layoutMargins
             section.contentInsets = NSDirectionalEdgeInsets(top: 16, leading: 0, bottom: 24, trailing: 0)
-            section.interGroupSpacing = 0
+            section.interGroupSpacing = 8
             
 
             // Header

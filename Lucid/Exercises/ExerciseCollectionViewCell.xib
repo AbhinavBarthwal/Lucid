@@ -72,6 +72,11 @@
                 <constraint firstItem="kYX-IV-qyQ" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="tam-3h-l0P"/>
             </constraints>
             <size key="customSize" width="497" height="113"/>
+            <userDefinedRuntimeAttributes>
+                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                    <integer key="value" value="16"/>
+                </userDefinedRuntimeAttribute>
+            </userDefinedRuntimeAttributes>
             <connections>
                 <outlet property="descriptionLabel" destination="JHH-i0-ore" id="vt3-Sl-chw"/>
                 <outlet property="iconImageView" destination="ckN-JZ-Xr3" id="ODu-5b-gWW"/>
@@ -81,7 +86,7 @@
         </collectionViewCell>
     </objects>
     <resources>
-        <image name="SmoothPursuits" width="136" height="136"/>
+        <image name="SmoothPursuits" width="189" height="189"/>
         <image name="chevron.right" catalog="system" width="97" height="128"/>
     </resources>
 </document>
