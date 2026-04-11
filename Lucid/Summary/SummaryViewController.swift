@@ -47,25 +47,20 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
             )
         collectionView
             .register(
-                UINib(
-                    nibName: "DigitalEyeStrainCollectionViewCell",
-                    bundle: nil
-                ),
+                UINib(nibName: "DigitalEyeStrainCollectionViewCell", bundle: nil),
                 forCellWithReuseIdentifier: "EyeStrainCell"
             )
         collectionView
             .register(
-                UINib(
-                    nibName: "LowLightScreenUsageCollectionViewCell",
-                    bundle: nil
-                ),
+                UINib(nibName: "LowLightScreenUsageCollectionViewCell", bundle: nil),
                 forCellWithReuseIdentifier: "LowLightCell"
             )
-        collectionView
-            .register(
-                UINib(nibName: "TrandsCollectionViewCell", bundle: nil),
-                forCellWithReuseIdentifier: "TrendCell"
-            )
+        // Updated to use the new XIB we created
+
+        collectionView.register(
+            UINib(nibName: "TrendsAllCollectionViewCell", bundle: nil),
+            forCellWithReuseIdentifier: TrendsAllCollectionViewCell.identifier
+        )
         collectionView
             .register(
                 UINib(nibName: "SummaryInsightCollectionViewCell", bundle: nil),
@@ -109,109 +104,124 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
     }
     
     func createLayout() -> UICollectionViewLayout {
-        return UICollectionViewCompositionalLayout { (
-            sectionIndex,
-            layoutEnv
-        ) -> NSCollectionLayoutSection? in
+            let layout = UICollectionViewCompositionalLayout { (
+                sectionIndex,
+                layoutEnv
+            ) -> NSCollectionLayoutSection? in
+                
+                // MARK: - Shared Header
+                let headerSize = NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1.0),
+                    heightDimension: .absolute(50)
+                )
+                let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
+                    layoutSize: headerSize,
+                    elementKind: UICollectionView.elementKindSectionHeader,
+                    alignment: .top
+                )
+                
+                if sectionIndex == 0 {
+                    // MARK: - Section 0 (Insights & Streaks)
+                    let itemSize = NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: .absolute(120)
+                    )
+                    let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                    item.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8)
+                    
+                    let group = NSCollectionLayoutGroup.horizontal(
+                        layoutSize: itemSize,
+                        subitems: [item]
+                    )
+                    
+                    let section = NSCollectionLayoutSection(group: group)
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0)
+                    section.boundarySupplementaryItems = [sectionHeader]
+                    
+                    return section
+                    
+                } else if sectionIndex == 1 {
+                    // MARK: - Section 1 (Daily Goals & Strains)
+                    let itemSize = NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(0.50),
+                        heightDimension: .fractionalHeight(1.0)
+                    )
+                    let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                    item.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4)
+                    
+                    let groupSize = NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: .absolute(200)
+                    )
+                    let group = NSCollectionLayoutGroup.horizontal(
+                        layoutSize: groupSize,
+                        subitems: [item]
+                    )
+                    
+                    let section = NSCollectionLayoutSection(group: group)
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 4, bottom: 4, trailing: 4)
+                    
+                    return section
+                    
+                }  else {
+                    // MARK: - Section 2 (Trends 2x2 Grid with Background)
+                    let itemSize = NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(0.50),
+                        heightDimension: .fractionalHeight(1.0)
+                    )
+                    let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                    // Spacing between the individual cells in the grid
+                    item.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4)
+                    
+                    let groupSize = NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: .absolute(60)
+                    )
+                    
+                    let group = NSCollectionLayoutGroup.horizontal(
+                        layoutSize: groupSize,
+                        subitem: item,
+                        count: 2
+                    )
+                    
+                    let section = NSCollectionLayoutSection(group: group)
+                    
+                    // 1. HOW TO INCREASE SECTION PADDING
+                    // This `contentInsets` adds padding INSIDE the section.
+                    // By increasing these values, you push the grid cells inward, giving your
+                    // black background a nice visual border around the content.
+                    section.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4)
+                    
+                    // 2. HOW TO DECREASE THE GAP BETWEEN HEADER AND CONTENT
+                    // We create a custom, shorter header just for this section.
+                    // Reducing the absolute height from 50 to 35 pulls the content closer to the text.
+                    let tighterHeaderSize = NSCollectionLayoutSize(
+                        widthDimension: .fractionalWidth(1.0),
+                        heightDimension: .absolute(45)
+                    )
+                    let tighterHeader = NSCollectionLayoutBoundarySupplementaryItem(
+                        layoutSize: tighterHeaderSize,
+                        elementKind: UICollectionView.elementKindSectionHeader,
+                        alignment: .top
+                    )
+                    section.boundarySupplementaryItems = [tighterHeader]
+                    
+                    // 3. HOW TO STOP BACKGROUND FROM INCLUDING THE HEADER
+                    let backgroundDecoration = NSCollectionLayoutDecorationItem.background(elementKind: "SectionBackground")
+                    // A decoration view fills the ENTIRE section by default (including the header).
+                    // To exclude the header, we set the top inset of the background to exactly match
+                    // the height of the header (35). This pushes the black box down so it starts right below the text.
+                    // Note: The leading/trailing values here define how wide the black box is on your screen.
+                    backgroundDecoration.contentInsets = NSDirectionalEdgeInsets(top: 40, leading: 8, bottom: 0, trailing: 8)
+                    section.decorationItems = [backgroundDecoration]
+                    
+                    return section
+                }            }
             
-            let headerSize = NSCollectionLayoutSize(
-                widthDimension: .fractionalWidth(1.0),
-                heightDimension: .absolute(50)
-            )
-            let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
-                layoutSize: headerSize,
-                elementKind: UICollectionView.elementKindSectionHeader,
-                alignment: .top)
+            layout.register(RoundedBackgroundDecorationView.self, forDecorationViewOfKind: "SectionBackground")
             
-            if sectionIndex == 0 {
-                let itemSize = NSCollectionLayoutSize(
-                    widthDimension: .fractionalWidth(1.0),
-                    heightDimension: .absolute(120)
-                )
-                let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                item.contentInsets = NSDirectionalEdgeInsets(
-                    top: 4,
-                    leading: 8,
-                    bottom: 4,
-                    trailing: 8
-                )
-                
-                let group = NSCollectionLayoutGroup.horizontal(
-                    layoutSize: itemSize,
-                    subitems: [item]
-                )
-                
-                let section = NSCollectionLayoutSection(group: group)
-                section.contentInsets = NSDirectionalEdgeInsets(
-                    top: 8,
-                    leading: 0,
-                    bottom: 0,
-                    trailing: 0
-                )
-                
-                section.boundarySupplementaryItems = [sectionHeader]
-                return section
-            } else if sectionIndex == 1 {
-                let itemSize = NSCollectionLayoutSize(
-                    widthDimension: .fractionalWidth(0.50),
-                    heightDimension: .fractionalHeight(1.0)
-                )
-                let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                item.contentInsets = NSDirectionalEdgeInsets(
-                    top: 4,
-                    leading: 4,
-                    bottom: 4,
-                    trailing: 4
-                )
-                
-                let groupSize = NSCollectionLayoutSize(
-                    widthDimension: .fractionalWidth(1.0),
-                    heightDimension: .absolute(200)
-                )
-                let group = NSCollectionLayoutGroup.horizontal(
-                    layoutSize: groupSize,
-                    subitems: [item]
-                )
-                
-                let section = NSCollectionLayoutSection(group: group)
-                section.contentInsets = NSDirectionalEdgeInsets(
-                    top: 0,
-                    leading: 4,
-                    bottom: 4,
-                    trailing: 4
-                )
-                
-//                section.boundarySupplementaryItems = [sectionHeader]
-                return section
-            } else {
-                let itemSize = NSCollectionLayoutSize(
-                    widthDimension: .fractionalWidth(1.0),
-                    heightDimension: .absolute(180)
-                )
-                let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                item.contentInsets = NSDirectionalEdgeInsets(
-                    top: 4,
-                    leading: 8,
-                    bottom: 4,
-                    trailing: 8
-                )
-                
-                let group = NSCollectionLayoutGroup.vertical(
-                    layoutSize: itemSize,
-                    subitems: [item]
-                )
-                let section = NSCollectionLayoutSection(group: group)
-                section.contentInsets = NSDirectionalEdgeInsets(
-                    top: 0,
-                    leading: 0,
-                    bottom: 0,
-                    trailing: 0
-                )
-                section.boundarySupplementaryItems = [sectionHeader]
-                return section
-            }
+            return layout
         }
-    }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let header = collectionView.dequeueReusableSupplementaryView(
@@ -224,15 +234,14 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
         let label = UILabel()
         
         if indexPath.section == 2 {
-            
             label.frame = CGRect(
                 x: 16,
                 y: 10,
                 width: header.frame.width - 32,
-                height: 30
+                height: 24
             )
             label.text = "Trends"
-            label.font = .systemFont(ofSize: 24, weight: .bold)
+            label.font = UIFont.systemFont(ofSize: 24, weight: .bold, width: .expanded)
         }
         
         label.textColor = .white
@@ -246,18 +255,17 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if section == 0 {
-            // Adjust the number of items depending on if the alert is visible or dismissed
             return isAlertDismissed ? 1 : 2
         } else if section == 1 {
             return 4
         }
-        return 3
+        // Return 4 items for the Trends grid
+        return 4
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
             
-            // If the alert isn't dismissed and we are at the first item, show the alert
             if !isAlertDismissed && indexPath.item == 0 {
                 let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: "AlertCell",
@@ -269,14 +277,9 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                     description: "Your Overall Eye Health Score improved by 5 points this month, moving you closer to the ideal 100."
                 )
                 
-                // Set the closure to handle what happens when the close button is tapped
                 cell.onDismiss = { [weak self] in
                     guard let self = self else { return }
-                    
-                    // Update state so numberOfItemsInSection returns 1
                     self.isAlertDismissed = true
-                    
-                    // Animate the cell away
                     self.collectionView.performBatchUpdates({
                         self.collectionView.deleteItems(at: [IndexPath(item: 0, section: 0)])
                     }, completion: nil)
@@ -285,19 +288,15 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                 return cell
                 
             } else {
-                // If the alert is dismissed OR we are at index 1, show the Streak Cell
                 let cell = collectionView.dequeueReusableCell(
                     withReuseIdentifier: "StreakCell",
                     for: indexPath
                 ) as! StreakCollectionViewCell
 
-                // FETCH DATA
                 let user = SwiftDataManager.shared.getOrCreateUser()
                 let streakData = ExerciseDataManager.shared.fetchWeeklyStreak()
 
-                // CONFIGURE
                 cell.configure(with: streakData, currentStreak: user.currentStreak)
-
                 return cell
             }
             
@@ -309,16 +308,11 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                     for: indexPath
                 ) as! DailyExerciseCollectionViewCell
                 
-                // 1. Fetch today's exact record
                 let todayRecord = ExerciseDataManager.shared.fetchTodayRecord()
-                
-                // 2. Convert the stored seconds into minutes for the UI
                 let completedMins = todayRecord.completedSeconds / 60
                 let goalMins = todayRecord.goalSeconds / 60
                 
-                // 3. Pass the dynamic data to the cell
                 cell.configure(current: completedMins, goal: goalMins)
-                
                 return cell
             case 1:
                 let cell = collectionView.dequeueReusableCell(
@@ -332,7 +326,6 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                     withReuseIdentifier: "LowLightCell",
                     for: indexPath
                 ) as! EyeTestSummaryCell
-                
                 return cell
             default:
                 let cell = collectionView.dequeueReusableCell(
@@ -342,60 +335,68 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                 cell.configure(name: "Focused Champ", date: "21/11/2025" , image: "trophy.circle")
                 return cell
             }
-        } else {
+        }  else {
+            // MARK: - Updated Trends Data Binding
             let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: "TrendCell",
+                withReuseIdentifier: TrendsAllCollectionViewCell.identifier,
                 for: indexPath
-            )
+            ) as! TrendsAllCollectionViewCell
             
-            let currentTitle: String
-            let currentAverage: String
-            let currentData: [TrendData]
-            let currentMax: Double
-            
-            if indexPath.item == 0 {
-                currentTitle = "Exercise Accuracy"
-                currentAverage = accuracyAverage
-                currentData = accuracyTrends
-                currentMax = 100 // Scale to 100%
-            }
-            else if indexPath.item == 1 {
-                currentTitle = "C Test Score"
-                currentAverage = eyeTestAverage
-                currentData = eyeTestTrends
-                currentMax = 6 // Scale to 6 ( Landolt C max score)
-            } else {
-                currentTitle = "OSDI score"
-                currentAverage = osdiAverage
-                currentData = osdiTrends
-                currentMax = 100 // Scale to 100
+            // Map the data into the 4 grid items
+            switch indexPath.item {
+            case 0:
+                cell.configure(title: "Accuracy", subtitle: "\(accuracyAverage)% AVG", color: .accent, iconName: "target")
+            case 2:
+                cell.configure(title: "C Test Score", subtitle: "\(eyeTestAverage) SCORE", color: .accent, iconName: "eye.fill")
+            case 3:
+                cell.configure(title: "OSDI Score", subtitle: "\(osdiAverage) SCORE", color: .accent, iconName: "doc.text.fill")
+            case 1:
+                cell.configure(title: "Responsivenes", subtitle: "20 MIN/DAY", color: .accent, iconName: "figure.walk")
+            default:
+                break
             }
             
-            let betterDirection: Int = (indexPath.item == 2) ? 0 : 1
-            
-            cell.contentConfiguration = UIHostingConfiguration {
-                TrendCardView(
-                    title: currentTitle,
-                    averageScore: currentAverage,
-                    data: currentData,
-                    yAxisMax: currentMax,
-                    betterDirection: betterDirection
-                )
-            }
             return cell
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if indexPath.section == 1 && indexPath.item == 3 {
-            let storyboard = UIStoryboard(name: "Summary", bundle: nil)
-            let vc = storyboard.instantiateViewController(withIdentifier: "AwardsViewController")
-            navigationController?.pushViewController(vc, animated: true)
+            // Section 1: Daily Goals & Strains
+            if indexPath.section == 1 && indexPath.item == 3 {
+                let storyboard = UIStoryboard(name: "Summary", bundle: nil)
+                let vc = storyboard.instantiateViewController(withIdentifier: "AwardsViewController")
+                navigationController?.pushViewController(vc, animated: true)
+            }
+            else if indexPath.section == 1 && indexPath.item == 2 {
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                let vc = storyboard.instantiateViewController(withIdentifier: "EyeTestStoryBoard")
+                navigationController?.pushViewController(vc, animated: true)
+            }
+            
+            // MARK: - Section 2: Trends Navigation
+            else if indexPath.section == 2 {
+                // Instantiate your new SwiftUI-powered detail view
+                let trendsDetailVC = TrendsDetailViewController()
+                
+                // Push it onto the navigation stack
+                navigationController?.pushViewController(trendsDetailVC, animated: true)
+            }
         }
-        else if indexPath.section == 1 && indexPath.item == 2 {
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let vc = storyboard.instantiateViewController(withIdentifier: "EyeTestStoryBoard")
-            navigationController?.pushViewController(vc, animated: true)
-        }
+}
+
+
+
+class RoundedBackgroundDecorationView: UICollectionReusableView {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        // 50% Black
+        self.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        // Rounded corners
+        self.layer.cornerRadius = 20
+        self.clipsToBounds = true
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
