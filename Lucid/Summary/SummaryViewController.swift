@@ -21,7 +21,7 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        // Fetch the data right before reloading
+        // Fetch the data right before reloading.
         loadTrendsData()
             
         // Reloads the data so the gauge updates immediately when returning from an exercise
