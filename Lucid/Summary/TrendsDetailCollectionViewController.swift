@@ -3,23 +3,19 @@ import SwiftUI
 
 class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
     
-     var collectionView: UICollectionView!
+    var collectionView: UICollectionView!
     
     // MARK: - Data Properties
     var accuracyTrends: [TrendData] = []
     var accuracyAverage: String = "0"
-    
     var eyeTestTrends: [TrendData] = []
     var eyeTestAverage: String = "0"
-    
     var osdiTrends: [TrendData] = []
     var osdiAverage: String = "0"
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "Trends"
-
-        
         setupCollectionView()
     }
     
@@ -30,20 +26,16 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
     }
     
     private func setupCollectionView() {
-        
-        
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        let bgImageView = UIImageView(
-            image: UIImage(named: "BackgroundGradient")
-        )
+        
+        let bgImageView = UIImageView(image: UIImage(named: "BackgroundGradient"))
         bgImageView.contentMode = .scaleAspectFill
         collectionView.backgroundView = bgImageView
 
         collectionView.backgroundColor = .clear
         collectionView.dataSource = self
         collectionView.delegate = self
-        
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "TrendsDetailCell")
         
         view.addSubview(collectionView)
@@ -63,16 +55,22 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
         self.osdiTrends = osdiResult.data
     }
     
+    // MARK: - Tight Layout
     func createLayout() -> UICollectionViewLayout {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(250))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        // Remove internal item insets entirely to stop double-spacing
+        item.contentInsets = .zero
         
         let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(250))
         let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 8, bottom: 4, trailing: 8)
+        
+        // This is the gap between cards. Set to 2 or 4 for a very tight look.
         section.interGroupSpacing = 8
+        section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12)
         
         return UICollectionViewCompositionalLayout(section: section)
     }
@@ -84,77 +82,94 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TrendsDetailCell", for: indexPath)
         
-        let currentTitle: String
-        let currentAverage: String
-        let currentData: [TrendData]
-        let currentMax: Double
-        let betterDirection: Int
-        let currentLore: String
-        
+        var title = "", average = "", status = "", lore = ""
+        var data: [TrendData] = []
+        var max: Double = 100
+        var direction = 1
+
         switch indexPath.item {
         case 0:
-            currentTitle = "Exercise Accuracy"
-            currentAverage = accuracyAverage
-            currentData = accuracyTrends
-            currentMax = 100
-            betterDirection = 1
-            currentLore = "Exercise accuracy measures how precisely your eyes track on-screen targets during motion-based exercises. It compares your actual eye movement trajectory against the ideal path dictated by the exercise."
-            
+            title = "Exercise Accuracy"
+            average = self.accuracyAverage
+            data = self.accuracyTrends
+            lore = "Exercise accuracy measures how precisely your eyes track targets."
+            let val = Double(average) ?? 0
+            status = val == 0 ? "Perform exercises to get an accuracy score." : (val > 90 ? "You're doing well, keep the score up!" : "Time to lock down to improve your eye health.")
         case 1:
-            currentTitle = "C Test Score"
-            currentAverage = eyeTestAverage
-            currentData = eyeTestTrends
-            currentMax = 6
-            betterDirection = 1
-            currentLore = "Your C Test score reflects your visual acuity using the Landolt C standard. This score indicates your ability to distinguish fine details and helps track if your baseline vision is shifting over time."
-            
+            title = "C Test Score"
+            average = self.eyeTestAverage
+            data = self.eyeTestTrends
+            max = 6
+            lore = "Your C Test score reflects your visual acuity."
+            status = (Double(average) ?? 0) == 0 ? "Take the C-Test to see your vision trends." : "Let’s try and take better care of our eyes."
         case 2:
-            currentTitle = "OSDI Score"
-            currentAverage = osdiAverage
-            currentData = osdiTrends
-            currentMax = 100
-            betterDirection = 0 // Lower is better
-            currentLore = "The Ocular Surface Disease Index (OSDI) evaluates dry eye symptoms and their impact on your vision. A lower score is better, indicating healthier eyes with minimal digital strain or dryness."
-            
+            title = "OSDI Score"
+            average = self.osdiAverage
+            data = self.osdiTrends
+            direction = 0
+            lore = "OSDI evaluates dry eye symptoms. Lower is better."
+            let val = Double(average) ?? 0
+            status = val == 0 ? "Take OSDI test to get you trend data." : (val < 13 ? "Eyes are looking fresh! Keep it up." : "Time to reduce that eye strain.")
         case 3:
-            currentTitle = "Eye Responsiveness"
-            // Borrowing accuracy data for now
-            currentAverage = accuracyAverage
-            currentData = accuracyTrends
-            currentMax = 100
-            betterDirection = 1
-            currentLore = "Eye responsiveness tracks your reaction time. It measures the exact delay between a sensory trigger—such as a haptic pulse or visual cue—and your initial, correct eye movement response."
-            
-        default:
-            fatalError("Unexpected index path")
+            title = "Eye Responsiveness"
+            average = self.accuracyAverage
+            data = self.accuracyTrends
+            lore = "Tracks your reaction time to visual cues."
+            status = (Double(average) ?? 0) == 0 ? "Start a session to measure your responsiveness." : "Let’s keep working on those reflexes."
+        default: break
         }
-        
-        // MARK: - SwiftUI Integration
+
         cell.contentConfiguration = UIHostingConfiguration {
-            VStack(alignment: .leading, spacing: 4) {
-                TrendCardView(
-                    title: currentTitle,
-                    averageScore: currentAverage,
-                    data: currentData,
-                    yAxisMax: currentMax,
-                    betterDirection: betterDirection
-                )
-                .frame(height: 140)
-                
-                Text(currentLore)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .lineSpacing(2)
-            }
-            .padding()
-            .background(Color(UIColor.black).opacity(0.5))
-            .cornerRadius(16)
+            TrendCardContainer(title: title, average: average, data: data, max: max, direction: direction, lore: lore, status: status)
         }
+        .margins(.all, 0) // CRITICAL: This removes the hidden UIKit padding inside the cell
         
         cell.backgroundColor = .clear
-        
         return cell
     }
 }
 
+// MARK: - SwiftUI Container
+struct TrendCardContainer: View {
+    let title: String, average: String, data: [TrendData]
+    let max: Double, direction: Int, lore: String, status: String
+    @State private var showDetail = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top) {
+                TrendCardView(title: title, averageScore: average, data: data, yAxisMax: max, betterDirection: direction)
+                Spacer()
+                Button { showDetail = true } label: {
+                    Image(systemName: "info.circle").font(.system(size: 16)).foregroundColor(.orange.opacity(0.7))
+                }
+            }
+            .frame(height: 150)
+            
+            Text(status)
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundColor(.white.opacity(0.6))
+        }
+        .padding(12) // Space inside the card
+        .background(RoundedRectangle(cornerRadius: 16).fill(Color.black.opacity(0.4)))
+        .sheet(isPresented: $showDetail) {
+            InfoSheet(title: title, content: lore)
+                .presentationDetents([.height(200)])
+        }
+    }
+}
 
+struct InfoSheet: View {
+    let title: String, content: String
+    @Environment(\.dismiss) var dismiss
+    var body: some View {
+        NavigationView {
+            VStack(alignment: .leading) {
+                Text(content).padding()
+                Spacer()
+            }
+            .navigationTitle(title).navigationBarTitleDisplayMode(.inline)
+            .toolbar { Button("Done") { dismiss() } }
+        }
+    }
+}
