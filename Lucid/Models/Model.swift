@@ -1,65 +1,158 @@
 import Foundation
-import SwiftData
-
-@Model
-final class User {
-    @Attribute(.unique) var id: UUID
-    var name: String
-    var age: Int
-    var createdAt: Date
-    var dailyExerciseGoal: Int 
-    var recommendedExercises: [String] = []
-    
-    
-    var previousConditions: [String] = []
-    
-    @Relationship(deleteRule: .cascade, inverse: \CTestSession.user) var eyeTestSessions: [CTestSession] = []
-    @Relationship(deleteRule: .cascade, inverse: \ExerciseSession.user) var exerciseSessions: [ExerciseSession] = []
-    @Relationship(deleteRule: .cascade, inverse: \OSDISession.user) var osdiSessions: [OSDISession] = []
-    init(name: String, age: Int, dailyGoal: Int = 900) {
-        self.id = UUID()
-        self.name = name
-        self.age = age
-        self.createdAt = Date()
-        self.dailyExerciseGoal = dailyGoal
-    }
-
-
-    var currentStreak: Int {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-
-        let dayTotals = Dictionary(grouping: exerciseSessions) {
-            calendar.startOfDay(for: $0.startingDate)
-        }.mapValues { sessions in
-            sessions.reduce(0) { $0 + $1.durationSeconds }
-        }
-        
-        var streak = 0
-        var checkDate = today
-        
-        // If today isn't done, start checking from yesterday
-        if (dayTotals[today] ?? 0) < dailyExerciseGoal {
-            checkDate = calendar.date(byAdding: .day, value: -1, to: today)!
-        }
-        
-        while let total = dayTotals[checkDate], total >= dailyExerciseGoal {
-            streak += 1
-            checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate)!
-        }
-        
-        return streak
-    }
-}
-
 
 enum EyeDirection: String, CaseIterable, Codable {
     case top, topRight, right, bottomRight, bottom, bottomLeft, left, topLeft
 }
 
-// MARK: - Exercise Sessions
-@Model
-final class ExerciseSession {
+struct StreakDay: Codable {
+    var date: Date
+    var isCompleted: Bool
+}
+
+// MARK: - User
+final class User: Codable {
+    var id: UUID
+    var name: String
+    var age: Int
+    var email: String?
+    var password: String?
+    var dateOfBirth: Date?
+    var gender: String?
+    var leftEyePower: Double
+    var rightEyePower: Double
+    var createdAt: Date
+    var dailyExerciseGoal: Int 
+    var recommendedExercises: [String] = []
+    var previousConditions: [String] = []
+    private var streakData: [StreakDay]?
+    
+    var streak: [StreakDay] {
+        get { streakData ?? [] }
+        set { streakData = newValue }
+    }
+    
+    init(name: String, age: Int, dailyGoal: Int = 150) {
+        self.id = UUID()
+        self.name = name
+        self.age = age
+        self.email = nil
+        self.password = nil
+        self.dateOfBirth = nil
+        self.gender = nil
+        self.leftEyePower = 0
+        self.rightEyePower = 0
+        self.createdAt = Date()
+        self.dailyExerciseGoal = dailyGoal
+        self.streakData = []
+    }
+
+    var exerciseSessions: [ExerciseSession] {
+        SwiftDataManager.shared.fetchExerciseSessions()
+    }
+    
+    var eyeTestSessions: [CTestSession] {
+        SwiftDataManager.shared.fetchCTestSessions()
+    }
+    
+    var osdiSessions: [OSDISession] {
+        SwiftDataManager.shared.fetchOSDISessions()
+    }
+
+    func calculateDailyGoalFromRecommendations() -> Int {
+        let exerciseTimes: [String: Int] = [
+            "SmoothPursuit": 90,
+            "SaccadicJump": 45,
+            "PencilPushup": 40,
+            "Figure8": 60,
+            "Blink": 60,
+            "PeripheralAwareness": 50,
+            "NearFar": 40
+        ]
+        let currentRecs = recommendedExercises.isEmpty ? ["SmoothPursuit", "Blink"] : recommendedExercises
+        return currentRecs.compactMap { exerciseTimes[$0] }.reduce(0, +)
+    }
+
+    func checkDailyReset() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        if streakData == nil {
+            streakData = []
+        }
+        
+        if !streak.contains(where: { calendar.isDate($0.date, inSameDayAs: today) }) {
+            self.dailyExerciseGoal = calculateDailyGoalFromRecommendations()
+            
+            let completedSeconds = getTotalSeconds(for: today)
+            let isCompleted = (completedSeconds / 60) >= (dailyExerciseGoal / 60)
+            self.streak.append(StreakDay(date: today, isCompleted: isCompleted))
+            self.streak.sort(by: { $0.date < $1.date })
+            
+            try? SwiftDataManager.shared.context.save()
+        }
+    }
+
+    func updateTodayStreakStatus() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        checkDailyReset()
+        
+        let completedSeconds = getTotalSeconds(for: today)
+        let isCompleted = (completedSeconds / 60) >= (dailyExerciseGoal / 60)
+        
+        if let index = streak.firstIndex(where: { calendar.isDate($0.date, inSameDayAs: today) }) {
+            streak[index].isCompleted = isCompleted
+        } else {
+            streak.append(StreakDay(date: today, isCompleted: isCompleted))
+        }
+        
+        try? SwiftDataManager.shared.context.save()
+    }
+
+    func getTotalSeconds(for date: Date) -> Int {
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: date)
+        let end = calendar.date(byAdding: .day, value: 1, to: start)!
+        
+        let dailySessions = exerciseSessions.filter {
+            $0.startingDate >= start && $0.startingDate < end
+        }
+        return dailySessions.reduce(0) { $0 + $1.durationSeconds }
+    }
+
+    var currentStreak: Int {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let sortedStreak = streak.sorted(by: { $0.date > $1.date })
+        
+        var count = 0
+        var checkDate = today
+        
+        let todayEntry = sortedStreak.first(where: { calendar.isDate($0.date, inSameDayAs: today) })
+        let todayCompleted = todayEntry?.isCompleted ?? false
+        
+        if !todayCompleted {
+            guard let yesterday = calendar.date(byAdding: .day, value: -1, to: today) else { return 0 }
+            checkDate = yesterday
+        }
+        
+        while true {
+            let entry = sortedStreak.first(where: { calendar.isDate($0.date, inSameDayAs: checkDate) })
+            if let entry = entry, entry.isCompleted {
+                count += 1
+                guard let prevDate = calendar.date(byAdding: .day, value: -1, to: checkDate) else { break }
+                checkDate = prevDate
+            } else {
+                break
+            }
+        }
+        return count
+    }
+}
+
+// MARK: - ExerciseSession
+final class ExerciseSession: Codable {
     var id: UUID
     var startingDate: Date
     var startingTime: Date
@@ -67,24 +160,22 @@ final class ExerciseSession {
     var type: String // "Blink", "PencilPushup", "SmoothPursuit", "Figure8", "NearFar"
     var durationSeconds: Int
     
-   
     var accuracyScore: Int?
-    var averageBlinkIntensity: Float? // Derived from blinkTraining
-    var errorCount: Int? // Tracking lapses in focus or incorrect blinks
-    var headMovementDegrees: Float?  // Average head rotation during exercise -> smooth pursuits, saccadic jumps, figure 8, pencil pushups
+    var averageBlinkIntensity: Float?
+    var errorCount: Int?
+    var headMovementDegrees: Float?
+    var directionErrors: [String: Double]?
+    var errorsPerSession: [Int]?
+    var nearPointOfConvergence: Float?
+    var paceScore: Double?
+    var rightEyeBlinks: Int?
+    var leftEyeBlinks: Int?
+    var responsivenessScore: Double?
     
-    // Using String keys because SwiftData dictionaries require String or Int keys
-    var directionErrors: [String: Double]? // Errors in a particular direction -> smooth pursuits, saccadic jumps
-    
-    var errorsPerSession: [Int]? // Number errors which occurs in each phase/rep -> pencilPushups, figure 8, near far focus, blink
-    var nearPointOfConvergence: Float? // faceTransform -> At what point user couldnt see the dot -> pencil pushups, near far focus
-    var paceScore: Double? // Time taken by user to complete 1 rep of exercise/ full exercise -> pencil pushups
-    
-    var rightEyeBlinks: Int? // blinks by right eye -> Blink training
-    var leftEyeBlinks: Int? // blinks by left eye -> Blink training
-    var responsivenessScore: Double? // blink training
-    
-    var user: User?
+    var user: User? {
+        get { SwiftDataManager.shared.getOrCreateUser() }
+        set { }
+    }
 
     init(type: String, duration: Int, accuracy: Int? = nil, intensity: Float? = nil, errors: Int? = 0) {
         self.id = UUID()
@@ -99,16 +190,18 @@ final class ExerciseSession {
     }
 }
 
-// MARK: - Vision Tests & Surveys
-@Model
-final class CTestSession {
+// MARK: - CTestSession
+final class CTestSession: Codable {
     var id: UUID
     var startingTime: Date
-    var endingTime : Date
-    var score: Double // Landolt C scale reached
+    var endingTime: Date
+    var score: Double
     var eyeTested: String // "Left", "Right", or "Both"
     
-    var user: User?
+    var user: User? {
+        get { SwiftDataManager.shared.getOrCreateUser() }
+        set { }
+    }
 
     init(score: Double, eye: String) {
         self.id = UUID()
@@ -119,15 +212,17 @@ final class CTestSession {
     }
 }
 
-
-@Model
-final class OSDISession {
+// MARK: - OSDISession
+final class OSDISession: Codable {
     var id: UUID
     var date: Date
     var score: Double
     var severity: String // "Normal", "Mild", "Moderate", "Severe"
     
-    var user: User?
+    var user: User? {
+        get { SwiftDataManager.shared.getOrCreateUser() }
+        set { }
+    }
 
     init(score: Double, severity: String) {
         self.id = UUID()

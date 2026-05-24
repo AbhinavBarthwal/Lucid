@@ -1,12 +1,4 @@
-//
-//  TrendDataManager.swift
-//  Lucid
-//
-//  Created by Abhinav Barthwal on 4/4/26.
-//
-
 import Foundation
-import SwiftData
 
 @MainActor
 class TrendDataManager {
@@ -33,7 +25,6 @@ class TrendDataManager {
     
     // MARK: - Exercise Accuracy Trends
     func getExerciseAccuracyTrends(months: Int = 6) -> (average: String, data: [TrendData]) {
-        let user = SwiftDataManager.shared.getOrCreateUser()
         let calendar = Calendar.current
         
         let targetMonths = getLastMonths(count: months)
@@ -44,17 +35,11 @@ class TrendDataManager {
             return ("0", [])
         }
         
-        let userId = user.id
-        // Only fetch sessions from the start date onwards
-        let predicate = #Predicate<ExerciseSession> { session in
-            session.startingDate >= startDate && session.user?.id == userId
-        }
-        
-        let descriptor = FetchDescriptor<ExerciseSession>(predicate: predicate)
-        let sessions = (try? SwiftDataManager.shared.context.fetch(descriptor)) ?? []
+        let sessions = SwiftDataManager.shared.fetchExerciseSessions()
+        let filtered = sessions.filter { $0.startingDate >= startDate }
         
         return processTrends(
-            sessions: sessions,
+            sessions: filtered,
             targetMonths: targetMonths,
             dateExtractor: { $0.startingDate },
             valueExtractor: { session in
@@ -66,7 +51,6 @@ class TrendDataManager {
     
     // MARK: - Eye Test Score Trends
     func getEyeTestTrends(months: Int = 6) -> (average: String, data: [TrendData]) {
-        let user = SwiftDataManager.shared.getOrCreateUser()
         let calendar = Calendar.current
         
         let targetMonths = getLastMonths(count: months)
@@ -76,16 +60,11 @@ class TrendDataManager {
             return ("0", [])
         }
         
-        let userId = user.id
-        let predicate = #Predicate<CTestSession> { session in
-            session.startingTime >= startDate && session.user?.id == userId
-        }
-        
-        let descriptor = FetchDescriptor<CTestSession>(predicate: predicate)
-        let sessions = (try? SwiftDataManager.shared.context.fetch(descriptor)) ?? []
+        let sessions = SwiftDataManager.shared.fetchCTestSessions()
+        let filtered = sessions.filter { $0.startingTime >= startDate }
         
         return processTrends(
-            sessions: sessions,
+            sessions: filtered,
             targetMonths: targetMonths,
             dateExtractor: { $0.startingTime },
             valueExtractor: { $0.score }
@@ -122,7 +101,7 @@ class TrendDataManager {
             
             let averageValue: Double
             if valuesForMonth.isEmpty {
-                averageValue = 0.0 // Set to 0 if no data
+                averageValue = -1.0 // Set to -1 if no data
             } else {
                 averageValue = valuesForMonth.reduce(0, +) / Double(valuesForMonth.count)
                 allValues.append(contentsOf: valuesForMonth) // Track all values for overall average
@@ -132,15 +111,14 @@ class TrendDataManager {
         }
         
         // Calculate total average across all valid sessions in the timeframe
-        let overallAverage: Double = allValues.isEmpty ? 0 : allValues.reduce(0, +) / Double(allValues.count)
-        let formattedAverage = String(format: "%.1f", overallAverage)
+        let overallAverage: Double = allValues.isEmpty ? -1.0 : allValues.reduce(0, +) / Double(allValues.count)
+        let formattedAverage = overallAverage < 0 ? "0.0" : String(format: "%.1f", overallAverage)
         
         return (formattedAverage, trendData)
     }
     
 
     func getOSDITrends(months: Int = 6) -> (average: String, data: [TrendData]) {
-        let user = SwiftDataManager.shared.getOrCreateUser()
         let calendar = Calendar.current
         
         let targetMonths = getLastMonths(count: months) // Uses your existing private method
@@ -150,19 +128,35 @@ class TrendDataManager {
             return ("0", [])
         }
         
-        let userId = user.id
-        let predicate = #Predicate<OSDISession> { session in
-            session.date >= startDate && session.user?.id == userId
-        }
-        
-        let descriptor = FetchDescriptor<OSDISession>(predicate: predicate)
-        let sessions = (try? SwiftDataManager.shared.context.fetch(descriptor)) ?? []
+        let sessions = SwiftDataManager.shared.fetchOSDISessions()
+        let filtered = sessions.filter { $0.date >= startDate }
         
         return processTrends(
-            sessions: sessions,
+            sessions: filtered,
             targetMonths: targetMonths,
             dateExtractor: { $0.date },
             valueExtractor: { $0.score }
+        )
+    }
+
+    func getEyeResponsivenessTrends(months: Int = 6) -> (average: String, data: [TrendData]) {
+        let calendar = Calendar.current
+        
+        let targetMonths = getLastMonths(count: months)
+        
+        guard let firstMonth = targetMonths.first?.date,
+              let startDate = calendar.dateInterval(of: .month, for: firstMonth)?.start else {
+            return ("0", [])
+        }
+        
+        let sessions = SwiftDataManager.shared.fetchExerciseSessions()
+        let filtered = sessions.filter { $0.startingDate >= startDate }
+        
+        return processTrends(
+            sessions: filtered,
+            targetMonths: targetMonths,
+            dateExtractor: { $0.startingDate },
+            valueExtractor: { $0.responsivenessScore }
         )
     }
 }

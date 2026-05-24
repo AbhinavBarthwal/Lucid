@@ -23,7 +23,7 @@ struct BlinkBarChartView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(.gray)
+                .foregroundColor(Color(red: 1.0, green: 0.478, blue: 0.0))
             
             Chart {
                 // 1. BARS (Rendered FIRST)
@@ -32,18 +32,18 @@ struct BlinkBarChartView: View {
                         x: .value("Blink", item.timeSecond),
                         y: .value("Ratio", item.completionRatio)
                     )
-                    .foregroundStyle(item.completionRatio >= 0.75 ? Color.white.opacity(0.7) : Color.red.opacity(0.7))
+                    .foregroundStyle(item.completionRatio >= 0.75 ? Color.white.opacity(0.78) : Color(red: 1.0, green: 0.35, blue: 0.29).opacity(0.82))
                     .cornerRadius(4)
                 }
                 
                 // 2. TARGET LINE (Rendered SECOND and forced to the FRONT)
                 RuleMark(y: .value("Threshold", 0.75))
-                    .foregroundStyle(.accent)
+                    .foregroundStyle(Color(red: 1.0, green: 0.478, blue: 0.0))
                     .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
                     .annotation(position: .top, alignment: .leading) {
                         Text("Optimal")
                             .font(.system(size: 10))
-                            .foregroundColor(.accent)
+                            .foregroundColor(Color(red: 1.0, green: 0.478, blue: 0.0))
                     }
                     .zIndex(1)
             }
@@ -54,7 +54,7 @@ struct BlinkBarChartView: View {
                     AxisValueLabel() {
                         if let doubleValue = value.as(Double.self) {
                             Text(String(format: "%.2f", doubleValue))
-                                .foregroundColor(doubleValue == 0.75 ? .accent : .gray)
+                                .foregroundColor(doubleValue == 0.75 ? Color(red: 1.0, green: 0.478, blue: 0.0) : .gray)
                         }
                     }
                 }
@@ -90,7 +90,6 @@ struct BlinkBarChartView: View {
 //                .foregroundColor(.gray)
         }
         .padding()
-        .background(Color(white: 0.05))
-        .cornerRadius(12)
+        .background(Color.clear)
     }
 }

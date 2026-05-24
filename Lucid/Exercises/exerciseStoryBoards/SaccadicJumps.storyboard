@@ -10,7 +10,7 @@
         <!--Saccadic Jumps-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController storyboardIdentifier="SaccadicJumpsVC" useStoryboardIdentifierAsRestorationIdentifier="YES" id="BYZ-38-t0r" customClass="SaccadicJumps" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="SaccadicJumpsVC" useStoryboardIdentifierAsRestorationIdentifier="YES" id="BYZ-38-t0r" customClass="SaccadicJumpsViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -30,6 +30,7 @@
                                 <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
+
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -43,6 +44,7 @@
                             <constraint firstItem="QCi-7w-GGO" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="b3H-Fg-mR5"/>
                             <constraint firstItem="QCi-7w-GGO" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="143" id="i1z-L5-Rg4"/>
                             <constraint firstAttribute="trailing" secondItem="uVm-tc-KfM" secondAttribute="trailing" constant="20" id="mg6-uS-m4c"/>
+
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="uTc-N0-bGU"/>

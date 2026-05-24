@@ -1,147 +1,126 @@
 import UIKit
+import SwiftUI
+internal import Combine
+
+class MedicalProfileDataModel: ObservableObject {
+    @Published var name: String = ""
+    @Published var dateOfBirth: Date = Date()
+    @Published var gender: String = "Prefer not to say"
+    @Published var leftPower: Double = 0.0
+    @Published var rightPower: Double = 0.0
+    @Published var selectedConditions: Set<String> = []
+}
 
 class MedicalProfileViewController: UITableViewController {
     
+    // Keep outlets so storyboard connections don't break or crash
     @IBOutlet weak var profileImageView: UIImageView!
+    @IBOutlet weak var fullNameField: UITextField!
+    @IBOutlet weak var dateOfBirthPicker: UIDatePicker!
     @IBOutlet weak var leftEyeField: UITextField!
     @IBOutlet weak var rightEyeField: UITextField!
     @IBOutlet weak var leftStepper: UIStepper!
     @IBOutlet weak var rightStepper: UIStepper!
     @IBOutlet weak var conditionsStackView: UIStackView!
-    
     @IBOutlet weak var genderButton: UIButton!
     
-    var selectedConditions: [String] = []
-    var selectedGender: String?
+    private var user: User?
+    private let dataModel = MedicalProfileDataModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        setupProfileImage()
-        setupSteppers()
-        setupGenderMenu()
-        loadSavedGender()
-    }
-    
-    func setupProfileImage() {
-        profileImageView.clipsToBounds = true
-        profileImageView.layer.cornerRadius = profileImageView.frame.height / 2
-        profileImageView.layer.borderWidth = 2
-        profileImageView.layer.borderColor = UIColor.systemGray5.cgColor
-        profileImageView.contentMode = .scaleAspectFill
-    }
-    
-    func setupSteppers() {
         
-        leftStepper.minimumValue = -10
-        leftStepper.maximumValue = 10
-        leftStepper.stepValue = 0.25
-        leftStepper.value = 0
+        let currentUser = SwiftDataManager.shared.getOrCreateUser()
+        user = currentUser
         
-        rightStepper.minimumValue = -10
-        rightStepper.maximumValue = 10
-        rightStepper.stepValue = 0.25
-        rightStepper.value = 0
+        // Populate model from DB
+        dataModel.name = currentUser.name
+        dataModel.dateOfBirth = currentUser.dateOfBirth ?? Calendar.current.date(byAdding: .year, value: -18, to: Date()) ?? Date()
+        dataModel.gender = currentUser.gender ?? "Prefer not to say"
+        dataModel.leftPower = currentUser.leftEyePower
+        dataModel.rightPower = currentUser.rightEyePower
+        dataModel.selectedConditions = Set(currentUser.previousConditions)
         
-        leftEyeField.text = "0.00"
-        rightEyeField.text = "0.00"
-    }
-
-    
-    @IBAction func leftStepperChanged(_ sender: UIStepper) {
-        leftEyeField.text = String(format: "%.2f", sender.value)
-    }
-
-    @IBAction func rightStepperChanged(_ sender: UIStepper) {
-        rightEyeField.text = String(format: "%.2f", sender.value)
-    }
-    
-    func setupGenderMenu() {
+        setupSwiftUI()
         
-        let current = UserDefaults.standard.string(forKey: "userGender")
-
-        let male = UIAction(
-            title: "Female",
-            state: current == "Female" ? .on : .off
-        ) { _ in
-            self.selectGender("Female")
-        }
-
-        let female = UIAction(
-            title: "Male",
-            state: current == "Male" ? .on : .off
-        ) { _ in
-            self.selectGender("Male")
-        }
-
-        let preferNot = UIAction(
-            title: "Prefer not to say",
-            state: current == "Prefer not to say" ? .on : .off
-        ) { _ in
-            self.selectGender("Prefer not to say")
-        }
-
-        let menu = UIMenu(title: "Select Gender", children: [male, female, preferNot])
-
-        genderButton.menu = menu
-        genderButton.showsMenuAsPrimaryAction = true
+        // Add navigation bar Save button
+        let saveButton = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(saveTapped))
+        saveButton.tintColor = .accent
+        navigationItem.rightBarButtonItem = saveButton
     }
     
-        func selectGender(_ gender: String) {
-            selectedGender = gender
-            
-            // Simple text update (no animation)
-            genderButton.setTitle(gender, for: .normal)
-            
-            // Save only (no UI reload here)
-            UserDefaults.standard.set(gender, forKey: "userGender")
-        }
-    
-    func loadSavedGender() {
-        if let saved = UserDefaults.standard.string(forKey: "userGender") {
-            selectedGender = saved
-            genderButton.setTitle(saved, for: .normal)
-        } else {
-            genderButton.setTitle("Select", for: .normal)
-        }
+    @objc private func saveTapped() {
+        saveData(
+            name: dataModel.name,
+            dob: dataModel.dateOfBirth,
+            gender: dataModel.gender,
+            left: dataModel.leftPower,
+            right: dataModel.rightPower,
+            conditions: Array(dataModel.selectedConditions)
+        )
     }
     
-    func updateConditions(_ conditions: [String]) {
+    private func setupSwiftUI() {
+        // Disable standard table view separators and scrolling
+        tableView.isScrollEnabled = false
+        tableView.separatorStyle = .none
+        tableView.backgroundColor = UIColor(red: 10/255, green: 10/255, blue: 12/255, alpha: 1)
         
-        selectedConditions = conditions
+        // Hide the navigation bar background to make it clean
+        navigationController?.navigationBar.tintColor = .accent
         
-        conditionsStackView.arrangedSubviews.forEach {
-            $0.removeFromSuperview()
-        }
+        let swiftUIView = MedicalProfileView(model: dataModel)
         
-        for condition in selectedConditions {
-            
-            let label = UILabel()
-            label.text = " \(condition) "
-            label.font = UIFont.systemFont(ofSize: 14)
-            label.backgroundColor = UIColor.systemGray5
-            label.textColor = .label
-            label.layer.cornerRadius = 10
-            label.clipsToBounds = true
-            
-            conditionsStackView.addArrangedSubview(label)
+        let hostingController = UIHostingController(rootView: swiftUIView)
+        addChild(hostingController)
+        tableView.backgroundView = hostingController.view
+        hostingController.didMove(toParent: self)
+    }
+    
+    // MARK: - Table View Data Source Overrides
+    // Returning 0 sections/rows completely disables the legacy storyboard table structure,
+    // preventing any duplicate text labels or section headers from rendering behind the SwiftUI view.
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return 0
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 0
+    }
+    
+    private func saveData(name: String, dob: Date, gender: String, left: Double, right: Double, conditions: [String]) {
+        guard let user = user else { return }
+        
+        user.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        user.dateOfBirth = dob
+        user.age = Self.computeAge(from: dob)
+        user.gender = gender
+        user.leftEyePower = left
+        user.rightEyePower = right
+        user.previousConditions = conditions
+        
+        do {
+            try SwiftDataManager.shared.context.save()
+            Task {
+                await SupabaseManager.shared.syncUser(user)
+            }
+            let alert = UIAlertController(title: "Saved", message: nil, preferredStyle: .alert)
+            present(alert, animated: true)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
+                alert.dismiss(animated: true) {
+                    self?.navigationController?.popViewController(animated: true)
+                }
+            }
+        } catch {
+            let alert = UIAlertController(title: "Couldn’t Save", message: error.localizedDescription, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
         }
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        setupProfileImage()
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let vc = segue.destination as? PreviousConditionsViewController {
-            vc.delegate = self
-        }
-    }
-}
-
-extension MedicalProfileViewController: PreviousConditionsDelegate {
-    func didSelectConditions(_ conditions: [String]) {
-        updateConditions(conditions)
+    private static func computeAge(from dateOfBirth: Date) -> Int {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year], from: dateOfBirth, to: Date())
+        return max(0, components.year ?? 0)
     }
 }

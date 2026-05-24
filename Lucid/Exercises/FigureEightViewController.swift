@@ -32,12 +32,29 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
     private var currentLoopIndex = 0
     private var currentPath: UIBezierPath?
     private var isSecondPart = false
+    private var hasStartedCountdown = false
+    private var totalFramesChecked = 0
+    private var totalErrors = 0
+
+    override var prefersStatusBarHidden: Bool { return true }
+    
+    override var shouldAutorotate: Bool {
+        return true
+    }
+    
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return .allButUpsideDown
+    }
         
     override func viewDidLoad() {
         super.viewDidLoad()
         setupInitialUI()
         errorHapticGenerator.prepare()
-        startInitialCountdown()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        checkOrientationAndAdvance()
     }
         
     override func viewWillAppear(_ animated: Bool) {
@@ -92,7 +109,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         centerMessageLabel.text = "\(countdownRemaining)"
             
         gazeTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
-            guard let self = self, self.isExerciseActive else {
+            guard let self = self, self.isExerciseActive, self.currentPhase == .none else {
                 timer.invalidate()
                 return
             }
@@ -103,7 +120,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
             } else {
                 timer.invalidate()
                 self.fadeTransition(showCenterMessage: false, showExerciseUI: false) {
-                    guard self.isExerciseActive else { return }
+                    guard self.isExerciseActive, self.currentPhase == .none else { return }
                     self.sessionStartTime = Date()
                     self.showPreparationMessage()
                 }
@@ -113,68 +130,199 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         
     private func showPreparationMessage() {
         currentPhase = .none
-        centerMessageLabel.text = "Move your eyes with\nthe yellow dot"
+        centerMessageLabel.text = "Keep the phone as close as possible\nand move your eyes with the yellow dot"
         fadeTransition(showCenterMessage: true, showExerciseUI: false)
             
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
-            guard let self = self, self.isExerciseActive else { return }
+            guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
             self.fadeTransition(showCenterMessage: false, showExerciseUI: false) {
-                guard self.isExerciseActive else { return }
+                guard self.isExerciseActive, self.currentPhase == .none else { return }
                 self.startFigureEightPhase()
             }
         }
     }
         
+    private func checkOrientationAndAdvance() {
+        let isLandscape = view.bounds.width > view.bounds.height
+        let isPortrait = !isLandscape
+        
+        if !isSecondPart {
+            if isLandscape {
+                if !hasStartedCountdown {
+                    hasStartedCountdown = true
+                    centerMessageLabel.alpha = 1
+                    startInitialCountdown()
+                } else if currentPhase == .tracking {
+                    centerMessageLabel.alpha = 0
+                    circleView.alpha = 1
+                    trackLayer?.opacity = 1
+                    
+                    // Re-draw path for current landscape bounds
+                    currentPath = createInfinityPath(isVertical: false)
+                    if let path = currentPath {
+                        drawBackgroundTrack(with: path)
+                    }
+                    
+                    if isAnimationPaused {
+                        resumeLayer(layer: circleView.layer)
+                        isAnimationPaused = false
+                    }
+                    startGazeMonitor()
+                }
+            } else {
+                // If they rotate back to portrait, pause it
+                if hasStartedCountdown {
+                    if currentPhase == .tracking {
+                        if !isAnimationPaused {
+                            pauseLayer(layer: circleView.layer)
+                            isAnimationPaused = true
+                        }
+                        circleView.alpha = 0
+                        trackLayer?.opacity = 0
+                        gazeTimer?.invalidate()
+                    }
+                    centerMessageLabel.text = "Rotate phone to Landscape"
+                    centerMessageLabel.alpha = 1
+                } else {
+                    centerMessageLabel.text = "Rotate phone to Landscape"
+                    centerMessageLabel.alpha = 1
+                }
+            }
+        } else {
+            if isPortrait {
+                if currentPhase == .none {
+                    startSecondPhaseTracking()
+                } else if currentPhase == .tracking {
+                    centerMessageLabel.alpha = 0
+                    circleView.alpha = 1
+                    trackLayer?.opacity = 1
+                    
+                    // Re-draw path for current portrait bounds
+                    currentPath = createInfinityPath(isVertical: true)
+                    if let path = currentPath {
+                        drawBackgroundTrack(with: path)
+                    }
+                    
+                    if isAnimationPaused {
+                        resumeLayer(layer: circleView.layer)
+                        isAnimationPaused = false
+                    }
+                    startGazeMonitor()
+                }
+            } else {
+                // If they rotate back to landscape during Phase 2, pause it
+                if currentPhase == .tracking {
+                    if !isAnimationPaused {
+                        pauseLayer(layer: circleView.layer)
+                        isAnimationPaused = true
+                    }
+                    circleView.alpha = 0
+                    trackLayer?.opacity = 0
+                    gazeTimer?.invalidate()
+                }
+                centerMessageLabel.text = "Halfway there!\nRotate phone to Portrait"
+                centerMessageLabel.alpha = 1
+            }
+        }
+    }
+
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: { [weak self] _ in
+            guard let self = self else { return }
+            self.checkOrientationAndAdvance()
+        }, completion: nil)
+    }
+
     private func startFigureEightPhase() {
         currentPhase = .tracking
         currentLoopIndex = 0
         isAnimationPaused = false
         resetLayerSpeed(layer: circleView.layer)
             
-        instructionLabel.text = "Move your eyes with the yellow dot"
+        instructionLabel.text = "Keep the phone close and track the yellow dot"
         instructionLabel.textColor = .lightGray
         instructionLabel.alpha = 1
             
-        currentPath = createInfinityPath()
-        drawBackgroundTrack(with: currentPath!)
+        currentPath = createInfinityPath(isVertical: false)
+        if let path = currentPath {
+            drawBackgroundTrack(with: path)
+        }
             
-        fadeTransition(showCenterMessage: false, showExerciseUI: true) {
-                
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                guard self.currentPhase == .tracking else { return }
-                    
-                UIView.animate(withDuration: 0.5) {
-                    self.instructionLabel.alpha = 0
-                } completion: { _ in
-                    self.startGazeMonitor()
-                    self.startFigureEightAnimation()
-                }
-            }
+        fadeTransition(showCenterMessage: false, showExerciseUI: true) { [weak self] in
+            guard let self = self else { return }
+            self.startGazeMonitor()
+            self.startFigureEightAnimation()
         }
     }
 
+    private func startSecondPhaseTracking() {
+        currentPhase = .tracking
+        currentLoopIndex = 0
+        isAnimationPaused = false
+        resetLayerSpeed(layer: circleView.layer)
         
-    private func createInfinityPath() -> UIBezierPath {
+        instructionLabel.text = "Keep the phone close and track the yellow dot"
+        instructionLabel.textColor = .lightGray
+        instructionLabel.alpha = 1
+        
+        currentPath = createInfinityPath(isVertical: true)
+        if let path = currentPath {
+            drawBackgroundTrack(with: path)
+        }
+        
+        centerMessageLabel.alpha = 0
+        circleView.alpha = 1
+        trackLayer?.opacity = 1
+        
+        startGazeMonitor()
+        startFigureEightAnimation()
+    }
+        
+    private func createInfinityPath(isVertical: Bool) -> UIBezierPath {
         let path = UIBezierPath()
-        let screenWidth = view.bounds.width
         let center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
-        let loopWidth = (screenWidth - 80) / 2
-        let loopHeight = loopWidth * 0.8
+        
+        if isVertical {
+            // Vertical figure eight (loops top and bottom)
+            let loopHeight = (view.bounds.height - 180) / 2
+            let loopWidth = min(view.bounds.width - 40, loopHeight * 0.8)
             
-        path.move(to: center)
-        path.addCurve(to: CGPoint(x: center.x + loopWidth, y: center.y),
-                      controlPoint1: CGPoint(x: center.x + loopWidth/2, y: center.y - loopHeight),
-                      controlPoint2: CGPoint(x: center.x + loopWidth, y: center.y - loopHeight))
-        path.addCurve(to: center,
-                      controlPoint1: CGPoint(x: center.x + loopWidth, y: center.y + loopHeight),
-                      controlPoint2: CGPoint(x: center.x + loopWidth/2, y: center.y + loopHeight))
+            path.move(to: center)
+            path.addCurve(to: CGPoint(x: center.x, y: center.y - loopHeight),
+                          controlPoint1: CGPoint(x: center.x - loopWidth, y: center.y - loopHeight / 2),
+                          controlPoint2: CGPoint(x: center.x - loopWidth, y: center.y - loopHeight))
+            path.addCurve(to: center,
+                          controlPoint1: CGPoint(x: center.x + loopWidth, y: center.y - loopHeight),
+                          controlPoint2: CGPoint(x: center.x + loopWidth, y: center.y - loopHeight / 2))
             
-        path.addCurve(to: CGPoint(x: center.x - loopWidth, y: center.y),
-                      controlPoint1: CGPoint(x: center.x - loopWidth/2, y: center.y - loopHeight),
-                      controlPoint2: CGPoint(x: center.x - loopWidth, y: center.y - loopHeight))
-        path.addCurve(to: center,
-                      controlPoint1: CGPoint(x: center.x - loopWidth, y: center.y + loopHeight),
-                      controlPoint2: CGPoint(x: center.x - loopWidth/2, y: center.y + loopHeight))
+            path.addCurve(to: CGPoint(x: center.x, y: center.y + loopHeight),
+                          controlPoint1: CGPoint(x: center.x - loopWidth, y: center.y + loopHeight / 2),
+                          controlPoint2: CGPoint(x: center.x - loopWidth, y: center.y + loopHeight))
+            path.addCurve(to: center,
+                          controlPoint1: CGPoint(x: center.x + loopWidth, y: center.y + loopHeight),
+                          controlPoint2: CGPoint(x: center.x + loopWidth, y: center.y + loopHeight / 2))
+        } else {
+            // Horizontal figure eight (loops left and right) — fits in portrait
+            let screenWidth = view.bounds.width
+            let loopWidth = (screenWidth - 60) / 2
+            let loopHeight = loopWidth * 0.55
+            
+            path.move(to: center)
+            path.addCurve(to: CGPoint(x: center.x + loopWidth, y: center.y),
+                          controlPoint1: CGPoint(x: center.x + loopWidth / 2, y: center.y - loopHeight),
+                          controlPoint2: CGPoint(x: center.x + loopWidth, y: center.y - loopHeight))
+            path.addCurve(to: center,
+                          controlPoint1: CGPoint(x: center.x + loopWidth, y: center.y + loopHeight),
+                          controlPoint2: CGPoint(x: center.x + loopWidth / 2, y: center.y + loopHeight))
+            
+            path.addCurve(to: CGPoint(x: center.x - loopWidth, y: center.y),
+                          controlPoint1: CGPoint(x: center.x - loopWidth / 2, y: center.y - loopHeight),
+                          controlPoint2: CGPoint(x: center.x - loopWidth, y: center.y - loopHeight))
+            path.addCurve(to: center,
+                          controlPoint1: CGPoint(x: center.x - loopWidth, y: center.y + loopHeight),
+                          controlPoint2: CGPoint(x: center.x - loopWidth / 2, y: center.y + loopHeight))
+        }
         return path
     }
         
@@ -232,7 +380,9 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         gazeTimer?.invalidate()
         gazeTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
             guard let self = self, self.isExerciseActive, self.currentPhase == .tracking else { return }
-                
+            
+            self.totalFramesChecked += 1
+            
             var isLooking = false
             if let frame = self.arSession.currentFrame,
                let faceAnchor = frame.anchors.compactMap({ $0 as? ARFaceAnchor }).first,
@@ -250,6 +400,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
                     UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 0 }
                 }
             } else {
+                self.totalErrors += 1
                 if !self.isAnimationPaused {
                     self.pauseLayer(layer: self.circleView.layer)
                     self.isAnimationPaused = true
@@ -293,14 +444,8 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         isSecondPart = true
             
         UIView.animate(withDuration: 0.5) { self.trackLayer?.opacity = 0 }
-        centerMessageLabel.text = "Nicely done !"
+        centerMessageLabel.text = "Halfway there!\nRotate phone to Portrait"
         fadeTransition(showCenterMessage: true, showExerciseUI: false)
-    }
-    
-    private func startSecondPhase() {
-        UIDevice.current.endGeneratingDeviceOrientationNotifications()
-        NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
-        startFigureEightPhase()
     }
         
     private func finishExercise() {
@@ -308,19 +453,52 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         gazeTimer?.invalidate()
         circleView.layer.removeAllAnimations()
         
-        if let startTime = sessionStartTime {
-            let elapsedTime = Date().timeIntervalSince(startTime)
-            let elapsedSeconds = Int(elapsedTime)
-            ExerciseDataManager.shared.addExerciseTime(seconds: elapsedSeconds)
+        let startTime = sessionStartTime ?? Date()
+        let elapsedSeconds = Int(Date().timeIntervalSince(startTime))
+        let accuracy = totalFramesChecked > 0 ? Int((Double(totalFramesChecked - totalErrors) / Double(totalFramesChecked)) * 100.0) : 0
+        
+        let context = SwiftDataManager.shared.context
+        let user = SwiftDataManager.shared.getOrCreateUser()
+        let newSession = ExerciseSession(
+            type: "Figure8",
+            duration: elapsedSeconds,
+            accuracy: accuracy,
+            errors: totalErrors
+        )
+        newSession.user = user
+        context.insert(newSession)
+        
+        do {
+            try context.save()
+            errorHapticGenerator.notificationOccurred(.success)
+        } catch {
+            print("❌ Figure Eight Save failed: \(error)")
         }
             
         UIView.animate(withDuration: 0.5) { self.trackLayer?.opacity = 0 }
-        centerMessageLabel.text = "Nicely done !"
+        let messages = [
+            "Fantastic job!",
+            "Great work!",
+            "Awesome focus!",
+            "Excellent effort!",
+            "Superb session!",
+            "Nicely done!",
+            "Brilliant job!"
+        ]
+        centerMessageLabel.text = messages.randomElement() ?? "Nicely done!"
         fadeTransition(showCenterMessage: true, showExerciseUI: false)
             
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
             guard let self = self, self.isExerciseActive else { return }
-            print("Exercise Completed - Transitioning to summary")
+            self.isExerciseActive = false
+            if let nav = self.navigationController {
+                nav.popViewController(animated: true)
+            } else {
+                self.dismiss(animated: true)
+            }
         }
     }
+
+
+
 }

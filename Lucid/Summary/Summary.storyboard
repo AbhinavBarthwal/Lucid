@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="0ok-Ym-9if">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="dark"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
@@ -9,84 +9,6 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Summary-->
-        <scene sceneID="Qto-i2-VLc">
-            <objects>
-                <navigationController storyboardIdentifier="Summary" automaticallyAdjustsScrollViewInsets="NO" useStoryboardIdentifierAsRestorationIdentifier="YES" id="Z6y-N1-Rtk" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Summary" image="heart.text.clipboard" catalog="system" id="5Ta-ln-qoG"/>
-                    <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="gOz-FC-BL1">
-                        <rect key="frame" x="0.0" y="118" width="393" height="106"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="CR3-0K-Ak8" kind="relationship" relationship="rootViewController" id="7Gu-Xl-zr4"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="sh3-V7-Qd8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="3401" y="140"/>
-        </scene>
-        <!--Summary-->
-        <scene sceneID="asC-1n-Gpp">
-            <objects>
-                <viewController id="CR3-0K-Ak8" customClass="SummaryViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="LYD-Tr-E7o">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" misplaced="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="RBp-kR-te8">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <collectionViewLayout key="collectionViewLayout" id="sa3-ds-bQc"/>
-                                <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="pcd-pg-gD3">
-                                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="pCm-M0-5w1">
-                                            <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                        </collectionViewCellContentView>
-                                    </collectionViewCell>
-                                </cells>
-                            </collectionView>
-                        </subviews>
-                        <viewLayoutGuide key="safeArea" id="3JX-f7-UD6"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <constraints>
-                            <constraint firstItem="3JX-f7-UD6" firstAttribute="bottom" secondItem="RBp-kR-te8" secondAttribute="bottom" constant="-68" id="9jk-jR-Zdq"/>
-                            <constraint firstItem="3JX-f7-UD6" firstAttribute="trailing" secondItem="RBp-kR-te8" secondAttribute="trailing" id="EDb-lC-yI6"/>
-                            <constraint firstItem="RBp-kR-te8" firstAttribute="leading" secondItem="3JX-f7-UD6" secondAttribute="leading" id="g6k-k8-ahB"/>
-                            <constraint firstItem="RBp-kR-te8" firstAttribute="top" secondItem="3JX-f7-UD6" secondAttribute="top" constant="-224" id="sgK-IS-OEs"/>
-                        </constraints>
-                    </view>
-                    <tabBarItem key="tabBarItem" title="Item" image="heart.text.clipboard" catalog="system" selectedImage="heart.text.clipboard.fill" id="51d-No-Ja2"/>
-                    <navigationItem key="navigationItem" title="Summary" largeTitleDisplayMode="always" id="NxW-yM-mnc">
-                        <barButtonItem key="rightBarButtonItem" image="person.fill" catalog="system" id="a5v-3U-zd9">
-                            <connections>
-                                <segue destination="aZo-cf-HIo" kind="show" id="k3V-g9-dfA"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
-                    <connections>
-                        <outlet property="collectionView" destination="RBp-kR-te8" id="1CZ-Gs-319"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Xx9-8h-X0z" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="4690.8396946564881" y="-2.1126760563380285"/>
-        </scene>
-        <!--Profile-->
-        <scene sceneID="8BB-is-Lua">
-            <objects>
-                <viewControllerPlaceholder storyboardIdentifier="Profile" storyboardName="ProfilePage" referencedIdentifier="Profile" id="aZo-cf-HIo" sceneMemberID="viewController">
-                    <navigationItem key="navigationItem" id="LDq-WJ-Wux"/>
-                </viewControllerPlaceholder>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="zGp-mw-P2X" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="5237" y="-375"/>
-        </scene>
         <!--Awards-->
         <scene sceneID="9mL-Cn-i8j">
             <objects>
@@ -115,6 +37,118 @@
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
+                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="popupOverlay" userLabel="Popup Overlay">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                                <subviews>
+                                    <view alpha="0.0" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dimmingView" userLabel="Dimming View">
+                                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.65000000000000002" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </view>
+                                    <view alpha="0.0" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cardView" userLabel="Card View">
+                                        <rect key="frame" x="36.666666666666657" y="216" width="320" height="420"/>
+                                        <subviews>
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="symbolImageView">
+                                                <rect key="frame" x="124" y="32" width="72" height="72"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="72" id="symW"/>
+                                                    <constraint firstAttribute="height" constant="72" id="symH"/>
+                                                </constraints>
+                                            </imageView>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Badge Title" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="titleLabel">
+                                                <rect key="frame" x="20" y="120" width="280" height="26.333333333333343"/>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="22"/>
+                                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Badge details go here." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="detailLabel">
+                                                <rect key="frame" x="20" y="158.33333333333334" width="280" height="17"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <color key="textColor" white="1" alpha="0.84999999999999998" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Earned date" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dateLabel">
+                                                <rect key="frame" x="20" y="183.33333333333334" width="280" height="14.333333333333343"/>
+                                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="12"/>
+                                                <color key="textColor" white="1" alpha="0.65000000000000002" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="progressTrack">
+                                                <rect key="frame" x="24" y="298" width="272" height="6"/>
+                                                <subviews>
+                                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="progressFill">
+                                                        <rect key="frame" x="0.0" y="0.0" width="0.0" height="6"/>
+                                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" constant="0" id="fillW"/>
+                                                        </constraints>
+                                                    </view>
+                                                </subviews>
+                                                <color key="backgroundColor" white="1" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="6" id="trackH"/>
+                                                    <constraint firstItem="progressFill" firstAttribute="leading" secondItem="progressTrack" secondAttribute="leading" id="fillL"/>
+                                                    <constraint firstItem="progressFill" firstAttribute="top" secondItem="progressTrack" secondAttribute="top" id="fillT"/>
+                                                    <constraint firstItem="progressFill" firstAttribute="bottom" secondItem="progressTrack" secondAttribute="bottom" id="fillB"/>
+                                                </constraints>
+                                            </view>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1/2" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="progressLabel">
+                                                <rect key="frame" x="20" y="310" width="280" height="13.333333333333343"/>
+                                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="11"/>
+                                                <color key="textColor" white="1" alpha="0.80000000000000004" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="closeButton">
+                                                <rect key="frame" x="80" y="344" width="160" height="48"/>
+                                                <color key="backgroundColor" white="1" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="160" id="btnW"/>
+                                                    <constraint firstAttribute="height" constant="48" id="btnH"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
+                                                <state key="normal" title="Got it!">
+                                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="closePopupTapped:" destination="uwp-Em-gGn" eventType="touchUpInside" id="closeAct"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="320" id="cardW"/>
+                                            <constraint firstAttribute="height" constant="420" id="cardH"/>
+                                            <constraint firstItem="symbolImageView" firstAttribute="centerX" secondItem="cardView" secondAttribute="centerX" id="cSymX"/>
+                                            <constraint firstItem="symbolImageView" firstAttribute="top" secondItem="cardView" secondAttribute="top" constant="32" id="cSymT"/>
+                                            <constraint firstItem="titleLabel" firstAttribute="top" secondItem="symbolImageView" secondAttribute="bottom" constant="16" id="cTitleT"/>
+                                            <constraint firstItem="titleLabel" firstAttribute="leading" secondItem="cardView" secondAttribute="leading" constant="20" id="cTitleL"/>
+                                            <constraint firstItem="titleLabel" firstAttribute="trailing" secondItem="cardView" secondAttribute="trailing" constant="-20" id="cTitleR"/>
+                                            <constraint firstItem="detailLabel" firstAttribute="top" secondItem="titleLabel" secondAttribute="bottom" constant="12" id="cDetailT"/>
+                                            <constraint firstItem="detailLabel" firstAttribute="leading" secondItem="cardView" secondAttribute="leading" constant="20" id="cDetailL"/>
+                                            <constraint firstItem="detailLabel" firstAttribute="trailing" secondItem="cardView" secondAttribute="trailing" constant="-20" id="cDetailR"/>
+                                            <constraint firstItem="dateLabel" firstAttribute="top" secondItem="detailLabel" secondAttribute="bottom" constant="8" id="cDateT"/>
+                                            <constraint firstItem="dateLabel" firstAttribute="leading" secondItem="cardView" secondAttribute="leading" constant="20" id="cDateL"/>
+                                            <constraint firstItem="dateLabel" firstAttribute="trailing" secondItem="cardView" secondAttribute="trailing" constant="-20" id="cDateR"/>
+                                            <constraint firstItem="progressTrack" firstAttribute="leading" secondItem="cardView" secondAttribute="leading" constant="24" id="cTrackL"/>
+                                            <constraint firstItem="progressTrack" firstAttribute="trailing" secondItem="cardView" secondAttribute="trailing" constant="-24" id="cTrackR"/>
+                                            <constraint firstItem="progressLabel" firstAttribute="top" secondItem="progressTrack" secondAttribute="bottom" constant="6" id="cLabelT"/>
+                                            <constraint firstItem="progressLabel" firstAttribute="leading" secondItem="cardView" secondAttribute="leading" constant="20" id="cLabelL"/>
+                                            <constraint firstItem="progressLabel" firstAttribute="trailing" secondItem="cardView" secondAttribute="trailing" constant="-20" id="cLabelR"/>
+                                            <constraint firstItem="closeButton" firstAttribute="top" secondItem="progressLabel" secondAttribute="bottom" constant="16" id="cBtnT"/>
+                                            <constraint firstItem="closeButton" firstAttribute="centerX" secondItem="cardView" secondAttribute="centerX" id="cBtnX"/>
+                                            <constraint firstAttribute="bottom" secondItem="closeButton" secondAttribute="bottom" constant="28" id="cBtnB"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="dimmingView" firstAttribute="top" secondItem="popupOverlay" secondAttribute="top" id="ovDimT"/>
+                                    <constraint firstItem="dimmingView" firstAttribute="leading" secondItem="popupOverlay" secondAttribute="leading" id="ovDimL"/>
+                                    <constraint firstItem="dimmingView" firstAttribute="trailing" secondItem="popupOverlay" secondAttribute="trailing" id="ovDimR"/>
+                                    <constraint firstItem="dimmingView" firstAttribute="bottom" secondItem="popupOverlay" secondAttribute="bottom" id="ovDimB"/>
+                                    <constraint firstItem="cardView" firstAttribute="centerX" secondItem="popupOverlay" secondAttribute="centerX" id="ovCardX"/>
+                                    <constraint firstItem="cardView" firstAttribute="centerY" secondItem="popupOverlay" secondAttribute="centerY" id="ovCardY"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="ICA-2C-Ck3"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -123,6 +157,10 @@
                             <constraint firstItem="D5Z-w9-0J6" firstAttribute="top" secondItem="ICA-2C-Ck3" secondAttribute="top" constant="-172" id="SoX-zV-WhN"/>
                             <constraint firstItem="D5Z-w9-0J6" firstAttribute="leading" secondItem="ICA-2C-Ck3" secondAttribute="leading" id="TVe-wk-Ib8"/>
                             <constraint firstItem="ICA-2C-Ck3" firstAttribute="trailing" secondItem="D5Z-w9-0J6" secondAttribute="trailing" id="q8g-Xn-uE8"/>
+                            <constraint firstItem="popupOverlay" firstAttribute="top" secondItem="5TZ-QL-eCd" secondAttribute="top" id="poT"/>
+                            <constraint firstItem="popupOverlay" firstAttribute="bottom" secondItem="5TZ-QL-eCd" secondAttribute="bottom" id="poB"/>
+                            <constraint firstItem="popupOverlay" firstAttribute="leading" secondItem="5TZ-QL-eCd" secondAttribute="leading" id="poL"/>
+                            <constraint firstItem="popupOverlay" firstAttribute="trailing" secondItem="5TZ-QL-eCd" secondAttribute="trailing" id="poR"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Awards" id="is1-IH-ZNV">
@@ -134,6 +172,18 @@
                     </navigationItem>
                     <connections>
                         <outlet property="collectionView" destination="D5Z-w9-0J6" id="Uu6-ZG-keC"/>
+                        <outlet property="popupOverlay" destination="popupOverlay" id="connOverlay"/>
+                        <outlet property="dimmingView" destination="dimmingView" id="connDim"/>
+                        <outlet property="popupCard" destination="cardView" id="connCard"/>
+                        <outlet property="popupSymbolImageView" destination="symbolImageView" id="connSymbol"/>
+                        <outlet property="popupTitleLabel" destination="titleLabel" id="connTitle"/>
+                        <outlet property="popupDetailLabel" destination="detailLabel" id="connDetail"/>
+                        <outlet property="popupDateLabel" destination="dateLabel" id="connDate"/>
+                        <outlet property="popupProgressTrack" destination="progressTrack" id="connTrack"/>
+                        <outlet property="popupProgressFill" destination="progressFill" id="connFill"/>
+                        <outlet property="popupProgressFillWidthConstraint" destination="fillW" id="connFillW"/>
+                        <outlet property="popupProgressLabel" destination="progressLabel" id="connProgressL"/>
+                        <outlet property="popupCloseButton" destination="closeButton" id="connCloseBtn"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xXM-XV-2d6" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -232,31 +282,9 @@
             </objects>
             <point key="canvasLocation" x="7785.4961832061063" y="743.66197183098598"/>
         </scene>
-        <!--Tab Bar Controller-->
-        <scene sceneID="qTF-h6-8bE">
-            <objects>
-                <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="0ok-Ym-9if" sceneMemberID="viewController">
-                    <toolbarItems/>
-                    <navigationItem key="navigationItem" id="XYj-eW-wLL"/>
-                    <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Hy4-rt-5mQ">
-                        <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    </tabBar>
-                    <connections>
-                        <segue destination="Z6y-N1-Rtk" kind="relationship" relationship="viewControllers" id="9Yp-aC-Qte"/>
-                    </connections>
-                </tabBarController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="703-FG-YRh" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="2505" y="56"/>
-        </scene>
     </scenes>
     <resources>
         <image name="chevron.left" catalog="system" width="97" height="128"/>
-        <image name="heart.text.clipboard" catalog="system" width="103" height="128"/>
-        <image name="heart.text.clipboard.fill" catalog="system" width="103" height="128"/>
-        <image name="person.fill" catalog="system" width="128" height="120"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

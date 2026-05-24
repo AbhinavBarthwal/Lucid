@@ -8,6 +8,8 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
     // MARK: - Data Properties
     var accuracyTrends: [TrendData] = []
     var accuracyAverage: String = "0"
+    var responsivenessTrends: [TrendData] = []
+    var responsivenessAverage: String = "0"
     var eyeTestTrends: [TrendData] = []
     var eyeTestAverage: String = "0"
     var osdiTrends: [TrendData] = []
@@ -45,6 +47,10 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
         let accuracyResult = TrendDataManager.shared.getExerciseAccuracyTrends()
         self.accuracyAverage = accuracyResult.average
         self.accuracyTrends = accuracyResult.data
+        
+        let responsivenessResult = TrendDataManager.shared.getEyeResponsivenessTrends()
+        self.responsivenessAverage = responsivenessResult.average
+        self.responsivenessTrends = responsivenessResult.data
         
         let testResult = TrendDataManager.shared.getEyeTestTrends()
         self.eyeTestAverage = testResult.average
@@ -92,30 +98,33 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
             title = "Exercise Accuracy"
             average = self.accuracyAverage
             data = self.accuracyTrends
-            lore = "Exercise accuracy measures how precisely your eyes track targets."
+            lore = "This score tracks how good your eyes are at following moving things on the screen without getting distracted. Think of it like playing a game where you have to keep your laser focus on a moving target. If your eyes stay right on the dot, your score goes up! High accuracy means your eye muscles are getting stronger and working together super well."
             let val = Double(average) ?? 0
-            status = val == 0 ? "Perform exercises to get an accuracy score." : (val > 90 ? "You're doing well, keep the score up!" : "Time to lock down to improve your eye health.")
+            status = val == 0 ? "Try doing some exercises so we can measure how accurately your eyes can follow targets!" : (val > 90 ? "Whoa, your eyes are like a hawk! You are tracking things super well. Keep it up!" : "Your tracking is okay, but let's try to focus a bit more next time. Practice makes perfect!")
         case 1:
             title = "C Test Score"
             average = self.eyeTestAverage
             data = self.eyeTestTrends
             max = 6
-            lore = "Your C Test score reflects your visual acuity."
-            status = (Double(average) ?? 0) == 0 ? "Take the C-Test to see your vision trends." : "Let’s try and take better care of our eyes."
+            lore = "The C Test is like that chart with the letters at the eye doctor's office, but we use the letter 'C' pointing in different directions instead. It checks how clear and sharp your vision is from a distance. A higher score means your eyes can see smaller details easily without squinting. It's basically a score of how sharp your vision is!"
+            status = (Double(average) ?? 0) == 0 ? "Take a C Test to find out how sharp your eyes can see today!" : "Your vision is looking pretty good, but let's keep exercising so it stays super sharp!"
         case 2:
             title = "OSDI Score"
             average = self.osdiAverage
             data = self.osdiTrends
             direction = 0
-            lore = "OSDI evaluates dry eye symptoms. Lower is better."
+            lore = "OSDI is a fancy name for checking if your eyes are dry, itchy, or tired from looking at screens all day. For this score, lower is actually way better! If your score is high, it means your eyes are crying out for a break. If it's low, it means your eyes are feeling fresh, happy, and well-rested!"
             let val = Double(average) ?? 0
-            status = val == 0 ? "Take OSDI test to get you trend data." : (val < 13 ? "Eyes are looking fresh! Keep it up." : "Time to reduce that eye strain.")
+            status = val == 0 ? "Take the quick OSDI quiz to find out if your eyes are getting too tired from screens!" : (val < 13 ? "Awesome! Your eyes are feeling super fresh and relaxed. Keep up the good work!" : "Uh oh, your eyes are feeling a bit tired or dry. You should take a break from screens and blink more!")
         case 3:
             title = "Eye Responsiveness"
-            average = self.accuracyAverage
-            data = self.accuracyTrends
-            lore = "Tracks your reaction time to visual cues."
-            status = (Double(average) ?? 0) == 0 ? "Start a session to measure your responsiveness." : "Let’s keep working on those reflexes."
+            average = self.responsivenessAverage
+            data = self.responsivenessTrends
+            direction = 0
+            max = 3
+            lore = "This measures how fast your eyes react when something changes on the screen, measured in seconds. A lower number means your eyes and brain are communicating super fast! Think of it like a reflex test for your eyes. The quicker you react, the sharper your visual reflexes are."
+            let val = Double(average) ?? 0
+            status = val == 0 ? "Do a Blink Training or Saccadic Jumps session to measure your eye reflex speed!" : (val < 0.8 ? "Lightning fast! Your eye reflexes are incredibly sharp." : "Your eye reflexes are working well! Keep training to get even faster.")
         default: break
         }
 

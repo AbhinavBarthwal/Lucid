@@ -20,6 +20,8 @@ class PreviousConditionsViewController: UITableViewController {
     weak var delegate: PreviousConditionsDelegate?
     
     var selectedConditions: Set<String> = []
+    private var eyeSelected: Set<String> = []
+    private var bodySelected: Set<String> = []
     
     let eyeConditions = [
         "Digital Eye Strain",
@@ -46,21 +48,30 @@ class PreviousConditionsViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        eyeSelected = selectedConditions.intersection(Set(eyeConditions))
+        bodySelected = selectedConditions.intersection(Set(bodyConditions))
+        selectedConditions = eyeSelected.union(bodySelected)
         setupBubbles()
     }
     
     func setupBubbles() {
         
         let eyeView = ConditionBubblesView(
-            conditions: eyeConditions
+            conditions: eyeConditions,
+            initialSelected: eyeSelected
         ) { [weak self] selection in
-            self?.selectedConditions.formUnion(selection)
+            guard let self else { return }
+            self.eyeSelected = selection
+            self.selectedConditions = self.eyeSelected.union(self.bodySelected)
         }
         
         let bodyView = ConditionBubblesView(
-            conditions: bodyConditions
+            conditions: bodyConditions,
+            initialSelected: bodySelected
         ) { [weak self] selection in
-            self?.selectedConditions.formUnion(selection)
+            guard let self else { return }
+            self.bodySelected = selection
+            self.selectedConditions = self.eyeSelected.union(self.bodySelected)
         }
         
         let eyeHost = UIHostingController(rootView: eyeView)
@@ -108,9 +119,21 @@ class PreviousConditionsViewController: UITableViewController {
     struct ConditionBubblesView: View {
         
         let conditions: [String]
+        let initialSelected: Set<String>
         var onSelectionChange: (Set<String>) -> Void
         
         @State private var selected: Set<String> = []
+        
+        init(
+            conditions: [String],
+            initialSelected: Set<String> = [],
+            onSelectionChange: @escaping (Set<String>) -> Void
+        ) {
+            self.conditions = conditions
+            self.initialSelected = initialSelected
+            self.onSelectionChange = onSelectionChange
+            _selected = State(initialValue: initialSelected.intersection(Set(conditions)))
+        }
         
         var body: some View {
             

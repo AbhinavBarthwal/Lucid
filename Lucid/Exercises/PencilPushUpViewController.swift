@@ -1,6 +1,5 @@
 import UIKit
 import ARKit
-import SwiftData
 
 class PencilPushUpViewController: UIViewController, ARSessionDelegate {
 
@@ -14,6 +13,8 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
     private let successHapticGenerator = UINotificationFeedbackGenerator()
     private let heavyHapticGenerator = UIImpactFeedbackGenerator(style: .heavy)
     private var isExerciseActive = true
+
+    override var prefersStatusBarHidden: Bool { return true }
     
     private enum ExercisePhase {
         case none, bringingCloser, waitingForReset
@@ -74,7 +75,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
     }
 
     private func runInstructionSequence(index: Int) {
-        guard isExerciseActive else { return }
+        guard isExerciseActive, currentPhase == .none else { return }
         
         if index < exerciseInstructions.count {
             let step = exerciseInstructions[index]
@@ -82,13 +83,13 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
             UIView.animate(withDuration: 0.4, animations: {
                 self.centerMessageLabel.alpha = 0
             }) { _ in
-                guard self.isExerciseActive else { return }
+                guard self.isExerciseActive, self.currentPhase == .none else { return }
                 self.centerMessageLabel.text = step.message
                 UIView.animate(withDuration: 0.4, animations: {
                     self.centerMessageLabel.alpha = 1
                 }) { _ in
                     DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self] in
-                        guard let self = self, self.isExerciseActive else { return }
+                        guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
                         self.runInstructionSequence(index: index + 1)
                     }
                 }
@@ -97,7 +98,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
             UIView.animate(withDuration: 0.5, animations: {
                 self.centerMessageLabel.alpha = 0
             }) { _ in
-                guard self.isExerciseActive else { return }
+                guard self.isExerciseActive, self.currentPhase == .none else { return }
                 self.sessionStartTime = Date()
                 self.startBringingCloserPhase()
             }
@@ -150,21 +151,46 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         gazeTimer?.invalidate()
         currentPhase = .none
         
-        if let startTime = sessionStartTime {
-            let elapsedSeconds = Int(Date().timeIntervalSince(startTime))
-            ExerciseDataManager.shared.addExerciseTime(seconds: elapsedSeconds)
-        }
+        let startTime = sessionStartTime ?? Date()
+        let elapsedSeconds = Int(Date().timeIntervalSince(startTime))
+        let accuracy = totalFramesChecked > 0 ? Int((Double(totalFramesChecked - totalErrors) / Double(totalFramesChecked)) * 100.0) : 0
         
-        heavyHapticGenerator.impactOccurred()
+        let context = SwiftDataManager.shared.context
+        let user = SwiftDataManager.shared.getOrCreateUser()
+        let newSession = ExerciseSession(
+            type: "PencilPushup",
+            duration: elapsedSeconds,
+            accuracy: accuracy,
+            errors: totalErrors
+        )
+        newSession.user = user
+        context.insert(newSession)
+        
+        do {
+            try context.save()
+            heavyHapticGenerator.impactOccurred()
+        } catch {
+            print("❌ Pencil Push-Ups Save failed: \(error)")
+        }
         
         fadeTransition(showCenterMessage: false, showExerciseUI: false) { [weak self] in
             guard let self = self, self.isExerciseActive else { return }
-            self.centerMessageLabel.text = "Exercise Complete!"
+            let messages = [
+                "Fantastic job!",
+                "Great work!",
+                "Awesome focus!",
+                "Excellent effort!",
+                "Superb session!",
+                "Nicely done!",
+                "Brilliant job!"
+            ]
+            self.centerMessageLabel.text = messages.randomElement() ?? "Exercise Complete!"
             UIView.animate(withDuration: 0.5, animations: {
                 self.centerMessageLabel.alpha = 1
             }) { _ in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                     guard self.isExerciseActive else { return }
+                    self.isExerciseActive = false
                     if let nav = self.navigationController {
                         nav.popViewController(animated: true)
                     } else {
@@ -251,4 +277,6 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
             }
         }
     }
+
+
 }

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="RCC-01-cel" customClass="RecommendationCollectionViewCell" customModule="Lucid" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="350" height="175"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="350" height="175"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <!-- Reason / description label -->
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" numberOfLines="0" translatesAutoresizingMaskIntoConstraints="NO" id="RCC-02-rsn">
+                        <rect key="frame" x="16" y="16" width="318" height="63"/>
+                        <fontDescription key="fontDescription" name="SFPro-Semibold" family="SF Pro" pointSize="15"/>
+                        <color key="textColor" red="1" green="1" blue="1" alpha="0.92" colorSpace="custom" customColorSpace="sRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <!-- Bottom pill -->
+                    <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RCC-03-pil">
+                        <rect key="frame" x="8" y="95" width="334" height="72"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="RCC-04-ico">
+                                <rect key="frame" x="8" y="7" width="58" height="58"/>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" numberOfLines="1" translatesAutoresizingMaskIntoConstraints="NO" id="RCC-05-ttl">
+                                <rect key="frame" x="78" y="22" width="200" height="28"/>
+                                <fontDescription key="fontDescription" name="SFPro-Bold" family="SF Pro" pointSize="19"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="chevron.right" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="RCC-06-chv">
+                                <rect key="frame" x="308" y="24" width="14" height="24"/>
+                                <color key="tintColor" red="1" green="1" blue="1" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" red="0" green="0" blue="0" alpha="0.55" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <!-- Icon -->
+                            <constraint firstItem="RCC-04-ico" firstAttribute="leading" secondItem="RCC-03-pil" secondAttribute="leading" constant="8" id="pi-01"/>
+                            <constraint firstItem="RCC-04-ico" firstAttribute="centerY" secondItem="RCC-03-pil" secondAttribute="centerY" id="pi-02"/>
+                            <constraint firstItem="RCC-04-ico" firstAttribute="width" constant="58" id="pi-03"/>
+                            <constraint firstItem="RCC-04-ico" firstAttribute="height" constant="58" id="pi-04"/>
+                            <!-- Title -->
+                            <constraint firstItem="RCC-05-ttl" firstAttribute="leading" secondItem="RCC-04-ico" secondAttribute="trailing" constant="12" id="pt-01"/>
+                            <constraint firstItem="RCC-05-ttl" firstAttribute="centerY" secondItem="RCC-03-pil" secondAttribute="centerY" id="pt-02"/>
+                            <constraint firstItem="RCC-05-ttl" firstAttribute="trailing" secondItem="RCC-06-chv" secondAttribute="leading" constant="-8" id="pt-03"/>
+                            <!-- Chevron -->
+                            <constraint firstItem="RCC-06-chv" firstAttribute="trailing" secondItem="RCC-03-pil" secondAttribute="trailing" constant="-18" id="pc-01"/>
+                            <constraint firstItem="RCC-06-chv" firstAttribute="centerY" secondItem="RCC-03-pil" secondAttribute="centerY" id="pc-02"/>
+                            <constraint firstItem="RCC-06-chv" firstAttribute="width" constant="14" id="pc-03"/>
+                            <constraint firstItem="RCC-06-chv" firstAttribute="height" constant="24" id="pc-04"/>
+                        </constraints>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <integer key="value" value="18"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds">
+                                <boolean key="value" value="YES"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </view>
+                </subviews>
+            </view>
+            <viewLayoutGuide key="safeArea" id="RCC-00-saf"/>
+            <color key="backgroundColor" red="0.10" green="0.09" blue="0.20" alpha="0.88" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <!-- reasonLabel pinned to cell -->
+                <constraint firstItem="RCC-02-rsn" firstAttribute="top" secondItem="RCC-01-cel" secondAttribute="top" constant="16" id="r-top"/>
+                <constraint firstItem="RCC-02-rsn" firstAttribute="leading" secondItem="RCC-01-cel" secondAttribute="leading" constant="16" id="r-lead"/>
+                <constraint firstAttribute="trailing" secondItem="RCC-02-rsn" secondAttribute="trailing" constant="16" id="r-trail"/>
+                <!-- bottomPill below reasonLabel, pinned to cell sides/bottom -->
+                <constraint firstItem="RCC-03-pil" firstAttribute="top" secondItem="RCC-02-rsn" secondAttribute="bottom" constant="12" id="p-top"/>
+                <constraint firstItem="RCC-03-pil" firstAttribute="leading" secondItem="RCC-01-cel" secondAttribute="leading" constant="8" id="p-lead"/>
+                <constraint firstAttribute="trailing" secondItem="RCC-03-pil" secondAttribute="trailing" constant="8" id="p-trail"/>
+                <constraint firstAttribute="bottom" secondItem="RCC-03-pil" secondAttribute="bottom" constant="8" id="p-bot"/>
+                <constraint firstItem="RCC-03-pil" firstAttribute="height" constant="72" id="p-h"/>
+            </constraints>
+            <userDefinedRuntimeAttributes>
+                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                    <integer key="value" value="20"/>
+                </userDefinedRuntimeAttribute>
+                <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds">
+                    <boolean key="value" value="YES"/>
+                </userDefinedRuntimeAttribute>
+            </userDefinedRuntimeAttributes>
+            <connections>
+                <outlet property="reasonLabel" destination="RCC-02-rsn" id="out-01"/>
+                <outlet property="iconImageView" destination="RCC-04-ico" id="out-02"/>
+                <outlet property="titleLabel" destination="RCC-05-ttl" id="out-03"/>
+            </connections>
+            <point key="canvasLocation" x="100" y="100"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <image name="chevron.right" catalog="system" width="97" height="128"/>
+    </resources>
+</document>

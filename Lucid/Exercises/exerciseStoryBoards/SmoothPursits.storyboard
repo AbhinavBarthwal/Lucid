@@ -30,12 +30,13 @@
                                     <constraint firstAttribute="height" constant="20" id="kVr-Vv-8NF"/>
                                 </constraints>
                             </view>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="o2P-pE-ivc">
+                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="o2P-pE-ivc">
                                 <rect key="frame" x="20" y="413" width="353" height="26.333333333333314"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
+
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="CcM-Mf-VC1"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -51,6 +52,7 @@
                             <constraint firstItem="CcM-Mf-VC1" firstAttribute="bottom" secondItem="BW3-Cz-qFf" secondAttribute="bottom" constant="60" id="g0o-og-fQa"/>
                             <constraint firstItem="0oo-9g-JKa" firstAttribute="centerY" secondItem="VzB-Ma-mhr" secondAttribute="centerY" id="pmT-gf-Hrv"/>
                             <constraint firstItem="0oo-9g-JKa" firstAttribute="centerX" secondItem="VzB-Ma-mhr" secondAttribute="centerX" id="u9I-gi-lD5"/>
+
                         </constraints>
                     </view>
                     <connections>

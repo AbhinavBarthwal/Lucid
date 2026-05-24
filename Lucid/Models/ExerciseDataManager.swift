@@ -1,6 +1,4 @@
 import Foundation
-import SwiftData
-
 
 struct DailyExerciseRecord: Codable {
     var date: Date
@@ -12,37 +10,50 @@ struct DailyExerciseRecord: Codable {
 class ExerciseDataManager {
     static let shared = ExerciseDataManager()
     
-    let dailyGoalSeconds = 1200
-
+    let dailyGoalSeconds = 60
     
+    // MARK: - Save locally (Cloud sync removed per instructions)
     func addExerciseTime(seconds: Int, type: String = "General") {
         let user = SwiftDataManager.shared.getOrCreateUser()
         let newSession = ExerciseSession(type: type, duration: seconds)
-
-        newSession.user = user
         
         SwiftDataManager.shared.context.insert(newSession)
         
         do {
             try SwiftDataManager.shared.context.save()
-            print("✅ Saved \(seconds)s for \(user.name)")
+            print("✅ Saved \(seconds)s locally for \(user.name)")
+            
+            // Update today's streak status and evaluate badges
+            user.updateTodayStreakStatus()
+            ProgressManager.shared.evaluateAndUnlock()
+            
+            // REMOVED syncExercise call because we are only keeping
+            // exercises locally to keep the Supabase database clean.
+            
         } catch {
             print("❌ Save failed: \(error)")
         }
     }
     
     func updateDailyGoal(newGoalInSeconds: Int) {
-            let user = SwiftDataManager.shared.getOrCreateUser()
-            user.dailyExerciseGoal = newGoalInSeconds
+        let user = SwiftDataManager.shared.getOrCreateUser()
+        user.dailyExerciseGoal = newGoalInSeconds
+        
+        do {
+            try SwiftDataManager.shared.context.save()
+            print("✅ Daily goal updated to \(newGoalInSeconds) seconds")
             
-            do {
-                try SwiftDataManager.shared.context.save()
-                print("✅ Daily goal updated to \(newGoalInSeconds) seconds for \(user.name)")
-            } catch {
-                print("❌ Failed to update daily goal: \(error)")
+            // We still sync the User here because the 'dailyGoal' is part
+            // of the user profile you want in Supabase.
+            Task {
+                await SupabaseManager.shared.syncUser(user)
             }
+        } catch {
+            print("❌ Failed to update daily goal: \(error)")
         }
+    }
 
+    // MARK: - Fetching Logic (Remains unchanged)
     func fetchTodayRecord() -> DailyExerciseRecord {
         let user = SwiftDataManager.shared.getOrCreateUser()
         let totalSeconds = getTotalSeconds(for: Date(), user: user)
@@ -54,7 +65,6 @@ class ExerciseDataManager {
         )
     }
 
-
     func fetchWeeklyStreak() -> [(date: Date, isCompleted: Bool)] {
         let user = SwiftDataManager.shared.getOrCreateUser()
         let calendar = Calendar.current
@@ -64,10 +74,12 @@ class ExerciseDataManager {
         let daysToSubtract = (weekday == 1) ? 6 : (weekday - 2)
         guard let startOfWeek = calendar.date(byAdding: .day, value: -daysToSubtract, to: today) else { return [] }
 
+        user.updateTodayStreakStatus()
+
         return (0..<7).map { dayOffset in
             let date = calendar.date(byAdding: .day, value: dayOffset, to: startOfWeek)!
-            let total = getTotalSeconds(for: date, user: user)
-            return (date: date, isCompleted: total >= user.dailyExerciseGoal)
+            let isCompleted = user.streak.first(where: { calendar.isDate($0.date, inSameDayAs: date) })?.isCompleted ?? false
+            return (date: date, isCompleted: isCompleted)
         }
     }
 
@@ -76,20 +88,10 @@ class ExerciseDataManager {
         let start = calendar.startOfDay(for: date)
         let end = calendar.date(byAdding: .day, value: 1, to: start)!
         
-        let userId = user.id
-        let predicate = #Predicate<ExerciseSession> { session in
-            session.startingDate >= start &&
-            session.startingDate < end &&
-            session.user?.id == userId
+        let sessions = SwiftDataManager.shared.fetchExerciseSessions()
+        let filtered = sessions.filter { session in
+            session.startingDate >= start && session.startingDate < end
         }
-        
-        let descriptor = FetchDescriptor<ExerciseSession>(predicate: predicate)
-        
-        do {
-            let sessions = try SwiftDataManager.shared.context.fetch(descriptor)
-            return sessions.reduce(0) { $0 + $1.durationSeconds }
-        } catch {
-            return 0
-        }
+        return filtered.reduce(0) { $0 + $1.durationSeconds }
     }
 }

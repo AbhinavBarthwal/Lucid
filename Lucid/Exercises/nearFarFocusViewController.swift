@@ -1,7 +1,7 @@
 import UIKit
 import ARKit
 
-class nearFarFocusViewController: UIViewController, ARSessionDelegate {
+class NearFarFocusViewController: UIViewController, ARSessionDelegate {
     
     @IBOutlet weak var timerLabel: UILabel!
     @IBOutlet weak var instructionLabel: UILabel!
@@ -12,15 +12,20 @@ class nearFarFocusViewController: UIViewController, ARSessionDelegate {
     private var isLookingAtScreen = false
     private let errorHapticGenerator = UINotificationFeedbackGenerator()
     private var isExerciseActive = true
+
+    override var prefersStatusBarHidden: Bool { return true }
     
     private enum ExercisePhase {
         case none, near, far
     }
     private var currentPhase: ExercisePhase = .none
+    private var isInstructionPhase = true
     
     private var phaseTimer: Timer?
     private var secondsRemaining = 0
     private var sessionStartTime: Date?
+    private var totalFramesChecked = 0
+    private var totalErrors = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -90,7 +95,7 @@ class nearFarFocusViewController: UIViewController, ARSessionDelegate {
         centerMessageLabel.text = "\(secondsRemaining)"
         
         phaseTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
-            guard let self = self, self.isExerciseActive else {
+            guard let self = self, self.isExerciseActive, self.isInstructionPhase else {
                 timer.invalidate()
                 return
             }
@@ -101,10 +106,10 @@ class nearFarFocusViewController: UIViewController, ARSessionDelegate {
             } else {
                 timer.invalidate()
                 self.fadeTransition(showCenterMessage: false, showExerciseUI: false) {
-                    guard self.isExerciseActive else { return }
+                    guard self.isExerciseActive, self.isInstructionPhase else { return }
                     self.sessionStartTime = Date()
                     self.showPreparationMessage("Focus on the dot, keep your screen\nwithin the range of 25-40cms") {
-                        guard self.isExerciseActive else { return }
+                        guard self.isExerciseActive, self.isInstructionPhase else { return }
                         self.startNearFocusPhase()
                     }
                 }
@@ -120,9 +125,9 @@ class nearFarFocusViewController: UIViewController, ARSessionDelegate {
         fadeTransition(showCenterMessage: true, showExerciseUI: false)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) { [weak self] in
-            guard let self = self, self.isExerciseActive else { return }
+            guard let self = self, self.isExerciseActive, self.isInstructionPhase else { return }
             self.fadeTransition(showCenterMessage: false, showExerciseUI: false) {
-                guard self.isExerciseActive else { return }
+                guard self.isExerciseActive, self.isInstructionPhase else { return }
                 completion()
             }
         }
@@ -130,6 +135,7 @@ class nearFarFocusViewController: UIViewController, ARSessionDelegate {
     
     private func startNearFocusPhase() {
         currentPhase = .near
+        isInstructionPhase = false
         secondsRemaining = 10
         timerLabel.text = "\(secondsRemaining)"
         instructionLabel.textColor = .lightGray
@@ -202,6 +208,7 @@ class nearFarFocusViewController: UIViewController, ARSessionDelegate {
                 return
             }
             
+            self.totalFramesChecked += 1
             var isValid = true
             
             if self.currentPhase == .near {
@@ -218,6 +225,7 @@ class nearFarFocusViewController: UIViewController, ARSessionDelegate {
                 self.secondsRemaining -= 1
                 self.timerLabel.text = "\(self.secondsRemaining)"
             } else {
+                self.totalErrors += 1
                 self.errorHapticGenerator.notificationOccurred(.error)
             }
             
@@ -230,14 +238,53 @@ class nearFarFocusViewController: UIViewController, ARSessionDelegate {
     }
     
     private func finishExercise() {
-        if let startTime = sessionStartTime {
-            let elapsedTime = Date().timeIntervalSince(startTime)
-            let elapsedSeconds = Int(elapsedTime)
-            ExerciseDataManager.shared.addExerciseTime(seconds: elapsedSeconds)
+        let startTime = sessionStartTime ?? Date()
+        let elapsedSeconds = Int(Date().timeIntervalSince(startTime))
+        let accuracy = totalFramesChecked > 0 ? Int((Double(totalFramesChecked - totalErrors) / Double(totalFramesChecked)) * 100.0) : 0
+        
+        let context = SwiftDataManager.shared.context
+        let user = SwiftDataManager.shared.getOrCreateUser()
+        let newSession = ExerciseSession(
+            type: "NearFar",
+            duration: elapsedSeconds,
+            accuracy: accuracy,
+            errors: totalErrors
+        )
+        newSession.user = user
+        context.insert(newSession)
+        
+        do {
+            try context.save()
+            errorHapticGenerator.notificationOccurred(.success)
+        } catch {
+            print("❌ Near Far Focus Save failed: \(error)")
         }
         
-        startTransitionPhase {
-            print("Exercise Completed - Transitioning to summary")
+        currentPhase = .none
+        circleView.layer.removeAllAnimations()
+        let messages = [
+            "Fantastic job!",
+            "Great work!",
+            "Awesome focus!",
+            "Excellent effort!",
+            "Superb session!",
+            "Nicely done!",
+            "Brilliant job!"
+        ]
+        centerMessageLabel.text = messages.randomElement() ?? "Nicely Done!"
+        
+        fadeTransition(showCenterMessage: true, showExerciseUI: false)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
+            self.isExerciseActive = false
+            if let nav = self.navigationController {
+                nav.popViewController(animated: true)
+            } else {
+                self.dismiss(animated: true)
+            }
         }
     }
+
+
 }

@@ -20,6 +20,8 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
     private var sessionStartTime: Date?
     private let successHapticGenerator = UINotificationFeedbackGenerator()
     private var isExerciseActive = true
+
+    override var prefersStatusBarHidden: Bool { return true }
     
     private enum ExercisePhase {
         case none, tracking
@@ -33,6 +35,8 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
     private var currentLoopIndex = 0
     private let totalLoops = 3
     private var currentPath: UIBezierPath?
+    private var totalFramesChecked = 0
+    private var totalErrors = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -105,7 +109,7 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         centerMessageLabel.text = "\(countdownRemaining)"
         
         gazeTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
-            guard let self = self, self.isExerciseActive else {
+            guard let self = self, self.isExerciseActive, self.currentPhase == .none else {
                 timer.invalidate()
                 return
             }
@@ -116,7 +120,7 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
             } else {
                 timer.invalidate()
                 self.fadeTransition(showCenterMessage: false, showDots: false) {
-                    guard self.isExerciseActive else { return }
+                    guard self.isExerciseActive, self.currentPhase == .none else { return }
                     self.showPreparationSequence()
                 }
             }
@@ -129,11 +133,11 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         fadeTransition(showCenterMessage: true, showDots: false)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
-            guard let self = self, self.isExerciseActive else { return }
+            guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
             self.fadeTransition(showCenterMessage: false, showDots: true, instructionText: "Focus on the yellow dot,\nkeeping the white dot in your vision") {
-                guard self.isExerciseActive else { return }
+                guard self.isExerciseActive, self.currentPhase == .none else { return }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-                    guard self.isExerciseActive else { return }
+                    guard self.isExerciseActive, self.currentPhase == .none else { return }
                     self.revealPeripheralDot()
                 }
             }
@@ -147,7 +151,7 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
-            guard let self = self, self.isExerciseActive else { return }
+            guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
             self.startPeripheralPhase()
         }
     }
@@ -232,6 +236,8 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         gazeTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
             guard let self = self, self.isExerciseActive, self.currentPhase == .tracking else { return }
             
+            self.totalFramesChecked += 1
+            
             var isLookingAtCenter = false
             if let frame = self.arSession.currentFrame,
                let faceAnchor = frame.anchors.compactMap({ $0 as? ARFaceAnchor }).first,
@@ -249,6 +255,7 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
                     UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 0 }
                 }
             } else {
+                self.totalErrors += 1
                 if !self.isAnimationPaused {
                     self.pauseLayer(layer: self.peripheralDotView.layer)
                     self.isAnimationPaused = true
@@ -288,11 +295,26 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         gazeTimer?.invalidate()
         peripheralDotView.layer.removeAllAnimations()
         
-        if let startTime = sessionStartTime {
-            let elapsedTime = Date().timeIntervalSince(startTime)
-            let elapsedSeconds = Int(elapsedTime)
-            ExerciseDataManager.shared.addExerciseTime(seconds: elapsedSeconds)
+        let startTime = sessionStartTime ?? Date()
+        let elapsedSeconds = Int(Date().timeIntervalSince(startTime))
+        let accuracy = totalFramesChecked > 0 ? Int((Double(totalFramesChecked - totalErrors) / Double(totalFramesChecked)) * 100.0) : 0
+        
+        let context = SwiftDataManager.shared.context
+        let user = SwiftDataManager.shared.getOrCreateUser()
+        let newSession = ExerciseSession(
+            type: "PeripheralAwareness",
+            duration: elapsedSeconds,
+            accuracy: accuracy,
+            errors: totalErrors
+        )
+        newSession.user = user
+        context.insert(newSession)
+        
+        do {
+            try context.save()
             successHapticGenerator.notificationOccurred(.success)
+        } catch {
+            print("❌ Peripheral Awareness Save failed: \(error)")
         }
         
         UIView.animate(withDuration: 0.5) {
@@ -300,16 +322,32 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
             self.peripheralDotView.alpha = 0
         }
         
-        centerMessageLabel.text = "Nicely done !"
+        let messages = [
+            "Fantastic job!",
+            "Great work!",
+            "Awesome focus!",
+            "Excellent effort!",
+            "Superb session!",
+            "Nicely done!",
+            "Brilliant job!"
+        ]
+        centerMessageLabel.text = messages.randomElement() ?? "Nicely done !"
         
         UIView.animate(withDuration: 0.5) {
             self.centerMessageLabel.alpha = 1
             self.instructionLabel.alpha = 0
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
             guard let self = self, self.isExerciseActive else { return }
-            print("Exercise Completed - Transitioning to summary")
+            self.isExerciseActive = false
+            if let nav = self.navigationController {
+                nav.popViewController(animated: true)
+            } else {
+                self.dismiss(animated: true)
+            }
         }
     }
+
+
 }

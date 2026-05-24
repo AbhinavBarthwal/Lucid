@@ -13,6 +13,7 @@ class PasswordTableViewController: UITableViewController {
 
 
     @IBAction func saveTapped(_ sender: Any) {
+        let user = SwiftDataManager.shared.getOrCreateUser()
         let oldPassword = oldPasswordField.text ?? ""
         let newPassword = newPasswordField.text ?? ""
         let confirmPassword = confirmPasswordField.text ?? ""
@@ -32,7 +33,26 @@ class PasswordTableViewController: UITableViewController {
             return
         }
 
-        showAlert(message: "Password changed successfully.")
+        let savedPassword = user.password ?? user.email.flatMap { CredentialStore.shared.password(for: $0) } ?? ""
+        if !savedPassword.isEmpty, savedPassword != oldPassword {
+            showAlert(message: "Old password is incorrect")
+            return
+        }
+
+        user.password = newPassword
+        if let email = user.email, !email.isEmpty {
+            _ = CredentialStore.shared.save(password: newPassword, for: email)
+        }
+
+        do {
+            try SwiftDataManager.shared.context.save()
+            Task {
+                await SupabaseManager.shared.syncUser(user)
+            }
+            showAlert(message: "Password changed successfully.")
+        } catch {
+            showAlert(message: "Could not save your new password right now.")
+        }
     }
 
 

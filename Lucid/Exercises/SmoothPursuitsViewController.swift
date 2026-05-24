@@ -1,6 +1,5 @@
 import UIKit
 import ARKit
-import SwiftData
 
 struct InstructionStep {
     let message: String
@@ -19,6 +18,8 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     private let successHapticGenerator = UINotificationFeedbackGenerator()
     private var isExerciseActive = true
 
+    override var prefersStatusBarHidden: Bool { return true }
+
     private var sessionStartTime: Date?
     private enum ExercisePhase { case none, tracking }
     private var currentPhase: ExercisePhase = .none
@@ -36,7 +37,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
 
     private let phaseDurations: [Double] = [2.0 , 1.5 , 1.0]
     
-    var modelContext: ModelContext?
+
     private var totalFramesChecked = 0
     private var totalErrors = 0
     private var currentTargetDirectionIndex = 0
@@ -79,7 +80,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     }
 
     private func runInstructionSequence(index: Int) {
-        guard isExerciseActive else { return }
+        guard isExerciseActive, currentPhase == .none else { return }
         
         if index < exerciseInstructions.count {
             let step = exerciseInstructions[index]
@@ -87,14 +88,14 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
             UIView.animate(withDuration: 0.4, animations: {
                 self.centerMessageLabel.alpha = 0
             }) { _ in
-                guard self.isExerciseActive else { return }
+                guard self.isExerciseActive, self.currentPhase == .none else { return }
                 self.centerMessageLabel.text = step.message
                 
                 UIView.animate(withDuration: 0.4, animations: {
                     self.centerMessageLabel.alpha = 1
                 }) { _ in
                     DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self] in
-                        guard let self = self, self.isExerciseActive else { return }
+                        guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
                         self.runInstructionSequence(index: index + 1)
                     }
                 }
@@ -103,7 +104,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
             UIView.animate(withDuration: 0.5, animations: {
                 self.centerMessageLabel.alpha = 0
             }) { _ in
-                guard self.isExerciseActive else { return }
+                guard self.isExerciseActive, self.currentPhase == .none else { return }
                 self.startSmoothPursuitPhase()
             }
         }
@@ -298,16 +299,26 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
             guard let self = self, self.isExerciseActive else { return }
             let storyboard = UIStoryboard(name: "Report", bundle: nil)
             guard let reportVC = storyboard.instantiateViewController(withIdentifier: "ReportViewController") as? ReportViewController else { return }
-            reportVC.sessionType = "SmoothPursuit"; reportVC.overallScore = accuracy; reportVC.totalErrors = self.totalErrors; reportVC.avgHeadMovement = avgHeadMovement; reportVC.directionErrors = calculatedDirectionErrors
-            let nav = UINavigationController(rootViewController: reportVC); nav.modalPresentationStyle = .fullScreen
-            self.present(nav, animated: true)
+            reportVC.sessionType = "SmoothPursuit"
+            reportVC.overallScore = accuracy
+            reportVC.totalErrors = self.totalErrors
+            reportVC.directionErrors = calculatedDirectionErrors
+            
+            let nav = UINavigationController(rootViewController: reportVC)
+            nav.modalPresentationStyle = .fullScreen
+            
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let rootVC = windowScene.windows.first?.rootViewController else { return }
+            
+            if let navStack = self.navigationController {
+                navStack.popViewController(animated: false)
+            } else {
+                self.dismiss(animated: false)
+            }
+            
+            rootVC.present(nav, animated: true)
         }
-        ExerciseDataManager.shared.addExerciseTime(seconds: elapsedSeconds)
         do { try context.save(); successHapticGenerator.notificationOccurred(.success) } catch { print("Error: \(error)") }
-        startTransitionPhase(message: "Nicely Done!") { [weak self] in
-            guard let self = self, self.isExerciseActive else { return }
-            if let nav = self.navigationController { nav.popViewController(animated: true) } else { self.dismiss(animated: true) }
-        }
     }
 
     private func startTransitionPhase(message: String, nextPhase: @escaping () -> Void) {
@@ -321,4 +332,6 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
             }
         }
     }
+
+
 }
