@@ -49,4 +49,3 @@ env/
 .env
 
 # Drone test output files
-drone_test/out*.json
