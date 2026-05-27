@@ -27,6 +27,8 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     
     private var currentSpeedLevel = 0
     private let exerciseInstructions: [InstructionStep] = [
+        InstructionStep(message: "5", duration: 0.6),
+        InstructionStep(message: "4", duration: 0.6),
         InstructionStep(message: "3", duration: 0.6),
         InstructionStep(message: "2", duration: 0.6),
         InstructionStep(message: "1", duration: 0.6),
@@ -35,7 +37,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         InstructionStep(message: "Keep your phone at 20cm", duration: 2.0)
     ]
 
-    private let phaseDurations: [Double] = [2.0 , 1.5 , 1.0]
+    private let phaseDurations: [Double] = [2.0 , 1.75 , 1.5 , 1.25 , 1.0]
     
 
     private var totalFramesChecked = 0
@@ -179,11 +181,11 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         successHapticGenerator.notificationOccurred(.success)
         successHapticGenerator.prepare()
 
-        if currentSpeedLevel > 2 {
+        if currentSpeedLevel > 4 {
             finishExercise()
         } else {
             gazeTimer?.invalidate()
-            let message = currentSpeedLevel == 1 ? "Good, Let's ramp up the speed" : "Final round! Maximum speed"
+            let message = currentSpeedLevel == 4 ? "Final round! Maximum speed" : "Good, Let's ramp up the speed"
             
             showTransitionMessage(message) { [weak self] in
                 guard let self = self, self.isExerciseActive else { return }

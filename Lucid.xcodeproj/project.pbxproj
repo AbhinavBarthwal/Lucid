@@ -14,29 +14,7 @@
 		B54E793C2FC2208F00F28A27 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = B54E793B2FC2208F00F28A27 /* Realtime */; };
 		B54E793E2FC2208F00F28A27 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = B54E793D2FC2208F00F28A27 /* Storage */; };
 		B54E79402FC2208F00F28A27 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = B54E793F2FC2208F00F28A27 /* Supabase */; };
-		B5F2781F2FC29AF9009CBA11 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5F2781E2FC29AF9009CBA11 /* WidgetKit.framework */; };
-		B5F278212FC29AF9009CBA11 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5F278202FC29AF9009CBA11 /* SwiftUI.framework */; };
-		B5F278322FC29AFA009CBA11 /* LucidwidgetExtensionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B5F2781C2FC29AF9009CBA11 /* LucidwidgetExtensionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		B5F2783E2FC29B24009CBA11 /* DeviceActivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B5F2783D2FC29B24009CBA11 /* DeviceActivity.framework */; };
-		B5F278462FC29B24009CBA11 /* LucidDeviceActivityMonitorExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B5F2783C2FC29B24009CBA11 /* LucidDeviceActivityMonitorExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		B5F278302FC29AFA009CBA11 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = ADCBCE922F14ACAD008D4CCE /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B5F2781B2FC29AF9009CBA11;
-			remoteInfo = LucidwidgetExtensionExtension;
-		};
-		B5F278442FC29B24009CBA11 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = ADCBCE922F14ACAD008D4CCE /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B5F2783B2FC29B24009CBA11;
-			remoteInfo = LucidDeviceActivityMonitorExtension;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		AD43099C2F5FD36300915CF3 /* Embed Frameworks */ = {
@@ -55,8 +33,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				B5F278462FC29B24009CBA11 /* LucidDeviceActivityMonitorExtension.appex in Embed Foundation Extensions */,
-				B5F278322FC29AFA009CBA11 /* LucidwidgetExtensionExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -65,10 +41,8 @@
 
 /* Begin PBXFileReference section */
 		ADCBCE9A2F14ACAD008D4CCE /* Lucid.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lucid.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		B5F2781C2FC29AF9009CBA11 /* LucidwidgetExtensionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LucidwidgetExtensionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5F2781E2FC29AF9009CBA11 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		B5F278202FC29AF9009CBA11 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		B5F2783C2FC29B24009CBA11 /* LucidDeviceActivityMonitorExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LucidDeviceActivityMonitorExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5F2783D2FC29B24009CBA11 /* DeviceActivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeviceActivity.framework; path = System/Library/Frameworks/DeviceActivity.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -79,20 +53,6 @@
 				Info.plist,
 			);
 			target = ADCBCE992F14ACAD008D4CCE /* Lucid */;
-		};
-		B5F278362FC29AFA009CBA11 /* Exceptions for "LucidwidgetExtension" folder in "LucidwidgetExtensionExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = B5F2781B2FC29AF9009CBA11 /* LucidwidgetExtensionExtension */;
-		};
-		B5F2784A2FC29B24009CBA11 /* Exceptions for "LucidDeviceActivityMonitorExtension" folder in "LucidDeviceActivityMonitorExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = B5F2783B2FC29B24009CBA11 /* LucidDeviceActivityMonitorExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -107,17 +67,11 @@
 		};
 		B5F278222FC29AF9009CBA11 /* LucidwidgetExtension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				B5F278362FC29AFA009CBA11 /* Exceptions for "LucidwidgetExtension" folder in "LucidwidgetExtensionExtension" target */,
-			);
 			path = LucidwidgetExtension;
 			sourceTree = "<group>";
 		};
 		B5F2783F2FC29B24009CBA11 /* LucidDeviceActivityMonitorExtension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				B5F2784A2FC29B24009CBA11 /* Exceptions for "LucidDeviceActivityMonitorExtension" folder in "LucidDeviceActivityMonitorExtension" target */,
-			);
 			path = LucidDeviceActivityMonitorExtension;
 			sourceTree = "<group>";
 		};
@@ -135,23 +89,6 @@
 				B54E79362FC2208F00F28A27 /* Auth in Frameworks */,
 				B54E793C2FC2208F00F28A27 /* Realtime in Frameworks */,
 				AD196BBC2F67BB1A0005D82E /* DGCharts in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B5F278192FC29AF9009CBA11 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B5F278212FC29AF9009CBA11 /* SwiftUI.framework in Frameworks */,
-				B5F2781F2FC29AF9009CBA11 /* WidgetKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B5F278392FC29B24009CBA11 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B5F2783E2FC29B24009CBA11 /* DeviceActivity.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -173,8 +110,6 @@
 			isa = PBXGroup;
 			children = (
 				ADCBCE9A2F14ACAD008D4CCE /* Lucid.app */,
-				B5F2781C2FC29AF9009CBA11 /* LucidwidgetExtensionExtension.appex */,
-				B5F2783C2FC29B24009CBA11 /* LucidDeviceActivityMonitorExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -205,8 +140,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				B5F278312FC29AFA009CBA11 /* PBXTargetDependency */,
-				B5F278452FC29B24009CBA11 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				ADCBCE9C2F14ACAD008D4CCE /* Lucid */,
@@ -225,50 +158,6 @@
 			productReference = ADCBCE9A2F14ACAD008D4CCE /* Lucid.app */;
 			productType = "com.apple.product-type.application";
 		};
-		B5F2781B2FC29AF9009CBA11 /* LucidwidgetExtensionExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = B5F278332FC29AFA009CBA11 /* Build configuration list for PBXNativeTarget "LucidwidgetExtensionExtension" */;
-			buildPhases = (
-				B5F278182FC29AF9009CBA11 /* Sources */,
-				B5F278192FC29AF9009CBA11 /* Frameworks */,
-				B5F2781A2FC29AF9009CBA11 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				B5F278222FC29AF9009CBA11 /* LucidwidgetExtension */,
-			);
-			name = LucidwidgetExtensionExtension;
-			packageProductDependencies = (
-			);
-			productName = LucidwidgetExtensionExtension;
-			productReference = B5F2781C2FC29AF9009CBA11 /* LucidwidgetExtensionExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
-		B5F2783B2FC29B24009CBA11 /* LucidDeviceActivityMonitorExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = B5F278472FC29B24009CBA11 /* Build configuration list for PBXNativeTarget "LucidDeviceActivityMonitorExtension" */;
-			buildPhases = (
-				B5F278382FC29B24009CBA11 /* Sources */,
-				B5F278392FC29B24009CBA11 /* Frameworks */,
-				B5F2783A2FC29B24009CBA11 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				B5F2783F2FC29B24009CBA11 /* LucidDeviceActivityMonitorExtension */,
-			);
-			name = LucidDeviceActivityMonitorExtension;
-			packageProductDependencies = (
-			);
-			productName = LucidDeviceActivityMonitorExtension;
-			productReference = B5F2783C2FC29B24009CBA11 /* LucidDeviceActivityMonitorExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -281,12 +170,6 @@
 				TargetAttributes = {
 					ADCBCE992F14ACAD008D4CCE = {
 						CreatedOnToolsVersion = 26.2;
-					};
-					B5F2781B2FC29AF9009CBA11 = {
-						CreatedOnToolsVersion = 26.5;
-					};
-					B5F2783B2FC29B24009CBA11 = {
-						CreatedOnToolsVersion = 26.5;
 					};
 				};
 			};
@@ -309,28 +192,12 @@
 			projectRoot = "";
 			targets = (
 				ADCBCE992F14ACAD008D4CCE /* Lucid */,
-				B5F2781B2FC29AF9009CBA11 /* LucidwidgetExtensionExtension */,
-				B5F2783B2FC29B24009CBA11 /* LucidDeviceActivityMonitorExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		ADCBCE982F14ACAD008D4CCE /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B5F2781A2FC29AF9009CBA11 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B5F2783A2FC29B24009CBA11 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -347,34 +214,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B5F278182FC29AF9009CBA11 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B5F278382FC29B24009CBA11 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		B5F278312FC29AFA009CBA11 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B5F2781B2FC29AF9009CBA11 /* LucidwidgetExtensionExtension */;
-			targetProxy = B5F278302FC29AFA009CBA11 /* PBXContainerItemProxy */;
-		};
-		B5F278452FC29B24009CBA11 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B5F2783B2FC29B24009CBA11 /* LucidDeviceActivityMonitorExtension */;
-			targetProxy = B5F278442FC29B24009CBA11 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		ADCBCEAE2F14ACAE008D4CCE /* Debug */ = {
@@ -385,13 +225,15 @@
 				CODE_SIGN_ENTITLEMENTS = Lucid/Lucid.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = BL4G455K39;
+				DEVELOPMENT_TEAM = PGAUC552ZV;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Lucid/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = lucidstory;
+				INFOPLIST_KEY_CFBundleDisplayName = Lucid;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need your camera to see how close you are to the screen and track your eye movements during exercises!";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need your microphone to hear your voice when you read out letters during the eye tests!";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We need speech recognition to understand the letters you say during your eye tests!";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -405,7 +247,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Y.Lucid;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Y.Lucid123;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -427,13 +269,15 @@
 				CODE_SIGN_ENTITLEMENTS = Lucid/Lucid.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = BL4G455K39;
+				DEVELOPMENT_TEAM = PGAUC552ZV;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Lucid/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = lucidstory;
+				INFOPLIST_KEY_CFBundleDisplayName = Lucid;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need your camera to see how close you are to the screen and track your eye movements during exercises!";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need your microphone to hear your voice when you read out letters during the eye tests!";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We need speech recognition to understand the letters you say during your eye tests!";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_NSSupportsLiveActivitiesFrequentUpdates = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -447,7 +291,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Y.Lucid;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Y.Lucid123;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -584,130 +428,6 @@
 			};
 			name = Release;
 		};
-		B5F278342FC29AFA009CBA11 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = LucidwidgetExtension/LucidwidgetExtension.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = BL4G455K39;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = LucidwidgetExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = LucidwidgetExtension;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Y.Lucid.LucidwidgetExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		B5F278352FC29AFA009CBA11 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = LucidwidgetExtension/LucidwidgetExtension.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = BL4G455K39;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = LucidwidgetExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = LucidwidgetExtension;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Y.Lucid.LucidwidgetExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		B5F278482FC29B24009CBA11 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = LucidDeviceActivityMonitorExtension/LucidDeviceActivityMonitorExtension.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = BL4G455K39;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = LucidDeviceActivityMonitorExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = LucidDeviceActivityMonitorExtension;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Y.Lucid.LucidDeviceActivityMonitorExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		B5F278492FC29B24009CBA11 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = LucidDeviceActivityMonitorExtension/LucidDeviceActivityMonitorExtension.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = BL4G455K39;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = LucidDeviceActivityMonitorExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = LucidDeviceActivityMonitorExtension;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.Y.Lucid.LucidDeviceActivityMonitorExtension;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -725,24 +445,6 @@
 			buildConfigurations = (
 				ADCBCEAE2F14ACAE008D4CCE /* Debug */,
 				ADCBCEAF2F14ACAE008D4CCE /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		B5F278332FC29AFA009CBA11 /* Build configuration list for PBXNativeTarget "LucidwidgetExtensionExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B5F278342FC29AFA009CBA11 /* Debug */,
-				B5F278352FC29AFA009CBA11 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		B5F278472FC29B24009CBA11 /* Build configuration list for PBXNativeTarget "LucidDeviceActivityMonitorExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B5F278482FC29B24009CBA11 /* Debug */,
-				B5F278492FC29B24009CBA11 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

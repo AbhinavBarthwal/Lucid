@@ -94,17 +94,20 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
         collectionView.showsVerticalScrollIndicator = false
     }
 
-    func numberOfSections(in collectionView: UICollectionView) -> Int { return 3 }
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        if sessionType == "Completion" { return 1 }
+        return 2
+    }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if sessionType == "Completion" { return section == 0 ? 1 : 0 }
-        if section == 0 { return 1 }
+        if section == 0 {
+            return avgReactionTimeSeconds != nil ? 2 : 1
+        }
         if section == 1 {
             let baseCount = usesDirectionalReport ? order.count : 3
-            let reactionExtra = avgReactionTimeSeconds != nil ? 1 : 0
-            return baseCount + reactionExtra
+            return baseCount
         }
-        if section == 2 { return sessionType == "SaccadicJumps" ? 0 : (usesDirectionalReport ? 1 : 2) }
         return 0
     }
 
@@ -118,17 +121,19 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
                     message: completionMessage ?? ReportViewController.randomCompletionMessage()
                 )
             } else {
-                cell.configure(score: self.overallScore, sessionType: self.sessionType, errors: totalErrors)
+                if indexPath.item == 0 {
+                    cell.configure(score: self.overallScore, sessionType: self.sessionType, errors: totalErrors)
+                } else {
+                    if let rt = avgReactionTimeSeconds {
+                        cell.configureResponsiveness(avgReactionTimeSeconds: rt)
+                    }
+                }
             }
             return cell
             
         case 1:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MetricCell", for: indexPath) as! MetricCollectionViewCell
-            let baseCount = usesDirectionalReport ? order.count : 3
-            if indexPath.item == baseCount, let rt = avgReactionTimeSeconds {
-                // Extra reaction time cell at the end
-                cell.configure(title: "Avg Response", value: String(format: "%.2fs", rt))
-            } else if usesDirectionalReport {
+            if usesDirectionalReport {
                 let direction = order[indexPath.item]
                 let accuracy = Int(100 - (directionErrors[direction] ?? 0.0))
                 cell.configure(title: displayName(for: direction), value: "\(accuracy)%")
@@ -140,15 +145,7 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
             return cell
             
         default:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ChartCell", for: indexPath) as! ChartCollectionViewCell
-            if usesDirectionalReport {
-                cell.configure(title: "Tracking Accuracy", data: directionalChartData, description: directionalInsightText())
-            } else {
-                let currentData = (indexPath.item == 0) ? leftChartData : rightChartData
-                let currentTitle = (indexPath.item == 0) ? "Left Eye Intensity" : "Right Eye Intensity"
-                cell.configure(title: currentTitle, data: currentData, description: "Red bars indicate incomplete blinks i.e. number below the 0.75 threshold.")
-            }
-            return cell
+            return UICollectionViewCell()
         }
     }
     
@@ -182,37 +179,46 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
                 descLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
                 descLabel.leadingAnchor.constraint(equalTo: header.leadingAnchor, constant: 16),
                 descLabel.trailingAnchor.constraint(equalTo: header.trailingAnchor, constant: -16),
-                descLabel.bottomAnchor.constraint(equalTo: header.bottomAnchor, constant: -10) // This defines the bottom bound
+                descLabel.bottomAnchor.constraint(equalTo: header.bottomAnchor, constant: -10)
             ])
-        } else if indexPath.section == 2 {
-            let label = UILabel()
-            label.text = usesDirectionalReport ? "Tracking Analysis" : "Intensity Charts"
-            label.font = .systemFont(ofSize: 18, weight: .bold)
-            label.textColor = .exerciseResultOrange
-            label.frame = CGRect(x: 16, y: 10, width: header.frame.width - 32, height: 25)
-            header.addSubview(label)
         }
         
         return header
     }
+
     func createLayout() -> UICollectionViewLayout {
         return UICollectionViewCompositionalLayout { (sectionIndex, layoutEnv) -> NSCollectionLayoutSection? in
             
             let tallHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(120))
             let tallHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: tallHeaderSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
 
- 
-            let smallHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(40))
-            let smallHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: smallHeaderSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
-
             if sectionIndex == 0 {
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0)))
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(self.sessionType == "Completion" ? 210 : 170)), subitems: [item])
+                let hasReaction = self.avgReactionTimeSeconds != nil && self.sessionType != "Completion"
+                
+                let itemSize = NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1.0),
+                    heightDimension: .fractionalHeight(1.0)
+                )
+                let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                item.contentInsets = .init(top: 6, leading: 0, bottom: 6, trailing: 0)
+                
+                 let numItems = hasReaction ? 2 : 1
+                let cardHeight: CGFloat = self.sessionType == "Completion" ? 210 : 105
+                
+                let groupSize = NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1.0),
+                    heightDimension: .absolute(cardHeight * CGFloat(numItems))
+                )
+                let group = NSCollectionLayoutGroup.vertical(
+                    layoutSize: groupSize,
+                    subitems: Array(repeating: item, count: numItems)
+                )
+                
                 let section = NSCollectionLayoutSection(group: group)
                 section.contentInsets = .init(top: 10, leading: 16, bottom: 10, trailing: 16)
                 return section
                 
-            } else if sectionIndex == 1 {
+            } else {
                 if self.sessionType == "SaccadicJumps" {
                     let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(0.5), heightDimension: .fractionalHeight(1.0)))
                     item.contentInsets = .init(top: 4, leading: 4, bottom: 4, trailing: 4)
@@ -222,7 +228,7 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
                         subitems: [item, item]
                     )
                     let group = NSCollectionLayoutGroup.vertical(
-                        layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(210)),
+                        layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(0.16)), // 2 rows * 8% = 16% of screen height
                         subitems: [row, row]
                     )
                     let section = NSCollectionLayoutSection(group: group)
@@ -232,22 +238,20 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
                 }
 
                 let width = self.usesDirectionalReport ? 0.5 : 0.33
+                let heightDimension: NSCollectionLayoutDimension
+                if self.usesDirectionalReport {
+                    heightDimension = .fractionalHeight(0.08) // 8% of screen height
+                } else {
+                    heightDimension = .absolute(100)
+                }
+
                 let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(width), heightDimension: .fractionalHeight(1.0)))
                 item.contentInsets = .init(top: 4, leading: 4, bottom: 4, trailing: 4)
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(self.sessionType == "SaccadicJumps" ? 220 : (self.usesDirectionalReport ? 170 : 100))), subitems: [item])
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: heightDimension), subitems: [item])
                 let section = NSCollectionLayoutSection(group: group)
                 section.contentInsets = .init(top: 0, leading: 12, bottom: 20, trailing: 12)
                 
- 
                 section.boundarySupplementaryItems = [tallHeader]
-                return section
-                
-            } else {
-                let item = NSCollectionLayoutItem(layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(300)))
-                item.contentInsets = .init(top: 8, leading: 8, bottom: 8, trailing: 8)
-                let group = NSCollectionLayoutGroup.vertical(layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(600)), subitems: [item])
-                let section = NSCollectionLayoutSection(group: group)
-                section.boundarySupplementaryItems = [smallHeader]
                 return section
             }
         }

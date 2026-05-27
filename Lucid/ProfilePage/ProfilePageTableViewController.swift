@@ -103,4 +103,48 @@ class ProfilePageTableViewController: UITableViewController {
         }
     }
 
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        if indexPath.section == 0 && indexPath.row == 3 {
+            shareReport()
+        }
+    }
+    
+    private func shareReport() {
+        let alert = UIAlertController(title: nil, message: "Generating Report...", preferredStyle: .alert)
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = .medium
+        loadingIndicator.startAnimating()
+        alert.view.addSubview(loadingIndicator)
+        present(alert, animated: true)
+        
+        PDFGenerator.generateReportPDF { [weak self] fileURL in
+            DispatchQueue.main.async {
+                alert.dismiss(animated: true) {
+                    guard let self = self else { return }
+                    guard let fileURL = fileURL else {
+                        let errorAlert = UIAlertController(title: "Error", message: "Failed to generate report PDF.", preferredStyle: .alert)
+                        errorAlert.addAction(UIAlertAction(title: "OK", style: .default))
+                        self.present(errorAlert, animated: true)
+                        return
+                    }
+                    
+                    let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
+                    if let popover = activityVC.popoverPresentationController {
+                        if let cell = self.tableView.cellForRow(at: IndexPath(row: 3, section: 0)) {
+                            popover.sourceView = cell
+                            popover.sourceRect = cell.bounds
+                        } else {
+                            popover.sourceView = self.view
+                            popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                        }
+                    }
+                    self.present(activityVC, animated: true)
+                }
+            }
+        }
+    }
+
 }

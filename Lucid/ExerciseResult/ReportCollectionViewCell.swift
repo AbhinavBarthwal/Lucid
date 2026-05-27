@@ -13,6 +13,7 @@ class ReportCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var scoreLabel: UILabel!
     private let captionLabel = UILabel()
     private let scoreMeaningLabel = UILabel()
+    private let stackView = UIStackView()
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -36,37 +37,48 @@ class ReportCollectionViewCell: UICollectionViewCell {
         ringGauge.isHidden = true
         
         scoreLabel.textColor = .white
-        scoreLabel.font = .systemFont(ofSize: 48, weight: .bold)
+        scoreLabel.font = .systemFont(ofSize: 36, weight: .bold)
         scoreLabel.adjustsFontSizeToFitWidth = true
         scoreLabel.minimumScaleFactor = 0.75
+        scoreLabel.textAlignment = .center
 
-        captionLabel.translatesAutoresizingMaskIntoConstraints = false
-        captionLabel.text = "EXERCISE SCORE"
-        captionLabel.font = .systemFont(ofSize: 13, weight: .semibold)
+        captionLabel.font = .systemFont(ofSize: 11, weight: .semibold)
         captionLabel.textColor = .exerciseResultOrange
         captionLabel.textAlignment = .center
 
-        scoreMeaningLabel.translatesAutoresizingMaskIntoConstraints = false
-        scoreMeaningLabel.font = .systemFont(ofSize: 14, weight: .medium)
         scoreMeaningLabel.textColor = UIColor.white.withAlphaComponent(0.68)
+        scoreMeaningLabel.numberOfLines = 0
         scoreMeaningLabel.textAlignment = .center
-        scoreMeaningLabel.numberOfLines = 2
 
-        contentView.addSubview(captionLabel)
-        contentView.addSubview(scoreMeaningLabel)
+        stackView.axis = .vertical
+        stackView.alignment = .fill
+        stackView.distribution = .fill
+        stackView.spacing = 4
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+
+        contentView.addSubview(stackView)
+
+        // Remove scoreLabel from its original hierarchy and add to stackView
+        scoreLabel.translatesAutoresizingMaskIntoConstraints = false
+        scoreLabel.removeFromSuperview()
+
+        stackView.addArrangedSubview(captionLabel)
+        stackView.addArrangedSubview(scoreLabel)
+        stackView.addArrangedSubview(scoreMeaningLabel)
 
         NSLayoutConstraint.activate([
-            captionLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 18),
-            captionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            captionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-
-            scoreMeaningLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            scoreMeaningLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
-            scoreMeaningLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -18)
+            stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12)
         ])
     }
     
     func configure(score: Int, sessionType: String, errors: Int) {
+        scoreLabel.isHidden = false
+        scoreMeaningLabel.textAlignment = .center
+        scoreMeaningLabel.font = .systemFont(ofSize: 11, weight: .medium)
+        
         scoreLabel.text = "\(score)%"
         captionLabel.text = sessionType == "SaccadicJumps" ? "RESPONSE SCORE" : "EXERCISE SCORE"
         switch sessionType {
@@ -86,8 +98,30 @@ class ReportCollectionViewCell: UICollectionViewCell {
     }
 
     func configureCompletion(title: String, message: String) {
+        scoreLabel.isHidden = false
+        scoreMeaningLabel.textAlignment = .center
+        scoreMeaningLabel.font = .systemFont(ofSize: 13, weight: .medium)
+        
         scoreLabel.text = "Done"
         captionLabel.text = title.uppercased()
         scoreMeaningLabel.text = message
+    }
+
+    func configureResponsiveness(avgReactionTimeSeconds: Double) {
+        scoreLabel.isHidden = false
+        scoreMeaningLabel.textAlignment = .center
+        scoreMeaningLabel.font = .systemFont(ofSize: 11, weight: .medium)
+        
+        scoreLabel.text = String(format: "%.2fs", avgReactionTimeSeconds)
+        captionLabel.text = "RESPONSIVENESS"
+        scoreMeaningLabel.text = "Average time taken to respond. Lower is faster and more responsive."
+    }
+
+    func configureWisdom(title: String, message: String) {
+        scoreLabel.isHidden = true
+        captionLabel.text = title.uppercased()
+        scoreMeaningLabel.text = message
+        scoreMeaningLabel.textAlignment = .left
+        scoreMeaningLabel.font = .systemFont(ofSize: 15, weight: .regular)
     }
 }

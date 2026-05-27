@@ -4,8 +4,8 @@ import SceneKit
 import AVFoundation
 import SwiftUI
 
-var doubleBlink = 5
-var LeftRighEyeBlink = 5
+var doubleBlink = 8
+var LeftRighEyeBlink = 8
 private var globalSessionStartTime: Date? // Renamed to avoid shadow warning
 
 enum TypeOfBlink {
@@ -197,7 +197,7 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
     private func startActiveBlinkPhase() {
         guard isExerciseActive else { return }
         isInstructionPhase = false
-        secondsRemaining = 25
+        secondsRemaining = 40
         largeCountLabel.text = "\(currentPhase.remaining)"
         instructionLabel.text = ""
         

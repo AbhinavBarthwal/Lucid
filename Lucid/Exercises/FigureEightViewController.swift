@@ -35,6 +35,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
     private var hasStartedCountdown = false
     private var totalFramesChecked = 0
     private var totalErrors = 0
+    private var isFinished = false
 
     override var prefersStatusBarHidden: Bool { return true }
     
@@ -105,7 +106,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
 
     private func startInitialCountdown() {
         currentPhase = .none
-        countdownRemaining = 3
+        countdownRemaining = 5
         centerMessageLabel.text = "\(countdownRemaining)"
             
         gazeTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
@@ -143,6 +144,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
     }
         
     private func checkOrientationAndAdvance() {
+        guard !isFinished else { return }
         let isLandscape = view.bounds.width > view.bounds.height
         let isPortrait = !isLandscape
         
@@ -285,8 +287,8 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         
         if isVertical {
             // Vertical figure eight (loops top and bottom)
-            let loopHeight = (view.bounds.height - 180) / 2
-            let loopWidth = min(view.bounds.width - 40, loopHeight * 0.8)
+            let loopHeight = ((view.bounds.height - 180) / 2) * 0.80
+            let loopWidth = min(view.bounds.width - 40, ((view.bounds.height - 180) / 2) * 0.8) * 0.80
             
             path.move(to: center)
             path.addCurve(to: CGPoint(x: center.x, y: center.y - loopHeight),
@@ -305,7 +307,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         } else {
             // Horizontal figure eight (loops left and right) — fits in portrait
             let screenWidth = view.bounds.width
-            let loopWidth = (screenWidth - 60) / 2
+            let loopWidth = ((screenWidth - 60) / 2) * 0.80
             let loopHeight = loopWidth * 0.55
             
             path.move(to: center)
@@ -342,7 +344,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
     private func startFigureEightAnimation() {
         guard isExerciseActive, currentPhase == .tracking, let path = currentPath else { return }
             
-        if currentLoopIndex >= 3 {
+        if currentLoopIndex >= 5 {
             if !isSecondPart {
                 promptRotationPhase()
             } else {
@@ -351,7 +353,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
             return
         }
             
-        let loopDurations: [CFTimeInterval] = [10.0, 6.0, 4.5]
+        let loopDurations: [CFTimeInterval] = [10.0, 8.0, 6.5, 5.0, 4.0]
         let currentDuration = loopDurations[currentLoopIndex]
             
         let animation = CAKeyframeAnimation(keyPath: "position")
@@ -383,13 +385,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
             
             self.totalFramesChecked += 1
             
-            var isLooking = false
-            if let frame = self.arSession.currentFrame,
-               let faceAnchor = frame.anchors.compactMap({ $0 as? ARFaceAnchor }).first,
-               faceAnchor.isTracked {
-                let lookAt = faceAnchor.lookAtPoint
-                isLooking = abs(lookAt.x) < 0.2 && abs(lookAt.y) < 0.2
-            }
+            let isLooking = true
                 
             if isLooking {
                 if self.isAnimationPaused {
@@ -398,18 +394,6 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
                 }
                 if self.instructionLabel.alpha != 0 {
                     UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 0 }
-                }
-            } else {
-                self.totalErrors += 1
-                if !self.isAnimationPaused {
-                    self.pauseLayer(layer: self.circleView.layer)
-                    self.isAnimationPaused = true
-                    self.errorHapticGenerator.notificationOccurred(.error)
-                        
-                    self.instructionLabel.layer.removeAllAnimations()
-                    self.instructionLabel.textColor = .systemRed
-                    self.instructionLabel.text = "⚠️ Please keep your eyes on the screen!"
-                    self.instructionLabel.alpha = 1
                 }
             }
         }
@@ -440,7 +424,8 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         currentPhase = .none
         gazeTimer?.invalidate()
         circleView.layer.removeAllAnimations()
-        resetLayerSpeed(layer: circleView.layer)
+        circleView.layer.speed = 0.0
+        circleView.transform = .identity
         isSecondPart = true
             
         UIView.animate(withDuration: 0.5) { self.trackLayer?.opacity = 0 }
@@ -449,9 +434,12 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
     }
         
     private func finishExercise() {
+        isFinished = true
         currentPhase = .none
         gazeTimer?.invalidate()
         circleView.layer.removeAllAnimations()
+        circleView.layer.speed = 0.0
+        circleView.transform = .identity
         
         let startTime = sessionStartTime ?? Date()
         let elapsedSeconds = Int(Date().timeIntervalSince(startTime))
@@ -477,6 +465,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
             
         UIView.animate(withDuration: 0.5) { self.trackLayer?.opacity = 0 }
         let messages = [
+            "Well done!",
             "Fantastic job!",
             "Great work!",
             "Awesome focus!",
@@ -485,7 +474,8 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
             "Nicely done!",
             "Brilliant job!"
         ]
-        centerMessageLabel.text = messages.randomElement() ?? "Nicely done!"
+        centerMessageLabel.font = .systemFont(ofSize: 36, weight: .bold)
+        centerMessageLabel.text = messages.randomElement() ?? "Well done!"
         fadeTransition(showCenterMessage: true, showExerciseUI: false)
             
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in

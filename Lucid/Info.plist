@@ -21,9 +21,5 @@
 			</array>
 		</dict>
 	</dict>
-	<key>NSSupportsLiveActivities</key>
-	<true/>
-	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
-	<true/>
 </dict>
 </plist>

@@ -60,13 +60,13 @@ final class User: Codable {
 
     func calculateDailyGoalFromRecommendations() -> Int {
         let exerciseTimes: [String: Int] = [
-            "SmoothPursuit": 90,
-            "SaccadicJump": 45,
-            "PencilPushup": 40,
-            "Figure8": 60,
-            "Blink": 60,
-            "PeripheralAwareness": 50,
-            "NearFar": 40
+            "SmoothPursuit": 135,
+            "SaccadicJump": 70,
+            "PencilPushup": 60,
+            "Figure8": 90,
+            "Blink": 90,
+            "PeripheralAwareness": 75,
+            "NearFar": 60
         ]
         let currentRecs = recommendedExercises.isEmpty ? ["SmoothPursuit", "Blink"] : recommendedExercises
         return currentRecs.compactMap { exerciseTimes[$0] }.reduce(0, +)

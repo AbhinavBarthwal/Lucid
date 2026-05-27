@@ -7,13 +7,13 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
     
     private let dailyExercisesCount = 4
     private var allExercises: [ExerciseInfo] = [
-        ExerciseInfo(id: "SmoothPursuit", title: "Smooth Pursuits", description: "Slowly follow a moving object with your eyes to keep your vision steady and focused.", iconName: "SmoothPursuits", segueIdentifier: "ShowSmoothPursuits", estimatedTimeSeconds: 90),
-        ExerciseInfo(id: "SaccadicJump", title: "Saccadic Jumps", description: "Practice jumping your gaze quickly between two spots to build speed and accuracy.", iconName: "SaccadicJumps", segueIdentifier: "ShowSaccadicJump", estimatedTimeSeconds: 45),
-        ExerciseInfo(id: "PencilPushup", title: "Pencil Push-Ups", description: "Train your eyes to work together as a team so you can see close-up things without strain.", iconName: "PencilPushUps", segueIdentifier: "ShowPencilPushUps", estimatedTimeSeconds: 40),
-        ExerciseInfo(id: "Figure8", title: "Figure Eight", description: "Trace a loopy path with your eyes to boost flexibility and make focusing feel easier.", iconName: "FigureEight", segueIdentifier: "ShowFigureEight", estimatedTimeSeconds: 60),
-        ExerciseInfo(id: "Blink", title: "Blink Training", description: "Take a moment for full, slow blinks to refresh your eyes and keep them from getting dry.", iconName: "BlinkTraining", segueIdentifier: "ShowBlinkTraining", estimatedTimeSeconds: 60),
-        ExerciseInfo(id: "PeripheralAwareness", title: "Peripheral Awareness", description: "Learn to notice what is happening around you without having to turn your head.", iconName: "PeripheralAwareness", segueIdentifier: "ShowPeripheralAwareness", estimatedTimeSeconds: 50),
-        ExerciseInfo(id: "NearFar", title: "Near Far Focus", description: "Switch focus between close and distant objects to help your eyes adjust faster.", iconName: "NearFarFocus", segueIdentifier: "ShowNearFarFocus", estimatedTimeSeconds: 40)
+        ExerciseInfo(id: "SmoothPursuit", title: "Smooth Pursuits", description: "Slowly follow a moving object with your eyes to keep your vision steady and focused.", iconName: "SmoothPursuits", segueIdentifier: "ShowSmoothPursuits", estimatedTimeSeconds: 135),
+        ExerciseInfo(id: "SaccadicJump", title: "Saccadic Jumps", description: "Practice jumping your gaze quickly between two spots to build speed and accuracy.", iconName: "SaccadicJumps", segueIdentifier: "ShowSaccadicJump", estimatedTimeSeconds: 70),
+        ExerciseInfo(id: "PencilPushup", title: "Pencil Push-Ups", description: "Train your eyes to work together as a team so you can see close-up things without strain.", iconName: "PencilPushUps", segueIdentifier: "ShowPencilPushUps", estimatedTimeSeconds: 60),
+        ExerciseInfo(id: "Figure8", title: "Figure Eight", description: "Trace a loopy path with your eyes to boost flexibility and make focusing feel easier.", iconName: "FigureEight", segueIdentifier: "ShowFigureEight", estimatedTimeSeconds: 90),
+        ExerciseInfo(id: "Blink", title: "Blink Training", description: "Take a moment for full, slow blinks to refresh your eyes and keep them from getting dry.", iconName: "BlinkTraining", segueIdentifier: "ShowBlinkTraining", estimatedTimeSeconds: 90),
+        ExerciseInfo(id: "PeripheralAwareness", title: "Peripheral Awareness", description: "Learn to notice what is happening around you without having to turn your head.", iconName: "PeripheralAwareness", segueIdentifier: "ShowPeripheralAwareness", estimatedTimeSeconds: 75),
+        ExerciseInfo(id: "NearFar", title: "Near Far Focus", description: "Switch focus between close and distant objects to help your eyes adjust faster.", iconName: "NearFarFocus", segueIdentifier: "ShowNearFarFocus", estimatedTimeSeconds: 60)
     ]
     
     // MARK: - Data Properties for Trends
@@ -43,8 +43,11 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
 //        navigationController?.navigationBar.scrollEdgeAppearance = appearance
 //        navigationController?.navigationBar.compactAppearance = appearance
 //        navigationController?.navigationBar.tintColor = .white
-        
         // Fetch the data right before reloading.
+        let user = SwiftDataManager.shared.getOrCreateUser()
+        user.dailyExerciseGoal = user.calculateDailyGoalFromRecommendations()
+        try? SwiftDataManager.shared.context.save()
+        
         loadTrendsData()
         updateDailyExerciseProgressIfNeeded()
             

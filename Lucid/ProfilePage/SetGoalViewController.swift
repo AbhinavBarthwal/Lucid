@@ -30,14 +30,21 @@ class SetGoalViewController: UIViewController {
     }
 
 
+    private var minMinutes: Int {
+        let user = SwiftDataManager.shared.getOrCreateUser()
+        let recommendedSeconds = user.calculateDailyGoalFromRecommendations()
+        let recommendedMinutes = Int(ceil(Double(recommendedSeconds) / 60.0))
+        return max(1, recommendedMinutes)
+    }
+
     func updateUI() {
         minutesLabel.text = "\(minutes)"
         
-        
-        minusButton.isEnabled = minutes > 10
+        let limitMin = minMinutes
+        minusButton.isEnabled = minutes > limitMin
         plusButton.isEnabled = minutes < 30
         
-        minusButton.alpha = minutes > 10 ? 1.0 : 0.3
+        minusButton.alpha = minutes > limitMin ? 1.0 : 0.3
         plusButton.alpha = minutes < 30 ? 1.0 : 0.3
     }
 
@@ -54,10 +61,11 @@ class SetGoalViewController: UIViewController {
     }
 
     @IBAction func decreaseTapped(_ sender: UIButton) {
-        if minutes > 10 {
+        let limitMin = minMinutes
+        if minutes > limitMin {
             minutes -= 2
             
-            if minutes < 10 { minutes = 10 }
+            if minutes < limitMin { minutes = limitMin }
             
             animateLabel()
             updateUI()
@@ -76,11 +84,12 @@ class SetGoalViewController: UIViewController {
 
     func loadSavedGoal() {
         let saved = UserDefaults.standard.integer(forKey: "exerciseGoal")
+        let limitMin = minMinutes
         
-        if saved >= 10 && saved <= 30 {
+        if saved >= limitMin && saved <= 30 {
             minutes = saved
         } else {
-            minutes = 10
+            minutes = limitMin
         }
     }
 

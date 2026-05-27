@@ -33,7 +33,7 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
     private var isAnimationPaused = false
     
     private var currentLoopIndex = 0
-    private let totalLoops = 3
+    private let totalLoops = 5
     private var currentPath: UIBezierPath?
     private var totalFramesChecked = 0
     private var totalErrors = 0
@@ -206,7 +206,7 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
             return
         }
         
-        let loopDurations: [CFTimeInterval] = [12.0 , 10.0 , 8.0]
+        let loopDurations: [CFTimeInterval] = [12.0 , 10.5 , 9.0 , 7.5 , 6.0]
         let currentDuration = loopDurations[currentLoopIndex]
         
         let animation = CAKeyframeAnimation(keyPath: "position")
@@ -331,6 +331,7 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
             "Nicely done!",
             "Brilliant job!"
         ]
+        centerMessageLabel.font = .systemFont(ofSize: 36, weight: .bold)
         centerMessageLabel.text = messages.randomElement() ?? "Nicely done !"
         
         UIView.animate(withDuration: 0.5) {

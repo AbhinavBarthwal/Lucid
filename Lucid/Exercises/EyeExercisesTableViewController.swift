@@ -12,13 +12,13 @@ struct ExerciseInfo {
 class ExerciseCollectionViewController: UICollectionViewController {
     
     let allExercises: [ExerciseInfo] = [
-            ExerciseInfo(id: "SmoothPursuit", title: "Smooth Pursuits", description: "Improves eye tracking and visual stability.", iconName: "SmoothPursuits", segueIdentifier: "ShowSmoothPursuits", estimatedTimeSeconds: 90),
-            ExerciseInfo(id: "SaccadicJump", title: "Saccadic Jumps", description: "Boosts rapid eye movement and reading speed.", iconName: "SaccadicJumps", segueIdentifier: "ShowSaccadicJump", estimatedTimeSeconds: 45),
-            ExerciseInfo(id: "PencilPushup", title: "Pencil Push-Ups", description: "Strengthens near focus and eye teaming.", iconName: "PencilPushUps", segueIdentifier: "ShowPencilPushUps", estimatedTimeSeconds: 40),
-            ExerciseInfo(id: "Figure8", title: "Figure Eight", description: "Enhances eye flexibility and coordination.", iconName: "FigureEight", segueIdentifier: "ShowFigureEight", estimatedTimeSeconds: 60),
-            ExerciseInfo(id: "Blink", title: "Blink Training", description: "Reduces dryness and refreshes eye comfort.", iconName: "BlinkTraining", segueIdentifier: "ShowBlinkTraining", estimatedTimeSeconds: 60),
-            ExerciseInfo(id: "PeripheralAwareness", title: "Peripheral Awareness", description: "Expands peripheral vision and awareness.", iconName: "PeripheralAwareness", segueIdentifier: "ShowPeripheralAwareness", estimatedTimeSeconds: 50),
-            ExerciseInfo(id: "NearFar", title: "Near Far Focus", description: "Improves focusing ability at different distances.", iconName: "NearFarFocus", segueIdentifier: "ShowNearFarFocus", estimatedTimeSeconds: 40)
+            ExerciseInfo(id: "SmoothPursuit", title: "Smooth Pursuits", description: "Improves eye tracking and visual stability.", iconName: "SmoothPursuits", segueIdentifier: "ShowSmoothPursuits", estimatedTimeSeconds: 135),
+            ExerciseInfo(id: "SaccadicJump", title: "Saccadic Jumps", description: "Boosts rapid eye movement and reading speed.", iconName: "SaccadicJumps", segueIdentifier: "ShowSaccadicJump", estimatedTimeSeconds: 70),
+            ExerciseInfo(id: "PencilPushup", title: "Pencil Push-Ups", description: "Strengthens near focus and eye teaming.", iconName: "PencilPushUps", segueIdentifier: "ShowPencilPushUps", estimatedTimeSeconds: 60),
+            ExerciseInfo(id: "Figure8", title: "Figure Eight", description: "Enhances eye flexibility and coordination.", iconName: "FigureEight", segueIdentifier: "ShowFigureEight", estimatedTimeSeconds: 90),
+            ExerciseInfo(id: "Blink", title: "Blink Training", description: "Reduces dryness and refreshes eye comfort.", iconName: "BlinkTraining", segueIdentifier: "ShowBlinkTraining", estimatedTimeSeconds: 90),
+            ExerciseInfo(id: "PeripheralAwareness", title: "Peripheral Awareness", description: "Expands peripheral vision and awareness.", iconName: "PeripheralAwareness", segueIdentifier: "ShowPeripheralAwareness", estimatedTimeSeconds: 75),
+            ExerciseInfo(id: "NearFar", title: "Near Far Focus", description: "Improves focusing ability at different distances.", iconName: "NearFarFocus", segueIdentifier: "ShowNearFarFocus", estimatedTimeSeconds: 60)
         ]
 
     // MARK: - Lifecycle
@@ -68,7 +68,7 @@ class ExerciseCollectionViewController: UICollectionViewController {
             // Group
             let groupSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
-                heightDimension: .fractionalHeight(0.125)
+                heightDimension: .fractionalHeight(0.10625)
             )
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
 

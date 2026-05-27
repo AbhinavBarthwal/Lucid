@@ -29,7 +29,7 @@ class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
     
     private var currentDirection: Direction?
     private var repCount = 0
-    private let totalReps = 16
+    private let totalReps = 24
     private var successfulFollows = 0
     private var isTracking = false
     private var hasLookedInDirection = false
@@ -40,6 +40,8 @@ class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
     private let speedTiers: [Double] = [2.5 , 2.2 , 2.0 , 1.8]
     
     private let exerciseInstructions: [InstructionStep] = [
+        InstructionStep(message: "5", duration: 0.8),
+        InstructionStep(message: "4", duration: 0.8),
         InstructionStep(message: "3", duration: 0.8),
         InstructionStep(message: "2", duration: 0.8),
         InstructionStep(message: "1", duration: 0.8),
@@ -200,7 +202,7 @@ class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
         currentDirection = nextDir
         directionAttempts[nextDir, default: 0] += 1
         
-        let currentTier = (repCount - 1) / 4
+        let currentTier = (repCount - 1) / 6
         let duration = speedTiers[currentTier]
         
         speak(nextDir.rawValue)

@@ -26,6 +26,13 @@ class MedicalProfileViewController: UITableViewController {
     
     private var user: User?
     private let dataModel = MedicalProfileDataModel()
+    private var hostingController: UIHostingController<MedicalProfileView>?
+    
+    private var originalNavigationBarAppearance: UINavigationBarAppearance?
+    private var originalScrollEdgeAppearance: UINavigationBarAppearance?
+    private var originalCompactAppearance: UINavigationBarAppearance?
+    private var originalTintColor: UIColor?
+    private var originalPrefersLargeTitles: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,6 +56,49 @@ class MedicalProfileViewController: UITableViewController {
         navigationItem.rightBarButtonItem = saveButton
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        navigationItem.largeTitleDisplayMode = .never
+        
+        if let navBar = navigationController?.navigationBar {
+            originalNavigationBarAppearance = navBar.standardAppearance
+            originalScrollEdgeAppearance = navBar.scrollEdgeAppearance
+            originalCompactAppearance = navBar.compactAppearance
+            originalTintColor = navBar.tintColor
+            originalPrefersLargeTitles = navBar.prefersLargeTitles
+            
+            let appearance = UINavigationBarAppearance()
+            appearance.configureWithDefaultBackground()
+            appearance.backgroundColor = UIColor.black.withAlphaComponent(0.7)
+            appearance.backgroundEffect = UIBlurEffect(style: .systemMaterialDark)
+            
+            let expandedFont = UIFont.systemFont(ofSize: 20, weight: .bold, width: .expanded)
+            appearance.titleTextAttributes = [
+                .font: expandedFont,
+                .foregroundColor: UIColor.white
+            ]
+            
+            navBar.standardAppearance = appearance
+            navBar.scrollEdgeAppearance = appearance
+            navBar.compactAppearance = appearance
+            navBar.tintColor = .accent
+            navBar.prefersLargeTitles = false
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        if let navBar = navigationController?.navigationBar {
+            navBar.standardAppearance = originalNavigationBarAppearance ?? UINavigationBarAppearance()
+            navBar.scrollEdgeAppearance = originalScrollEdgeAppearance
+            navBar.compactAppearance = originalCompactAppearance
+            navBar.tintColor = originalTintColor
+            navBar.prefersLargeTitles = originalPrefersLargeTitles
+        }
+    }
+    
     @objc private func saveTapped() {
         saveData(
             name: dataModel.name,
@@ -65,9 +115,6 @@ class MedicalProfileViewController: UITableViewController {
         tableView.isScrollEnabled = false
         tableView.separatorStyle = .none
         tableView.backgroundColor = UIColor(red: 10/255, green: 10/255, blue: 12/255, alpha: 1)
-        
-        // Hide the navigation bar background to make it clean
-        navigationController?.navigationBar.tintColor = .accent
         
         let swiftUIView = MedicalProfileView(model: dataModel)
         

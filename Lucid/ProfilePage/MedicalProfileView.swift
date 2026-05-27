@@ -3,13 +3,7 @@ import SwiftUI
 struct MedicalProfileView: View {
     @ObservedObject var model: MedicalProfileDataModel
     
-    // Developer testing state
-    @State private var isActivityRunning = false
-    @State private var testSecondsLeft = 20
-    @State private var testStatusText = "Ready"
-    @State private var testStatusColor = Color.white.opacity(0.5)
-    @State private var countdownTimer: Timer? = nil
-    
+
     private let genderOptions = ["Female", "Male", "Non-binary", "Prefer not to say"]
     private let eyeConditions = [
         "Digital Eye Strain",
@@ -135,85 +129,6 @@ struct MedicalProfileView: View {
                         section(title: "Eye Conditions", conditions: eyeConditions)
                         section(title: "General Health", conditions: bodyConditions)
                     }
-                    .padding(.bottom, 20)
-                    
-                    // Developer Testing Section
-                    VStack(alignment: .leading, spacing: 14) {
-                        fieldTitle("Developer Testing")
-                        
-                        // Status card
-                        HStack(spacing: 12) {
-                            Circle()
-                                .fill(testStatusColor)
-                                .frame(width: 10, height: 10)
-                                .shadow(color: testStatusColor, radius: isActivityRunning ? 6 : 0)
-                                .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: isActivityRunning)
-                            
-                            Text(testStatusText)
-                                .font(.system(size: 14, weight: .semibold, design: .monospaced))
-                                .foregroundStyle(testStatusColor)
-                            
-                            Spacer()
-                            
-                            if isActivityRunning {
-                                Text("\(testSecondsLeft)s")
-                                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                                    .foregroundStyle(Color(red: 16/255, green: 185/255, blue: 129/255))
-                                    .contentTransition(.numericText(countsDown: true))
-                                    .animation(.default, value: testSecondsLeft)
-                            }
-                        }
-                        .padding(16)
-                        .background(Color.white.opacity(0.04))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(testStatusColor.opacity(0.3), lineWidth: 1)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
-                        
-                        // Launch button
-                        Button(action: launchLiveActivityTest) {
-                            HStack(spacing: 10) {
-                                Image(systemName: isActivityRunning ? "eye.fill" : "play.fill")
-                                    .font(.system(size: 15, weight: .bold))
-                                Text(isActivityRunning ? "Running on Dynamic Island…" : "Launch 20-20-20 Live Activity")
-                                    .font(.system(size: 15, weight: .bold))
-                            }
-                            .foregroundStyle(.black)
-                            .padding(16)
-                            .frame(maxWidth: .infinity)
-                            .background(
-                                isActivityRunning
-                                    ? Color(red: 16/255, green: 185/255, blue: 129/255).opacity(0.7)
-                                    : Color(red: 16/255, green: 185/255, blue: 129/255)
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
-                        }
-                        .disabled(isActivityRunning)
-                        
-                        // Stop button — only visible while running
-                        if isActivityRunning {
-                            Button(action: stopLiveActivityTest) {
-                                HStack(spacing: 8) {
-                                    Image(systemName: "stop.fill")
-                                        .font(.system(size: 14, weight: .bold))
-                                    Text("Stop & Dismiss")
-                                        .font(.system(size: 15, weight: .bold))
-                                }
-                                .foregroundStyle(.white)
-                                .padding(14)
-                                .frame(maxWidth: .infinity)
-                                .background(Color.red.opacity(0.25))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 14)
-                                        .stroke(Color.red.opacity(0.4), lineWidth: 1)
-                                )
-                                .clipShape(RoundedRectangle(cornerRadius: 14))
-                            }
-                            .transition(.move(edge: .top).combined(with: .opacity))
-                        }
-                    }
-                    .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isActivityRunning)
                     .padding(.bottom, 40)
                 }
                 .padding(.horizontal, 24)
@@ -221,62 +136,7 @@ struct MedicalProfileView: View {
         }
     }
     
-    // MARK: - Test Helpers
-    
-    private func launchLiveActivityTest() {
-        guard !isActivityRunning else { return }
-        
-        isActivityRunning = true
-        testSecondsLeft = 20
-        testStatusText = "Live Activity active"
-        testStatusColor = Color(red: 16/255, green: 185/255, blue: 129/255)
-        
-        // Mirror countdown in-app
-        countdownTimer?.invalidate()
-        countdownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
-            if testSecondsLeft > 0 {
-                testSecondsLeft -= 1
-            } else {
-                timer.invalidate()
-            }
-        }
-        
-        if #available(iOS 16.1, *) {
-            Twenty2020Manager.shared.startLiveActivityWithCountdown(hoursElapsed: 1) {
-                countdownTimer?.invalidate()
-                isActivityRunning = false
-                testSecondsLeft = 20
-                testStatusText = "Completed ✓"
-                testStatusColor = Color(red: 16/255, green: 185/255, blue: 129/255).opacity(0.6)
-                
-                // Reset to ready after 3s
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    testStatusText = "Ready"
-                    testStatusColor = Color.white.opacity(0.5)
-                }
-            }
-        } else if #available(iOS 15.0, *) {
-            Twenty2020Manager.shared.startLiveActivity(hoursElapsed: 1)
-        }
-    }
-    
-    private func stopLiveActivityTest() {
-        countdownTimer?.invalidate()
-        isActivityRunning = false
-        testSecondsLeft = 20
-        testStatusText = "Stopped"
-        testStatusColor = Color.orange.opacity(0.8)
-        
-        if #available(iOS 15.0, *) {
-            Twenty2020Manager.shared.endLiveActivity()
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            testStatusText = "Ready"
-            testStatusColor = Color.white.opacity(0.5)
-        }
-    }
-    
+
     private func fieldTitle(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 16, weight: .bold, design: .rounded))

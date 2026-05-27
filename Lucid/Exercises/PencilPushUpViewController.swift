@@ -27,16 +27,18 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
     private var gazeTimer: Timer?
     
     private var currentRep = 1
-    private let maxReps = 5
+    private let maxReps = 8
     private var totalFramesChecked = 0
     private var totalErrors = 0
 
     private let exerciseInstructions: [InstructionStep] = [
+        InstructionStep(message: "5", duration: 0.6),
+        InstructionStep(message: "4", duration: 0.6),
         InstructionStep(message: "3", duration: 0.6),
         InstructionStep(message: "2", duration: 0.6),
         InstructionStep(message: "1", duration: 0.6),
         InstructionStep(message: "Keep your phone at arm's length", duration: 3.0),
-        InstructionStep(message: "Focus on the dot", duration: 2.5),
+        InstructionStep(message: "Focus on the green dot at the top of the display", duration: 2.5),
         InstructionStep(message: "Bring the phone closer slowly", duration: 3.0)
     ]
 
@@ -184,6 +186,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
                 "Nicely done!",
                 "Brilliant job!"
             ]
+            self.centerMessageLabel.font = .systemFont(ofSize: 36, weight: .bold)
             self.centerMessageLabel.text = messages.randomElement() ?? "Exercise Complete!"
             UIView.animate(withDuration: 0.5, animations: {
                 self.centerMessageLabel.alpha = 1
@@ -244,6 +247,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         distanceLabel.alpha = 0
         instructionLabel.alpha = 0
         circleView.alpha = 0
+        circleView.isHidden = true
         centerMessageLabel.alpha = 0
     }
 
@@ -251,7 +255,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         UIView.animate(withDuration: 0.5, animations: {
             self.centerMessageLabel.alpha = showCenterMessage ? 1 : 0
             self.instructionLabel.alpha = showExerciseUI ? 1 : 0
-            self.circleView.alpha = showExerciseUI ? 1 : 0
+            self.circleView.alpha = 0
             self.distanceLabel.alpha = showExerciseUI ? 1 : 0
         }) { _ in
             completion?()
@@ -272,7 +276,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
                 self.totalErrors += 1
                 self.errorHapticGenerator.notificationOccurred(.error)
                 self.instructionLabel.textColor = .systemRed
-                self.instructionLabel.text = "⚠️ Please look at the dot!"
+                self.instructionLabel.text = "⚠️ Please look at the green dot at the top of the display!"
                 self.instructionLabel.alpha = 1
             }
         }

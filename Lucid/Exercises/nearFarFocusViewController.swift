@@ -136,7 +136,7 @@ class NearFarFocusViewController: UIViewController, ARSessionDelegate {
     private func startNearFocusPhase() {
         currentPhase = .near
         isInstructionPhase = false
-        secondsRemaining = 10
+        secondsRemaining = 15
         timerLabel.text = "\(secondsRemaining)"
         instructionLabel.textColor = .lightGray
         instructionLabel.text = "Focus on the dot, keep your screen\nwithin the range of 25-40cms"
@@ -145,7 +145,7 @@ class NearFarFocusViewController: UIViewController, ARSessionDelegate {
         
         fadeTransition(showCenterMessage: false, showExerciseUI: true) { [weak self] in
             guard let self = self, self.isExerciseActive else { return }
-            UIView.animate(withDuration: 10.0, delay: 0, options: [.curveLinear]) {
+            UIView.animate(withDuration: 15.0, delay: 0, options: [.curveLinear]) {
                 self.circleView.transform = CGAffineTransform(scaleX: 0.3, y: 0.3)
             }
             self.startPhaseTimer {
@@ -164,7 +164,7 @@ class NearFarFocusViewController: UIViewController, ARSessionDelegate {
     
     private func startFarFocusPhase() {
         currentPhase = .far
-        secondsRemaining = 10
+        secondsRemaining = 15
         timerLabel.text = "\(secondsRemaining)"
         instructionLabel.textColor = .lightGray
         instructionLabel.text = "Focus at a distant object\nor look outside the window"
@@ -173,7 +173,7 @@ class NearFarFocusViewController: UIViewController, ARSessionDelegate {
         
         fadeTransition(showCenterMessage: false, showExerciseUI: true) { [weak self] in
             guard let self = self, self.isExerciseActive else { return }
-            UIView.animate(withDuration: 10.0, delay: 0, options: [.curveLinear]) {
+            UIView.animate(withDuration: 15.0, delay: 0, options: [.curveLinear]) {
                 self.circleView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
             }
             self.startPhaseTimer {
@@ -271,6 +271,7 @@ class NearFarFocusViewController: UIViewController, ARSessionDelegate {
             "Nicely done!",
             "Brilliant job!"
         ]
+        centerMessageLabel.font = .systemFont(ofSize: 36, weight: .bold)
         centerMessageLabel.text = messages.randomElement() ?? "Nicely Done!"
         
         fadeTransition(showCenterMessage: true, showExerciseUI: false)
