@@ -1,6 +1,10 @@
 import UIKit
 import ARKit
 
+private enum PencilPushUpExercisePhase {
+    case none, bringingCloser, waitingForReset
+}
+
 class PencilPushUpViewController: UIViewController, ARSessionDelegate {
 
     @IBOutlet weak var instructionLabel: UILabel!
@@ -16,10 +20,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
 
     override var prefersStatusBarHidden: Bool { return true }
     
-    private enum ExercisePhase {
-        case none, bringingCloser, waitingForReset
-    }
-    private var currentPhase: ExercisePhase = .none
+    private var currentPhase: PencilPushUpExercisePhase = .none
     
     private var isLookingAtScreen = false
     private var currentFaceDistance: Float = 0.0
@@ -31,12 +32,15 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
     private var totalFramesChecked = 0
     private var totalErrors = 0
 
+    // Navigation/Skip buttons for instructions
+    private var instructionNextButton: UIButton?
+    private var instructionPrevButton: UIButton?
+    private var currentInstructionIndex = 0
+
     private let exerciseInstructions: [InstructionStep] = [
-        InstructionStep(message: "5", duration: 0.6),
-        InstructionStep(message: "4", duration: 0.6),
-        InstructionStep(message: "3", duration: 0.6),
-        InstructionStep(message: "2", duration: 0.6),
-        InstructionStep(message: "1", duration: 0.6),
+        InstructionStep(message: "3", duration: 1.0),
+        InstructionStep(message: "2", duration: 1.0),
+        InstructionStep(message: "1", duration: 1.0),
         InstructionStep(message: "Keep your phone at arm's length", duration: 3.0),
         InstructionStep(message: "Focus on the green dot at the top of the display", duration: 2.5),
         InstructionStep(message: "Bring the phone closer slowly", duration: 3.0)
@@ -50,6 +54,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         successHapticGenerator.prepare()
         heavyHapticGenerator.prepare()
         centerMessageLabel.alpha = 0
+        setupInstructionButtons()
         runInstructionSequence(index: 0)
     }
 
@@ -78,9 +83,30 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
 
     private func runInstructionSequence(index: Int) {
         guard isExerciseActive, currentPhase == .none else { return }
+        currentInstructionIndex = index
+        let isFirstRun = InstructionTracker.isFirstRun(for: "PencilPushup")
         
         if index < exerciseInstructions.count {
             let step = exerciseInstructions[index]
+            let isCountdown = Int(step.message) != nil
+            
+            if isCountdown {
+                instructionNextButton?.isHidden = true
+                instructionPrevButton?.isHidden = true
+            } else {
+                if isFirstRun {
+                    instructionNextButton?.isHidden = false
+                    let canGoBack = index > 0 && Int(exerciseInstructions[index - 1].message) == nil
+                    instructionPrevButton?.isHidden = !canGoBack
+                    
+                    let isLastStep = (index == exerciseInstructions.count - 1)
+                    instructionNextButton?.setTitle(isLastStep ? "Start Exercise" : "Next", for: .normal)
+                } else {
+                    instructionNextButton?.isHidden = false
+                    instructionPrevButton?.isHidden = true
+                    instructionNextButton?.setTitle("Skip", for: .normal)
+                }
+            }
             
             UIView.animate(withDuration: 0.4, animations: {
                 self.centerMessageLabel.alpha = 0
@@ -90,20 +116,104 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
                 UIView.animate(withDuration: 0.4, animations: {
                     self.centerMessageLabel.alpha = 1
                 }) { _ in
-                    DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self] in
-                        guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
-                        self.runInstructionSequence(index: index + 1)
+                    if isCountdown || !isFirstRun {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self] in
+                            guard let self = self, self.isExerciseActive, self.currentPhase == .none, self.currentInstructionIndex == index else { return }
+                            self.runInstructionSequence(index: index + 1)
+                        }
                     }
                 }
             }
         } else {
-            UIView.animate(withDuration: 0.5, animations: {
-                self.centerMessageLabel.alpha = 0
-            }) { _ in
-                guard self.isExerciseActive, self.currentPhase == .none else { return }
-                self.sessionStartTime = Date()
-                self.startBringingCloserPhase()
-            }
+            finishInstructionsAndStartExercise()
+        }
+    }
+
+    private func setupInstructionButtons() {
+        let isFirstRun = InstructionTracker.isFirstRun(for: "PencilPushup")
+        
+        let nextBtn = UIButton(type: .system)
+        nextBtn.translatesAutoresizingMaskIntoConstraints = false
+        nextBtn.layer.cornerRadius = 14
+        nextBtn.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        nextBtn.setTitleColor(.white, for: .normal)
+        nextBtn.backgroundColor = UIColor(named: "AccentColor") ?? .systemOrange
+        view.addSubview(nextBtn)
+        self.instructionNextButton = nextBtn
+        nextBtn.addTarget(self, action: #selector(instructionNextTapped), for: .touchUpInside)
+        
+        if isFirstRun {
+            nextBtn.setTitle("Next", for: .normal)
+            
+            let prevBtn = UIButton(type: .system)
+            prevBtn.translatesAutoresizingMaskIntoConstraints = false
+            prevBtn.layer.cornerRadius = 14
+            prevBtn.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+            prevBtn.setTitleColor(.white, for: .normal)
+            prevBtn.backgroundColor = .clear
+            prevBtn.layer.borderWidth = 1
+            prevBtn.layer.borderColor = UIColor.white.withAlphaComponent(0.3).cgColor
+            prevBtn.setTitle("Previous", for: .normal)
+            view.addSubview(prevBtn)
+            self.instructionPrevButton = prevBtn
+            prevBtn.addTarget(self, action: #selector(instructionPrevTapped), for: .touchUpInside)
+            
+            NSLayoutConstraint.activate([
+                nextBtn.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+                nextBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+                nextBtn.bottomAnchor.constraint(equalTo: prevBtn.topAnchor, constant: -12),
+                nextBtn.heightAnchor.constraint(equalToConstant: 50),
+                
+                prevBtn.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+                prevBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+                prevBtn.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+                prevBtn.heightAnchor.constraint(equalToConstant: 50)
+            ])
+            
+            prevBtn.isHidden = true // Hidden initially for step 0
+        } else {
+            nextBtn.setTitle("Skip", for: .normal)
+            
+            NSLayoutConstraint.activate([
+                nextBtn.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+                nextBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+                nextBtn.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+                nextBtn.heightAnchor.constraint(equalToConstant: 50)
+            ])
+        }
+    }
+    
+    @objc private func instructionNextTapped() {
+        if InstructionTracker.isFirstRun(for: "PencilPushup") {
+            runInstructionSequence(index: currentInstructionIndex + 1)
+        } else {
+            finishInstructionsAndStartExercise()
+        }
+    }
+    
+    @objc private func instructionPrevTapped() {
+        if InstructionTracker.isFirstRun(for: "PencilPushup") && currentInstructionIndex > 0 {
+            runInstructionSequence(index: currentInstructionIndex - 1)
+        }
+    }
+    
+    private func finishInstructionsAndStartExercise() {
+        InstructionTracker.markAsCompleted(for: "PencilPushup")
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            self.instructionNextButton?.alpha = 0
+            self.instructionPrevButton?.alpha = 0
+        }) { _ in
+            self.instructionNextButton?.removeFromSuperview()
+            self.instructionPrevButton?.removeFromSuperview()
+        }
+        
+        UIView.animate(withDuration: 0.5, animations: {
+            self.centerMessageLabel.alpha = 0
+        }) { _ in
+            guard self.isExerciseActive, self.currentPhase == .none else { return }
+            self.sessionStartTime = Date()
+            self.startBringingCloserPhase()
         }
     }
 
@@ -137,6 +247,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
             
             fadeTransition(showCenterMessage: false, showExerciseUI: false) { [weak self] in
                 guard let self = self, self.isExerciseActive else { return }
+                self.instructionLabel.text = nil
                 self.centerMessageLabel.text = "Get back to the initial position"
                 UIView.animate(withDuration: 0.5) {
                     self.centerMessageLabel.alpha = 1

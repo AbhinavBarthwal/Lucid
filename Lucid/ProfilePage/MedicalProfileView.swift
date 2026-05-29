@@ -27,6 +27,10 @@ struct MedicalProfileView: View {
         "Neurological Issues"
     ]
     
+    private var tenYearsAgo: Date {
+        Calendar.current.date(byAdding: .year, value: -10, to: Date()) ?? Date()
+    }
+    
     var body: some View {
         ZStack {
             Color(red: 10/255, green: 10/255, blue: 12/255)
@@ -67,7 +71,7 @@ struct MedicalProfileView: View {
                             DatePicker(
                                 "",
                                 selection: $model.dateOfBirth,
-                                in: ...Date(),
+                                in: ...tenYearsAgo,
                                 displayedComponents: .date
                             )
                             .datePickerStyle(.compact)
@@ -120,6 +124,25 @@ struct MedicalProfileView: View {
                         
                         powerCard(title: "Left Eye", value: $model.leftPower)
                         powerCard(title: "Right Eye", value: $model.rightPower)
+
+                        Button(action: {
+                            withAnimation {
+                                model.leftPower = 0.0
+                                model.rightPower = 0.0
+                            }
+                        }) {
+                            HStack(spacing: 10) {
+                                Image(systemName: (model.leftPower == 0.0 && model.rightPower == 0.0) ? "checkmark.circle.fill" : "circle")
+                                    .font(.system(size: 20))
+                                    .foregroundStyle((model.leftPower == 0.0 && model.rightPower == 0.0) ? Color.accentColor : Color.white.opacity(0.4))
+                                Text("I don't know my eye power")
+                                    .font(.system(size: 15, weight: .medium))
+                                    .foregroundStyle(Color.white.opacity(0.8))
+                            }
+                            .padding(.vertical, 8)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
                     }
                     
                     // Conditions Section

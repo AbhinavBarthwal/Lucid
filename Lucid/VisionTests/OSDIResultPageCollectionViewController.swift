@@ -177,15 +177,15 @@ final class OSDIResultPageCollectionViewController: UICollectionViewController {
     private func insightText(for severity: String, score: Double) -> String {
         switch severity {
         case "Normal":
-            return "Your symptoms are well controlled. Keep your current eye-care routine consistent."
+            return "Your eyes are feeling great! Keep up your wonderful daily routine to keep them happy."
         case "Mild":
-            return "A little dryness is showing up. Small habit changes now can keep symptoms from building."
+            return "A tiny bit of dryness is showing up. A few gentle habits now will keep your eyes feeling fresh!"
         case "Moderate":
-            return "Your eyes are showing noticeable strain. Recovery habits and screen breaks should be a priority."
+            return "Your eyes are feeling a bit tired. Some relaxing breaks and quick exercises will do wonders!"
         default:
             return score > 45
-                ? "Symptoms are significantly elevated. Reduce exposure, hydrate the eyes, and follow up if this persists."
-                : "Symptoms are elevated. Give your eyes relief today and monitor your next few readings closely."
+                ? "Your eyes are asking for some rest today. Take a cozy break, stay hydrated, and let them recover."
+                : "Your eyes need a little extra care today. Let's give them some nice relief and check in again soon."
         }
     }
 
@@ -206,18 +206,18 @@ final class OSDIResultPageCollectionViewController: UICollectionViewController {
         switch severity {
         case "Normal":
             return [
-                OSDIRecommendationItem(title: "Smooth Pursuits", detail: "Use Smooth Pursuits to maintain steady tracking."),
-                OSDIRecommendationItem(title: "Figure Eight", detail: "Figure Eight helps keep control consistent.")
+                OSDIRecommendationItem(title: "Smooth Pursuits", detail: "Try Smooth Pursuits to help your eyes track things easily."),
+                OSDIRecommendationItem(title: "Figure Eight", detail: "Try Figure Eight to keep your eye movements smooth and flexible.")
             ]
         case "Mild", "Moderate":
             return [
-                OSDIRecommendationItem(title: "Blink Training", detail: "Blink Training can reduce dryness from screen time."),
-                OSDIRecommendationItem(title: "Peripheral Awareness", detail: "Use Peripheral Awareness to ease visual strain.")
+                OSDIRecommendationItem(title: "Blink Training", detail: "Try Blink Training to refresh and hydrate your eyes during screen breaks."),
+                OSDIRecommendationItem(title: "Peripheral Awareness", detail: "Try Peripheral Awareness to help relax your focus and ease tension.")
             ]
         default:
             return [
-                OSDIRecommendationItem(title: "Blink Training", detail: "Start with Blink Training for quick relief support."),
-                OSDIRecommendationItem(title: "Digital Break", detail: "Take a Digital Break to lower symptom load.")
+                OSDIRecommendationItem(title: "Blink Training", detail: "Let's start with Blink Training to bring quick, soothing moisture to your eyes."),
+                OSDIRecommendationItem(title: "Digital Break", detail: "Take a cozy digital break to give your eyes the rest they deserve.")
             ]
         }
     }
@@ -345,7 +345,7 @@ final class HeroScoreCell: PremiumCardCell {
         captionLabel.translatesAutoresizingMaskIntoConstraints = false
         captionLabel.font = .systemFont(ofSize: 13, weight: .semibold)
         captionLabel.textColor = UIColor.white.withAlphaComponent(0.56)
-        captionLabel.text = "YOUR OSDI SCORE"
+        captionLabel.text = "YOUR EYE COMFORT SCORE"
         captionLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         infoButton.setContentHuggingPriority(.required, for: .horizontal)
 
@@ -638,14 +638,14 @@ struct OSDIPerformanceView: View {
 
     private var changeText: String {
         guard let change = percentChange else {
-            return "First OSDI result saved"
+            return "Your first eye comfort score is saved!"
         }
 
         let value = abs(Int(change.rounded()))
 
         return isImproved
-        ? "↓ \(value)% improved"
-        : "↑ \(value)% increased"
+        ? "↓ \(value)% better comfort"
+        : "↑ \(value)% increase in strain"
     }
 
     private var changeColor: Color {
@@ -660,20 +660,20 @@ struct OSDIPerformanceView: View {
         let formattedDifference = String(format: "%.1f", abs(difference))
 
         if difference < 0 {
-            return "\(formattedDifference) points lower than last OSDI"
+            return "\(formattedDifference) points lower (more comfortable!) than last check-up"
         } else if difference > 0 {
-            return "\(formattedDifference) points higher than last OSDI"
+            return "\(formattedDifference) points higher (more strain) than last check-up"
         } else {
-            return "No change from last OSDI"
+            return "Just like last time! Steady and consistent."
         }
     }
 
     private var previousScoreText: String {
         guard let previousScore else {
-            return "Saved to OSDI trends"
+            return "We've saved this to your trends!"
         }
 
-        return "Previous OSDI: \(String(format: "%.1f", previousScore))"
+        return "Last score: \(String(format: "%.1f", previousScore))"
     }
 
     var body: some View {
@@ -683,7 +683,7 @@ struct OSDIPerformanceView: View {
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundStyle(Color(uiColor: .osdiOrange))
 
-            Text("Lower score = better eye comfort")
+            Text("Lower scores mean happier, more comfortable eyes!")
                 .foregroundStyle(.green)
                 .font(.system(size: 14, weight: .semibold))
 

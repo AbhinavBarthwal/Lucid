@@ -20,8 +20,8 @@ public class NotificationManager {
     // MARK: - Bi-weekly Test Reminder (14 days)
     public func scheduleBiWeeklyReminder() {
         let content = UNMutableNotificationContent()
-        content.title = "Time for a Vision Check"
-        content.body = "It's been two weeks since your last OSDI or Landolt C test. Let's check your vision!"
+        content.title = "Time for a quick vision check!"
+        content.body = "It's time for your biweekly eye check-up! Let's see how your eyes are feeling today."
         content.sound = .default
         
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 14 * 24 * 3600, repeats: true)
@@ -44,8 +44,8 @@ public class NotificationManager {
     // MARK: - Weekly Trends Reminder (7 days)
     public func scheduleWeeklyTrendsReminder() {
         let content = UNMutableNotificationContent()
-        content.title = "Weekly Eye Health Trends"
-        content.body = "Check out your eye health trends and summary from the past week."
+        content.title = "Your weekly eye health trends are ready!"
+        content.body = "Take a peek at your eye health summary from this past week!"
         content.sound = .default
         
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 7 * 24 * 3600, repeats: true)
@@ -71,7 +71,7 @@ public class NotificationManager {
         
         let content = UNMutableNotificationContent()
         content.title = "New Badge Unlocked! 🏅"
-        content.body = "Congratulations! You've earned the '\(badgeTitle)' badge."
+        content.body = "Hooray! You've earned the '\(badgeTitle)' badge. Keep up the wonderful work!"
         content.sound = .default
         
         let request = UNNotificationRequest(
@@ -122,8 +122,8 @@ public class NotificationManager {
                 }
                 
                 let content = UNMutableNotificationContent()
-                content.title = "Time for your Eye Exercises"
-                content.body = "Keep your eyes healthy and strain-free. Take a quick break to do your exercises!"
+                content.title = "Time to refresh your eyes!"
+                content.body = "Let's take a quick screen break to refresh and stretch your eyes."
                 content.sound = .default
                 
                 let triggerComponents = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: scheduleDate)

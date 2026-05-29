@@ -7,7 +7,12 @@ class SupabaseManager {
     
     let client = SupabaseClient(
         supabaseURL: URL(string: "https://cemqltesxmfjtykduqoi.supabase.co")!,
-        supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlbXFsdGVzeG1manR5a2R1cW9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMTQzNTIsImV4cCI6MjA5Mjc5MDM1Mn0.dTD4hAmdZoPcEuLHJ7p68xD2veVktrCy8M5360mzg5A"
+        supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlbXFsdGVzeG1manR5a2R1cW9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMTQzNTIsImV4cCI6MjA5Mjc5MDM1Mn0.dTD4hAmdZoPcEuLHJ7p68xD2veVktrCy8M5360mzg5A",
+        options: .init(
+            auth: .init(
+                emitLocalSessionAsInitialSession: true
+            )
+        )
     )
     
     func syncUser(_ user: User) async {
@@ -24,7 +29,7 @@ class SupabaseManager {
         ]
         
         do {
-            try await client.database.from("users").upsert(data).execute()
+            try await client.from("users").upsert(data).execute()
             print("☁️ Profile Synced to Supabase")
         } catch {
             print("❌ Profile Sync Error: \(error)")
@@ -34,7 +39,7 @@ class SupabaseManager {
     func checkUserExists(email: String) async -> Bool {
         guard !email.isEmpty else { return false }
         do {
-            let response = try await client.database.from("users")
+            let response = try await client.from("users")
                 .select("id")
                 .eq("email", value: email.lowercased().trimmingCharacters(in: .whitespacesAndNewlines))
                 .execute()
@@ -55,7 +60,7 @@ class SupabaseManager {
     
     func checkUserExists(id: UUID) async -> Bool {
         do {
-            let response = try await client.database.from("users")
+            let response = try await client.from("users")
                 .select("id")
                 .eq("id", value: id.uuidString)
                 .execute()
@@ -77,13 +82,13 @@ class SupabaseManager {
     func verifyPassword(email: String, passwordToVerify: String) async -> Bool {
         guard !email.isEmpty else { return false }
         do {
-            let response = try await client.database.from("users")
+            let response = try await client.from("users")
                 .select("password")
                 .eq("email", value: email.lowercased().trimmingCharacters(in: .whitespacesAndNewlines))
-                .single()
                 .execute()
             
-            if let json = try? JSONSerialization.jsonObject(with: response.data) as? [String: Any],
+            if let jsonArray = try? JSONSerialization.jsonObject(with: response.data) as? [[String: Any]],
+               let json = jsonArray.first,
                let password = json["password"] as? String {
                 return password == passwordToVerify
             }
@@ -96,7 +101,13 @@ class SupabaseManager {
     // MARK: - Apple Sign In
     func signInWithApple(idToken: String, nonce: String? = nil) async -> (email: String?, uid: UUID?) {
         do {
-            let session = try await client.auth.signInWithIdToken(credentials: .init(provider: .apple, idToken: idToken, nonce: nonce ?? ""))
+            let session = try await client.auth.signInWithIdToken(
+                credentials: OpenIDConnectCredentials(
+                    provider: .apple,
+                    idToken: idToken,
+                    nonce: nonce ?? ""
+                )
+            )
             print("☁️ Apple Sign-In successful. User ID: \(session.user.id)")
             return (session.user.email, session.user.id)
         } catch {
@@ -109,14 +120,14 @@ class SupabaseManager {
     func fetchAndApplyUser(byEmail email: String, to localUser: User) async -> Bool {
          guard !email.isEmpty else { return false }
          do {
-             let response = try await client.database.from("users")
+             let response = try await client.from("users")
                  .select()
                  .eq("email", value: email.lowercased().trimmingCharacters(in: .whitespacesAndNewlines))
-                 .single()
                  .execute()
              
              let data = response.data
-             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+             let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]]
+             if let json = jsonArray?.first {
                  if let idString = json["id"] as? String, let newId = UUID(uuidString: idString) {
                      localUser.id = newId
                  }
@@ -177,14 +188,14 @@ class SupabaseManager {
 
     func fetchAndApplyUser(byId id: UUID, to localUser: User) async -> Bool {
         do {
-            let response = try await client.database.from("users")
+            let response = try await client.from("users")
                 .select()
                 .eq("id", value: id.uuidString)
-                .single()
                 .execute()
             
             let data = response.data
-            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]]
+            if let json = jsonArray?.first {
                 localUser.id = id
                 if let email = json["email"] as? String { localUser.email = email }
                 if let name = json["name"] as? String { localUser.name = name }

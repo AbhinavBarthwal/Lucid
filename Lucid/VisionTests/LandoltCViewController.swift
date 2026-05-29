@@ -28,15 +28,28 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
     private var iterationCount = 0
     private let maxIterations = 6
     private var currentCorrectNumber = ""
-    private var secondsRemaining = 5
 
     private var isTestingRightEye    = false
-    private var isEyeRequirementMet  = false
+    private var isEyeRequirementMet  = true
     private var isProcessing         = false
     private var isTestActive         = false
     private var didComplete          = false
     private var isMicActive          = false   // tracks whether mic is genuinely open
     private var isInstructionPhase   = true
+
+    // Navigation/Skip buttons for instructions
+    private var instructionNextButton: UIButton?
+    private var instructionPrevButton: UIButton?
+    private var currentInstructionIndex = 0
+
+    private let exerciseInstructions: [InstructionStep] = [
+        InstructionStep(message: "3", duration: 1.0),
+        InstructionStep(message: "2", duration: 1.0),
+        InstructionStep(message: "1", duration: 1.0),
+        InstructionStep(message: "Please hold your phone at arm's length", duration: 2.5),
+        InstructionStep(message: "Look at the opening and say the matching number out loud!", duration: 2.5),
+        InstructionStep(message: "If it's hard to see, just say 'cannot see' or 'skip' to move on.", duration: 3.0)
+    ]
 
     private let directionMap: [Int: String] = [
         0: "4", 45: "5", 90: "6", 135: "7", 180: "8", 225: "1", 270: "2", 315: "3"
@@ -55,7 +68,9 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         setupUIInitialState()
         setupARKit()
         setupSpeech()
-        runInitialCountdown()
+        instructionLabel.alpha = 0
+        setupInstructionButtons()
+        runInstructionSequence(index: 0)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -78,66 +93,139 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
 
     // MARK: - Countdown & Instructions
 
-    private func fadeTransition(text: String, duration: TimeInterval = 0.5, completion: @escaping () -> Void) {
-        UIView.animate(withDuration: duration, animations: {
+    // MARK: - Countdown & Instructions
+
+    private func runInstructionSequence(index: Int) {
+        guard isInstructionPhase else { return }
+        currentInstructionIndex = index
+        let isFirstRun = InstructionTracker.isFirstRun(for: "CTest")
+        
+        if index < exerciseInstructions.count {
+            let step = exerciseInstructions[index]
+            let isCountdown = Int(step.message) != nil
+            
+            if isCountdown {
+                instructionNextButton?.isHidden = true
+                instructionPrevButton?.isHidden = true
+            } else {
+                if isFirstRun {
+                    instructionNextButton?.isHidden = false
+                    let canGoBack = index > 0 && Int(exerciseInstructions[index - 1].message) == nil
+                    instructionPrevButton?.isHidden = !canGoBack
+                    
+                    let isLastStep = (index == exerciseInstructions.count - 1)
+                    instructionNextButton?.setTitle(isLastStep ? "Start Test" : "Next", for: .normal)
+                } else {
+                    instructionNextButton?.isHidden = false
+                    instructionPrevButton?.isHidden = true
+                    instructionNextButton?.setTitle("Skip", for: .normal)
+                }
+            }
+            
+            UIView.animate(withDuration: 0.4, animations: {
+                self.instructionLabel.alpha = 0
+            }) { _ in
+                self.instructionLabel.text = step.message
+                UIView.animate(withDuration: 0.4, animations: {
+                    self.instructionLabel.alpha = 1
+                }) { _ in
+                    if isCountdown || !isFirstRun {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self] in
+                            guard let self = self, self.isInstructionPhase, self.currentInstructionIndex == index else { return }
+                            self.runInstructionSequence(index: index + 1)
+                        }
+                    }
+                }
+            }
+        } else {
+            finishInstructionsAndStartExercise()
+        }
+    }
+
+    private func setupInstructionButtons() {
+        let isFirstRun = InstructionTracker.isFirstRun(for: "CTest")
+        
+        let nextBtn = UIButton(type: .system)
+        nextBtn.translatesAutoresizingMaskIntoConstraints = false
+        nextBtn.layer.cornerRadius = 14
+        nextBtn.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        nextBtn.setTitleColor(.white, for: .normal)
+        nextBtn.backgroundColor = UIColor(named: "AccentColor") ?? .systemOrange
+        view.addSubview(nextBtn)
+        self.instructionNextButton = nextBtn
+        nextBtn.addTarget(self, action: #selector(instructionNextTapped), for: .touchUpInside)
+        
+        if isFirstRun {
+            nextBtn.setTitle("Next", for: .normal)
+            
+            let prevBtn = UIButton(type: .system)
+            prevBtn.translatesAutoresizingMaskIntoConstraints = false
+            prevBtn.layer.cornerRadius = 14
+            prevBtn.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+            prevBtn.setTitleColor(.white, for: .normal)
+            prevBtn.backgroundColor = .clear
+            prevBtn.layer.borderWidth = 1
+            prevBtn.layer.borderColor = UIColor.white.withAlphaComponent(0.3).cgColor
+            prevBtn.setTitle("Previous", for: .normal)
+            view.addSubview(prevBtn)
+            self.instructionPrevButton = prevBtn
+            prevBtn.addTarget(self, action: #selector(instructionPrevTapped), for: .touchUpInside)
+            
+            NSLayoutConstraint.activate([
+                nextBtn.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+                nextBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+                nextBtn.bottomAnchor.constraint(equalTo: prevBtn.topAnchor, constant: -12),
+                nextBtn.heightAnchor.constraint(equalToConstant: 50),
+                
+                prevBtn.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+                prevBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+                prevBtn.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+                prevBtn.heightAnchor.constraint(equalToConstant: 50)
+            ])
+            
+            prevBtn.isHidden = true // Hidden initially for step 0
+        } else {
+            nextBtn.setTitle("Skip", for: .normal)
+            
+            NSLayoutConstraint.activate([
+                nextBtn.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+                nextBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+                nextBtn.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+                nextBtn.heightAnchor.constraint(equalToConstant: 50)
+            ])
+        }
+    }
+    
+    @objc private func instructionNextTapped() {
+        if InstructionTracker.isFirstRun(for: "CTest") {
+            runInstructionSequence(index: currentInstructionIndex + 1)
+        } else {
+            finishInstructionsAndStartExercise()
+        }
+    }
+    
+    @objc private func instructionPrevTapped() {
+        if InstructionTracker.isFirstRun(for: "CTest") && currentInstructionIndex > 0 {
+            runInstructionSequence(index: currentInstructionIndex - 1)
+        }
+    }
+    
+    private func finishInstructionsAndStartExercise() {
+        InstructionTracker.markAsCompleted(for: "CTest")
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            self.instructionNextButton?.alpha = 0
+            self.instructionPrevButton?.alpha = 0
+        }) { _ in
+            self.instructionNextButton?.removeFromSuperview()
+            self.instructionPrevButton?.removeFromSuperview()
+        }
+        
+        UIView.animate(withDuration: 0.5, animations: {
             self.instructionLabel.alpha = 0
         }) { _ in
-            self.instructionLabel.text = text
-            UIView.animate(withDuration: duration, animations: {
-                self.instructionLabel.alpha = 1
-            }) { _ in
-                completion()
-            }
-        }
-    }
-
-    private func runInitialCountdown() {
-        secondsRemaining = 5
-        instructionLabel.text = "\(secondsRemaining)"
-
-        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
-            guard let self = self else { return }
-            guard self.isInstructionPhase else {
-                timer.invalidate()
-                return
-            }
-            if self.secondsRemaining > 1 {
-                self.secondsRemaining -= 1
-                self.instructionLabel.text = "\(self.secondsRemaining)"
-            } else {
-                timer.invalidate()
-                self.showDistanceInstruction()
-            }
-        }
-    }
-
-    private func showDistanceInstruction() {
-        guard isInstructionPhase else { return }
-        fadeTransition(text: "Keep the phone at arm's length") {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                guard self.isInstructionPhase else { return }
-                self.showFocusInstruction()
-            }
-        }
-    }
-
-    private func showFocusInstruction() {
-        guard isInstructionPhase else { return }
-        fadeTransition(text: "Focus on the opening and speak the corresponding number") {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                guard self.isInstructionPhase else { return }
-                self.showSkipInstruction()
-            }
-        }
-    }
-
-    private func showSkipInstruction() {
-        guard isInstructionPhase else { return }
-        fadeTransition(text: "If you cannot see the opening say 'cannot see' or 'skip' to skip.") {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                guard self.isInstructionPhase else { return }
-                self.startActivePhase()
-            }
+            guard self.isInstructionPhase else { return }
+            self.startActivePhase()
         }
     }
 
@@ -173,35 +261,17 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
     // MARK: - ARSession Delegate
 
     func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
-        guard let faceAnchor = anchors.first as? ARFaceAnchor, isTestActive else { return }
-
-        let physicalRightEyeBlink = faceAnchor.blendShapes[.eyeBlinkLeft]?.floatValue  ?? 0
-        let physicalLeftEyeBlink  = faceAnchor.blendShapes[.eyeBlinkRight]?.floatValue ?? 0
-
+        // Disabled eye check to remove blocking red warning and allow test to run smoothly
         DispatchQueue.main.async {
-            let previouslyMet = self.isEyeRequirementMet
-            let nowMet: Bool
-
-            if !self.isTestingRightEye {
-                nowMet = physicalRightEyeBlink > 0.45
-                self.statusLabel.text = nowMet ? "" : "Close Right Eye"
-            } else {
-                nowMet = physicalLeftEyeBlink > 0.45
-                self.statusLabel.text = nowMet ? "" : "Close Left Eye"
-            }
-
-            // Guard: only act when the state actually flips — not every frame
-            guard nowMet != previouslyMet else { return }
-
-            self.isEyeRequirementMet = nowMet
-            self.statusLabel.textColor = nowMet ? .white : .systemRed
-
-            if !nowMet {
-                // Eye opened → hide border (smooth fade via display link)
-                SiriListeningBorderView.shared.hide()
-            } else if self.isMicActive {
-                // Eye closed again and mic is running → show border (smooth fade in)
+            self.isEyeRequirementMet = true
+            self.statusLabel.text = ""
+            self.statusLabel.textColor = .white
+            
+            // Keep the Siri listening border view state matching mic activity
+            if self.isMicActive {
                 SiriListeningBorderView.shared.show()
+            } else {
+                SiriListeningBorderView.shared.hide()
             }
         }
     }
@@ -257,7 +327,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
                 self.numbers.forEach { $0.alpha = 0 }
                 self.instructionLabel.alpha = 0
             }) { _ in
-                self.instructionLabel.text = "Skipped"
+                self.instructionLabel.text = "Skipped! Let's continue."
                 UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 1 }
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
@@ -282,7 +352,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
                 self.currentScale = 1.0
                 self.landoltImageView.alpha = 0
                 self.numbers.forEach { $0.alpha = 0 }
-                self.instructionLabel.text = "Close Left Eye"
+                self.instructionLabel.text = "Now, please close your left eye"
                 self.instructionLabel.alpha = 1
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {

@@ -140,10 +140,20 @@ final class OnboardingPresenter {
     
     private static func requestAllPermissions(completion: @escaping () -> Void) {
         AVCaptureDevice.requestAccess(for: .video) { _ in
-            AVAudioSession.sharedInstance().requestRecordPermission { _ in
-                SFSpeechRecognizer.requestAuthorization { _ in
-                    DispatchQueue.main.async {
-                        completion()
+            if #available(iOS 17.0, *) {
+                AVAudioApplication.requestRecordPermission { _ in
+                    SFSpeechRecognizer.requestAuthorization { _ in
+                        DispatchQueue.main.async {
+                            completion()
+                        }
+                    }
+                }
+            } else {
+                AVAudioSession.sharedInstance().requestRecordPermission { _ in
+                    SFSpeechRecognizer.requestAuthorization { _ in
+                        DispatchQueue.main.async {
+                            completion()
+                        }
                     }
                 }
             }
@@ -188,11 +198,11 @@ final class OnboardingPresenter {
     
     private static func presentMandatoryTestsAlert(on presenter: UIViewController, start: @escaping () -> Void) {
         let alert = UIAlertController(
-            title: "Complete your tests",
-            message: "Please complete the OSDI and C Test to continue. This is mandatory.",
+            title: "Let's check your vision!",
+            message: "We'll start with a couple of quick, easy tests to customize Lucid for your eyes.",
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "Start Tests", style: .default) { _ in
+        alert.addAction(UIAlertAction(title: "Let's Start!", style: .default) { _ in
             DispatchQueue.main.async {
                 start()
             }
@@ -212,9 +222,6 @@ final class OnboardingPresenter {
     
     private static func finalize(window: UIWindow, presenter: UIViewController) {
         OnboardingGate.markCompleted()
-        
-        Twenty2020Manager.shared.requestAuthorization()
-        Twenty2020Manager.shared.startMonitoring()
         
         blurTransition(window: window) {
             presenter.dismiss(animated: false) {

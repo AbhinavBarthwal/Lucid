@@ -250,7 +250,6 @@
                                             <constraint firstItem="LQu-fb-BS2" firstAttribute="width" secondItem="gyT-tJ-jcM" secondAttribute="width" multiplier="0.18" id="sxf-1n-caJ"/>
                                         </constraints>
                                     </tableViewCell>
-
                                 </cells>
                             </tableViewSection>
                         </sections>
@@ -273,7 +272,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Daily Exercise Goal" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bDY-yo-xsV">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Daily Exercise Goal" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bDY-yo-xsV">
                                 <rect key="frame" x="20" y="182" width="353" height="34.666666666666657"/>
                                 <fontDescription key="fontDescription" type="system" weight="heavy" pointSize="29"/>
                                 <nil key="textColor"/>
@@ -466,7 +465,7 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Previous Conditions" id="lTR-bM-2rd">
-                        <barButtonItem key="rightBarButtonItem" style="plain" systemItem="done" id="cmd-e1-S9h">
+                        <barButtonItem key="rightBarButtonItem" style="done" systemItem="done" id="cmd-e1-S9h">
                             <connections>
                                 <action selector="doneTapped:" destination="gAC-tY-3pE" id="rki-2X-p7a"/>
                             </connections>
@@ -484,7 +483,7 @@
         <!--Password & Security-->
         <scene sceneID="xIv-LC-UZ2">
             <objects>
-                <tableViewController id="fPj-9W-LjY" customClass="PasswordTableViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="PasswordTableViewController" id="fPj-9W-LjY" customClass="PasswordTableViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" id="pTW-eG-J24">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -651,7 +650,7 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Password &amp; Security" id="aUp-5g-aQn">
-                        <barButtonItem key="rightBarButtonItem" style="plain" systemItem="save" id="OPV-Kq-c6g">
+                        <barButtonItem key="rightBarButtonItem" style="done" systemItem="save" id="OPV-Kq-c6g">
                             <connections>
                                 <action selector="saveTapped:" destination="fPj-9W-LjY" id="2Jh-8X-iCf"/>
                             </connections>
@@ -1133,8 +1132,8 @@
                                                         <action selector="badgeChanged:" destination="gip-N6-S8k" eventType="valueChanged" id="ncR-q9-p8o"/>
                                                     </connections>
                                                 </switch>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Badge Completion Alerts" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7oW-C4-kmS">
-                                                    <rect key="frame" x="26" y="21" width="189.66666666666666" height="20.333333333333329"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Awards Completion Alerts" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7oW-C4-kmS">
+                                                    <rect key="frame" x="26" y="21" width="196.33333333333334" height="20.333333333333329"/>
                                                     <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
@@ -1190,7 +1189,6 @@
     </scenes>
     <resources>
         <image name="BlinkTraining" width="181" height="139"/>
-        <image name="Delete" width="58" height="80"/>
         <image name="bell.fill" catalog="system" width="123" height="128"/>
         <image name="gauge.with.needle.fill" catalog="system" width="128" height="123"/>
         <image name="info.circle.fill" catalog="system" width="128" height="123"/>
@@ -1210,9 +1208,6 @@
         </systemColor>
         <systemColor name="systemGray2Color">
             <color red="0.68235294120000001" green="0.68235294120000001" blue="0.69803921570000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="systemRedColor">
-            <color red="1" green="0.21960784310000001" blue="0.23529411759999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

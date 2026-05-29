@@ -20,12 +20,6 @@ class NotificationsViewController: UITableViewController {
 
     @IBAction func digitalTimeChanged(_ sender: UISwitch) {
         saveState(key: "digitalTime", value: sender.isOn)
-        if sender.isOn {
-            Twenty2020Manager.shared.requestAuthorization()
-            Twenty2020Manager.shared.startMonitoring()
-        } else {
-            Twenty2020Manager.shared.stopMonitoring()
-        }
     }
 
     @IBAction func reminderChanged(_ sender: UISwitch) {

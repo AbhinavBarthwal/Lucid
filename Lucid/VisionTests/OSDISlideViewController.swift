@@ -23,20 +23,20 @@ class OSDIViewController: UIViewController {
     private let options = ["None of the time", "Some of the time", "Half of the time", "Most of the time", "All of the time"]
     
     private let questionnaire: [(cat: String, q: String)] = [
-        ("Symptoms", "Do bright lights or sunlight bother your eyes?"),
-        ("Symptoms", "Eyes feeling like they  have dust or in them?"),
-        ("Symptoms", "Eyes feeling sore, stinging, or burning?"),
-        ("Symptoms", "Vision getting hazy or out of focus?"),
+        ("How your eyes feel", "Do bright lights or sunlight bother your eyes?"),
+        ("How your eyes feel", "Eyes feeling like they  have dust in them?"),
+        ("How your eyes feel", "Eyes feeling sore, stinging, or burning?"),
+        ("How your eyes feel", "Vision getting hazy or out of focus?"),
         
-        ("Vision Functionality", "Hard to read books  or long phone messages?"),
-        ("Vision Functionality", "Difficulty driving at night due to headlight glare?"),
-        ("Vision Functionality", "Trouble using your smartphone, laptop, or an ATM?"),
-        ("Vision Functionality", "Eyes getting tired while watching a movie or a match?"),
+        ("Daily activities", "Hard to read books  or long phone messages?"),
+        ("Daily activities", "Difficulty driving at night due to headlight glare?"),
+        ("Daily activities", "Trouble using your smartphone, laptop, or an ATM?"),
+        ("Daily activities", "Eyes getting tired while watching a movie or a match?"),
         
-        ("Environmental Triggers", "Discomfort when it's windy or while riding a bike?"),
-        ("Environmental Triggers", "Eyes feeling 'too dry' during peak summer?"),
-        ("Environmental Triggers", "Dryness in AC rooms  or in front of a cooler or fan?"),
-        ("Environmental Triggers", "Redness or stinging when near heavy traffic, dust, or smoke?")
+        ("Your surroundings", "Discomfort when it's windy or while riding a bike?"),
+        ("Your surroundings", "Eyes feeling 'too dry' during peak summer?"),
+        ("Your surroundings", "Dryness in AC rooms  or in front of a cooler or fan?"),
+        ("Your surroundings", "Redness or stinging when near heavy traffic, dust, or smoke?")
     ]
 
     // Custom UI Elements for Rating Circles (linked to Storyboard)
@@ -61,42 +61,74 @@ class OSDIViewController: UIViewController {
     }
 
     private func setupInitialState() {
-        [instructionLabel, questionLabel, pageControl, categoryLabel, neverLabel, mostlyLabel, circleStackView, prevNavButton, nextNavButton, introContainerView].forEach {
+        categoryLabel?.isHidden = true
+        [instructionLabel, questionLabel, pageControl, categoryLabel, neverLabel, mostlyLabel, prevNavButton, nextNavButton, introContainerView].forEach {
             $0?.alpha = 0
         }
-        responseSlider?.isHidden = true
-        valueLabel?.isHidden = true
+        
+        // Make sure valueLabel is unhidden, but its alpha is 0
+        valueLabel?.isHidden = false
+        valueLabel?.alpha = 0
+        
+        responseSlider?.alpha = 0
+        submitButton?.isHidden = true
+        submitButton?.alpha = 0
+        
         nextButton?.isHidden = true
     }
 
     private func setupCustomUI() {
-        // Retrieve circular buttons configured in storyboard
-        circleButtons = circleStackView.arrangedSubviews.compactMap { $0 as? UIButton }
+        // Hide circular buttons
+        circleStackView.isHidden = true
+        circleStackView.alpha = 0
         
-        for i in 0..<circleButtons.count {
-            let btn = circleButtons[i]
-            btn.tag = i
-            btn.layer.cornerRadius = 22 // Diameter 44x44
-            btn.layer.borderWidth = 2
-            btn.layer.borderColor = UIColor.lightGray.cgColor
-            btn.backgroundColor = .clear
-            btn.setTitle("", for: .normal)
-            
-            // Set up target action
-            btn.addTarget(self, action: #selector(circleTapped(_:)), for: .touchUpInside)
-        }
+        // Programmatic UISlider configuration
+        let slider = UISlider()
+        slider.translatesAutoresizingMaskIntoConstraints = false
+        slider.minimumValue = 0
+        slider.maximumValue = 4
+        slider.minimumTrackTintColor = UIColor(named: "AccentColor") ?? .systemOrange
+        slider.maximumTrackTintColor = .darkGray
+        slider.thumbTintColor = UIColor(named: "AccentColor") ?? .systemOrange
         
-        neverLabel.text = "never"
+        view.addSubview(slider)
+        self.responseSlider = slider
+        
+        slider.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .valueChanged)
+        
+        NSLayoutConstraint.activate([
+            slider.leadingAnchor.constraint(equalTo: circleStackView.leadingAnchor),
+            slider.trailingAnchor.constraint(equalTo: circleStackView.trailingAnchor),
+            slider.centerYAnchor.constraint(equalTo: circleStackView.centerYAnchor),
+            slider.heightAnchor.constraint(equalToConstant: 30)
+        ])
+        
+        setupSliderTicks(slider: slider)
+        
+        // Capitalize labels and increase font size to 22 bold
+        neverLabel.text = "Never"
         neverLabel.textColor = .lightGray
-        neverLabel.font = .systemFont(ofSize: 14, weight: .medium)
+        neverLabel.font = .systemFont(ofSize: 22, weight: .bold)
         
-        mostlyLabel.text = "mostly"
+        mostlyLabel.text = "Mostly"
         mostlyLabel.textColor = .lightGray
-        mostlyLabel.font = .systemFont(ofSize: 14, weight: .medium)
+        mostlyLabel.font = .systemFont(ofSize: 22, weight: .bold)
+        
+        // Setup Orange navigation button colors
+        let orangeColor = UIColor(named: "AccentColor") ?? .systemOrange
+        prevNavButton.setTitleColor(orangeColor, for: .normal)
+        nextNavButton.setTitleColor(orangeColor, for: .normal)
+        if #available(iOS 15.0, *) {
+            prevNavButton.configuration?.baseForegroundColor = orangeColor
+            nextNavButton.configuration?.baseForegroundColor = orangeColor
+        }
         
         // Setup Navigation Actions
         prevNavButton.addTarget(self, action: #selector(prevTapped), for: .touchUpInside)
         nextNavButton.addTarget(self, action: #selector(customNextTapped), for: .touchUpInside)
+        
+        // Setup Submit button
+        setupSubmitButton()
     }
 
     private func setupIntroUI() {
@@ -146,20 +178,24 @@ class OSDIViewController: UIViewController {
 
     private func handleCategoryTransition() {
         // Fade out all main UI elements during category/section transition
-        [questionLabel, pageControl, neverLabel, mostlyLabel, circleStackView, prevNavButton, nextNavButton, categoryLabel, instructionLabel].forEach { $0?.alpha = 0 }
+        [questionLabel, pageControl, neverLabel, mostlyLabel, prevNavButton, nextNavButton, categoryLabel, instructionLabel].forEach { $0?.alpha = 0 }
+        responseSlider?.alpha = 0
+        tickContainerView?.alpha = 0
+        valueLabel?.alpha = 0
+        submitButton?.alpha = 0
         
         introCategoryLabel.text = questionnaire[currentIndex].cat
         
         let sectionInstruction: String
         switch questionnaire[currentIndex].cat {
-        case "Symptoms":
-            sectionInstruction = "Have you experienced any of the following during the last week?"
-        case "Vision Functionality":
-            sectionInstruction = "Have you experienced problems with your eyes during the last week when performing the following activities?"
-        case "Environmental Triggers":
-            sectionInstruction = "Have your eyes felt uncomfortable in the following situations during the last week?"
+        case "How your eyes feel":
+            sectionInstruction = "Have your eyes felt any of these in the past week?"
+        case "Daily activities":
+            sectionInstruction = "Have your eyes found it tricky to do these things lately?"
+        case "Your surroundings":
+            sectionInstruction = "Have your eyes felt a bit uncomfortable in these spaces?"
         default:
-            sectionInstruction = "Have you experienced this problem during the last week?"
+            sectionInstruction = "Have your eyes felt this way over the past week?"
         }
         introInstructionLabel.text = sectionInstruction
         
@@ -185,9 +221,16 @@ class OSDIViewController: UIViewController {
         updateContent()
         
         UIView.animate(withDuration: 0.5) {
-            self.categoryLabel.alpha = 1.0
+            self.categoryLabel.alpha = 0.0
+            self.categoryLabel.isHidden = true
             self.instructionLabel.alpha = 0 // Hide section instructions from the top during questions
-            [self.questionLabel, self.neverLabel, self.mostlyLabel, self.circleStackView, self.prevNavButton, self.nextNavButton, self.pageControl].forEach { $0?.alpha = 1.0 }
+            [self.questionLabel, self.neverLabel, self.mostlyLabel, self.prevNavButton, self.nextNavButton, self.pageControl].forEach { $0?.alpha = 1.0 }
+            self.responseSlider?.alpha = 1.0
+            self.tickContainerView?.alpha = 1.0
+            self.valueLabel?.alpha = 1.0
+            if self.currentIndex == self.questionnaire.count - 1 {
+                self.submitButton?.alpha = 1.0
+            }
         }
     }
 
@@ -235,33 +278,131 @@ class OSDIViewController: UIViewController {
         }
     }
 
-    @objc private func circleTapped(_ sender: UIButton) {
-        let selectedValue = sender.tag
+    @objc private func sliderValueChanged(_ sender: UISlider) {
+        let roundedValue = round(sender.value)
+        sender.setValue(roundedValue, animated: true)
+        
+        let selectedValue = Int(roundedValue)
         scores[currentIndex] = selectedValue
+        
+        // Update value label
+        valueLabel?.text = options[selectedValue]
+        valueLabel?.textColor = UIColor(named: "AccentColor") ?? .systemOrange
         
         // Haptic feedback
         let generator = UISelectionFeedbackGenerator()
         generator.selectionChanged()
         
-        // Update highlight states
-        updateCircleHighlightStates()
-        
-        // Enable Next button
-        nextNavButton.isEnabled = true
-        nextNavButton.alpha = 1.0
+        // Update navigation buttons enablement
+        updateNavigationButtonsState()
     }
     
-    private func updateCircleHighlightStates() {
-        let selectedValue = scores[currentIndex]
+    private var tickContainerView: UIView?
+    
+    private func setupSliderTicks(slider: UISlider) {
+        let tickContainer = UIView()
+        tickContainer.translatesAutoresizingMaskIntoConstraints = false
+        view.insertSubview(tickContainer, belowSubview: slider)
+        self.tickContainerView = tickContainer
+        
+        NSLayoutConstraint.activate([
+            tickContainer.leadingAnchor.constraint(equalTo: slider.leadingAnchor, constant: 10),
+            tickContainer.trailingAnchor.constraint(equalTo: slider.trailingAnchor, constant: -10),
+            tickContainer.centerYAnchor.constraint(equalTo: slider.centerYAnchor),
+            tickContainer.heightAnchor.constraint(equalToConstant: 10)
+        ])
+        
         for i in 0..<5 {
-            let btn = circleButtons[i]
-            if i == selectedValue {
-                btn.backgroundColor = UIColor(red: 1.0, green: 0.5, blue: 0.15, alpha: 1.0) // Accent orange
-                btn.layer.borderColor = UIColor(red: 1.0, green: 0.5, blue: 0.15, alpha: 1.0).cgColor
+            let dot = UIView()
+            dot.translatesAutoresizingMaskIntoConstraints = false
+            dot.backgroundColor = .lightGray.withAlphaComponent(0.6)
+            dot.layer.cornerRadius = 3
+            tickContainer.addSubview(dot)
+            
+            let fraction = CGFloat(i) / 4.0
+            
+            if i == 0 {
+                dot.leadingAnchor.constraint(equalTo: tickContainer.leadingAnchor).isActive = true
+            } else if i == 4 {
+                dot.trailingAnchor.constraint(equalTo: tickContainer.trailingAnchor).isActive = true
             } else {
-                btn.backgroundColor = .clear
-                btn.layer.borderColor = UIColor.lightGray.cgColor
+                let constraint = NSLayoutConstraint(
+                    item: dot,
+                    attribute: .centerX,
+                    relatedBy: .equal,
+                    toItem: tickContainer,
+                    attribute: .trailing,
+                    multiplier: fraction,
+                    constant: 0
+                )
+                tickContainer.addConstraint(constraint)
             }
+            
+            NSLayoutConstraint.activate([
+                dot.widthAnchor.constraint(equalToConstant: 6),
+                dot.heightAnchor.constraint(equalToConstant: 6),
+                dot.centerYAnchor.constraint(equalTo: tickContainer.centerYAnchor)
+            ])
+        }
+    }
+    
+    private var submitButton: UIButton?
+
+    private func setupSubmitButton() {
+        let btn = UIButton(type: .system)
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        
+        let orangeColor = UIColor(named: "AccentColor") ?? .systemOrange
+        btn.setTitle("Submit", for: .normal)
+        btn.titleLabel?.font = .systemFont(ofSize: 24, weight: .bold)
+        btn.setTitleColor(orangeColor, for: .normal)
+        if #available(iOS 15.0, *) {
+            var config = UIButton.Configuration.plain()
+            config.title = "Submit"
+            config.baseForegroundColor = orangeColor
+            config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+                var outgoing = incoming
+                outgoing.font = .systemFont(ofSize: 24, weight: .bold)
+                return outgoing
+            }
+            btn.configuration = config
+        }
+        
+        view.addSubview(btn)
+        self.submitButton = btn
+        btn.addTarget(self, action: #selector(submitTapped), for: .touchUpInside)
+        
+        NSLayoutConstraint.activate([
+            btn.trailingAnchor.constraint(equalTo: nextNavButton!.trailingAnchor),
+            btn.bottomAnchor.constraint(equalTo: nextNavButton!.bottomAnchor),
+            btn.topAnchor.constraint(equalTo: nextNavButton!.topAnchor),
+            btn.leadingAnchor.constraint(equalTo: nextNavButton!.leadingAnchor)
+        ])
+        
+        btn.isHidden = true
+    }
+    
+    @objc private func submitTapped() {
+        calculateScore()
+    }
+    
+    private func updateNavigationButtonsState() {
+        let isAnswered = scores[currentIndex] != -1
+        
+        prevNavButton.isHidden = (currentIndex == 0)
+        
+        if currentIndex == questionnaire.count - 1 {
+            nextNavButton?.isHidden = true
+            submitButton?.isHidden = false
+            
+            submitButton?.isEnabled = isAnswered
+            submitButton?.alpha = isAnswered ? 1.0 : 0.3
+        } else {
+            nextNavButton?.isHidden = false
+            submitButton?.isHidden = true
+            
+            nextNavButton?.isEnabled = isAnswered
+            nextNavButton?.alpha = isAnswered ? 1.0 : 0.3
         }
     }
 
@@ -309,17 +450,17 @@ class OSDIViewController: UIViewController {
         questionLabel.text = questionnaire[currentIndex].q
         pageControl.currentPage = currentIndex
         
-        updateCircleHighlightStates()
-        
         let selectedValue = scores[currentIndex]
         if selectedValue == -1 {
-            nextNavButton.isEnabled = false
-            nextNavButton.alpha = 0.3
+            responseSlider?.value = 0
+            valueLabel?.text = "Slide to answer"
+            valueLabel?.textColor = .placeholderText
         } else {
-            nextNavButton.isEnabled = true
-            nextNavButton.alpha = 1.0
+            responseSlider?.value = Float(selectedValue)
+            valueLabel?.text = options[selectedValue]
+            valueLabel?.textColor = UIColor(named: "AccentColor") ?? .systemOrange
         }
         
-        prevNavButton.isHidden = (currentIndex == 0)
+        updateNavigationButtonsState()
     }
 }

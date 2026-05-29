@@ -110,12 +110,12 @@ class SetGoalViewController: UIViewController {
 
     func showAlert() {
         let alert = UIAlertController(
-            title: "Goal Updated.",
-            message: "Your daily exercise goal is now \(minutes) minutes/day",
+            title: "Goal Updated!",
+            message: "Your daily goal is now set to \(minutes) minutes. Let's do this!",
             preferredStyle: .alert
         )
         
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        alert.addAction(UIAlertAction(title: "Perfect!", style: .default))
         present(alert, animated: true)
     }
 }

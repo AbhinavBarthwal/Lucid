@@ -12,11 +12,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         Task { @MainActor in
             OnboardingPresenter.presentIfNeeded(on: self.window)
             self.scheduleGuidanceOverlayCheck()
-            
-            if !OnboardingGate.shouldShow {
-                Twenty2020Manager.shared.requestAuthorization()
-                Twenty2020Manager.shared.startMonitoring()
-            }
         }
     }
     
@@ -26,8 +21,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             self.scheduleGuidanceOverlayCheck()
             
             if !OnboardingGate.shouldShow {
-                Twenty2020Manager.shared.requestAuthorization()
-                Twenty2020Manager.shared.startMonitoring()
                 NotificationManager.shared.scheduleExerciseReminders()
             }
         }

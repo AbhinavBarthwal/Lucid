@@ -385,7 +385,7 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                     segueIdentifier: "",
                     estimatedTimeSeconds: 0
                 )
-                cell.configure(with: testReminder, reason: "Time for your biweekly eye test!")
+                cell.configure(with: testReminder, reason: "It's time for your check-up! Let's see how your eyes are doing.")
                 return cell
             } else { // "rec"
                 let cell = collectionView.dequeueReusableCell(
@@ -509,8 +509,12 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                         launchExercise(fallback)
                     }
                 } else {
-                    let alert = UIAlertController(title: "Goal Completed!", message: "You completed today's goal!", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "Awesome", style: .default))
+                    let alert = UIAlertController(
+                        title: "Goal Completed!",
+                        message: "Yay, you did it! Your daily goal is complete. Your eyes thank you!",
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: "Hooray!", style: .default))
                     present(alert, animated: true)
                 }
             }
@@ -518,11 +522,7 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
         }
         // Section 2: Daily Goals & Strains
         else if indexPath.section == 2 {
-            if indexPath.item == 0 {
-                let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                let vc = storyboard.instantiateViewController(withIdentifier: "OSDIViewController")
-                navigationController?.pushViewController(vc, animated: true)
-            } else if indexPath.item == 1 {
+            if indexPath.item == 1 {
                 let storyboard = UIStoryboard(name: "Summary", bundle: nil)
                 let vc = storyboard.instantiateViewController(withIdentifier: "AwardsViewController")
                 navigationController?.pushViewController(vc, animated: true)

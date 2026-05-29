@@ -297,9 +297,9 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
 
     private var sectionDescription: String {
         switch sessionType {
-        case "Blink": return "Left and right blink strength are shown separately."
-        case "SaccadicJumps": return "Each card shows how often you looked in the announced direction in time."
-        default: return "Each card shows how smoothly you tracked that part of the path."
+        case "Blink": return "We check your left and right eyes separately to give you a complete picture."
+        case "SaccadicJumps": return "See how quickly and accurately your eyes jumped in each direction!"
+        default: return "See how smoothly your eyes followed the path in each direction!"
         }
     }
 
@@ -318,17 +318,17 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
 
     private func directionalInsightText() -> String {
         let weakest = order.min { (directionErrors[$0] ?? 0) < (directionErrors[$1] ?? 0) }
-        guard let weakest else { return "Higher bars mean stronger tracking accuracy." }
-        return "Higher bars mean stronger accuracy. Your lowest direction today was \(displayName(for: weakest)); give that side a little extra attention next time."
+        guard let weakest else { return "Taller bars show where your focus was strongest!" }
+        return "Taller bars show where your focus was strongest! Your eyes had a little more work to do on the \(displayName(for: weakest)) side today—let's give that side some extra love next time."
     }
 
     static func randomCompletionMessage() -> String {
         [
-            "Nicely done. Your eyes got the reset they needed.",
-            "Session complete. Small daily reps build real visual stamina.",
-            "Great work. You kept the habit alive today.",
-            "Done and logged. Your eyes can take the win."
-        ].randomElement() ?? "Exercise complete. Great work today."
+            "Nicely done! Your eyes got the gentle reset they deserved.",
+            "Session complete! Every little check-in helps build happy, healthy eyes.",
+            "Great job! You took a wonderful step for your eye health today.",
+            "All done and logged! Your eyes are definitely thanking you."
+        ].randomElement() ?? "Exercise complete! Fantastic job taking care of your eyes today."
     }
 }
 

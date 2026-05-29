@@ -252,10 +252,10 @@ class AwardsViewController: UIViewController, UICollectionViewDataSource, UIColl
         if badge.isUnlocked {
             popupDetailLabel.text = definition.detail
             popupDateLabel.text   = "Earned on \(badge.dateEarned ?? "")"
-            popupProgressLabel.text = "Completed!"
+            popupProgressLabel.text = "Completed! 🌟"
         } else {
             popupDetailLabel.text = getLockedDescription(for: definition)
-            popupDateLabel.text   = "Not yet unlocked"
+            popupDateLabel.text   = "Still working on it!"
             popupProgressLabel.text = "\(badge.progressValue) / \(badge.targetValue)"
         }
         
@@ -315,16 +315,16 @@ class AwardsViewController: UIViewController, UICollectionViewDataSource, UIColl
         switch definition.category {
         case .exerciseMilestone:
             let plural = definition.targetValue == 1 ? "exercise" : "exercises"
-            return "Complete \(definition.targetValue) \(plural) to unlock this badge."
+            return "Complete \(definition.targetValue) \(plural) to earn this badge!"
         case .testMilestone:
             let plural = definition.targetValue == 1 ? "test" : "tests"
-            return "Complete \(definition.targetValue) eye \(plural) to unlock this badge."
+            return "Complete \(definition.targetValue) eye \(plural) to earn this badge!"
         case .exerciseScore:
-            return "Maintain an average exercise accuracy of \(definition.targetValue)% or higher to unlock this badge."
+            return "Reach an average exercise accuracy of \(definition.targetValue)% or higher to earn this badge!"
         case .testScore:
-            return "Achieve a score of \(definition.targetValue) or higher on the Landolt C-Test to unlock this badge."
+            return "Score \(definition.targetValue) or higher on the Landolt C-Test to earn this badge!"
         case .streak:
-            return "Maintain a daily exercise streak of \(definition.targetValue) days to unlock this badge."
+            return "Keep your daily exercise streak going for \(definition.targetValue) days to earn this badge!"
         }
     }
 

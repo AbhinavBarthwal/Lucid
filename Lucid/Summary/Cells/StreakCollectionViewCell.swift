@@ -147,20 +147,20 @@ class StreakCollectionViewCell: UICollectionViewCell {
         let streakText = "\(display.value) \(display.unit.lowercased())"
         
         if todayCompleted {
-            return "You completed today's goal!"
+            return "Yay, you completed today's goal! Luc is super proud of you!"
         } else {
             if streak == 0 {
                 let incompletePhrases = [
                     "Let's make Luc happy by starting your daily streak!",
-                    "Luc is waiting for you to start your daily exercise streak today.",
+                    "Luc is excited to help you start your daily streak today!",
                     "Keep Luc smiling! A quick session will start your streak.",
-                    "Start an exercise now and make Luc proud."
+                    "Let's do a quick exercise to make Luc proud!"
                 ]
                 return incompletePhrases.randomElement() ?? "Let's do some exercises!"
             } else {
                 let incompletePhrases = [
                     "Keep your \(streakText) streak going! Luc is waiting for you.",
-                    "Don't let Luc down! Train your eyes to maintain your \(streakText) streak.",
+                    "Luc is rooting for you! A quick session will keep your \(streakText) streak going strong.",
                     "Keep Luc smiling! Complete an exercise to protect your \(streakText) streak.",
                     "A quick session is all it takes to keep your \(streakText) streak alive."
                 ]

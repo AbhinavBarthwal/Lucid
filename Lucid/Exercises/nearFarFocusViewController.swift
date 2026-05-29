@@ -26,6 +26,18 @@ class NearFarFocusViewController: UIViewController {
     private let totalRounds = 10
     private let speechSynthesizer = AVSpeechSynthesizer()
     
+    // Navigation/Skip buttons for instructions
+    private var instructionNextButton: UIButton?
+    private var instructionPrevButton: UIButton?
+    private var currentInstructionIndex = 0
+
+    private let exerciseInstructions: [InstructionStep] = [
+        InstructionStep(message: "3", duration: 1.0),
+        InstructionStep(message: "2", duration: 1.0),
+        InstructionStep(message: "1", duration: 1.0),
+        InstructionStep(message: "Alternate focusing on the screen and looking away.\nFollow the audio and visual cues.", duration: 4.0)
+    ]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupInitialUI()
@@ -38,7 +50,8 @@ class NearFarFocusViewController: UIViewController {
             print("Audio Session error: \(error)")
         }
         
-        startInitialCountdown()
+        setupInstructionButtons()
+        runInstructionSequence(index: 0)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -98,36 +111,144 @@ class NearFarFocusViewController: UIViewController {
         }
     }
     
-    private func startInitialCountdown() {
-        currentPhase = .none
-        secondsRemaining = 5
-        centerMessageLabel.text = "\(secondsRemaining)"
+    private func runInstructionSequence(index: Int) {
+        guard isExerciseActive, isInstructionPhase else { return }
+        currentInstructionIndex = index
+        let isFirstRun = InstructionTracker.isFirstRun(for: "NearFar")
         
-        instructionLabel.textColor = .lightGray
-        instructionLabel.text = "Alternate focusing on the screen and looking away.\nFollow the audio and visual cues."
-        UIView.animate(withDuration: 0.5) {
-            self.instructionLabel.alpha = 1.0
-        }
-        
-        phaseTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
-            guard let self = self, self.isExerciseActive, self.isInstructionPhase else {
-                timer.invalidate()
-                return
-            }
-            self.secondsRemaining -= 1
+        if index < exerciseInstructions.count {
+            let step = exerciseInstructions[index]
+            let isCountdown = Int(step.message) != nil
             
-            if self.secondsRemaining > 0 {
-                self.centerMessageLabel.text = "\(self.secondsRemaining)"
+            if isCountdown {
+                instructionNextButton?.isHidden = true
+                instructionPrevButton?.isHidden = true
             } else {
-                timer.invalidate()
-                self.fadeTransition(showCenterMessage: false, showExerciseUI: false) {
-                    guard self.isExerciseActive, self.isInstructionPhase else { return }
-                    self.sessionStartTime = Date()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-                        guard let self = self, self.isExerciseActive else { return }
-                        self.startNearFocusPhase()
+                if isFirstRun {
+                    instructionNextButton?.isHidden = false
+                    let canGoBack = index > 0 && Int(exerciseInstructions[index - 1].message) == nil
+                    instructionPrevButton?.isHidden = !canGoBack
+                    
+                    let isLastStep = (index == exerciseInstructions.count - 1)
+                    instructionNextButton?.setTitle(isLastStep ? "Start Exercise" : "Next", for: .normal)
+                } else {
+                    instructionNextButton?.isHidden = false
+                    instructionPrevButton?.isHidden = true
+                    instructionNextButton?.setTitle("Skip", for: .normal)
+                }
+            }
+            
+            UIView.animate(withDuration: 0.4, animations: {
+                self.centerMessageLabel.alpha = 0
+            }) { _ in
+                guard self.isExerciseActive, self.isInstructionPhase else { return }
+                self.centerMessageLabel.text = step.message
+                
+                self.instructionLabel.textColor = .lightGray
+                self.instructionLabel.text = "Alternate focusing on the screen and looking away.\nFollow the audio and visual cues."
+                
+                UIView.animate(withDuration: 0.4, animations: {
+                    self.centerMessageLabel.alpha = 1
+                    self.instructionLabel.alpha = 1.0
+                }) { _ in
+                    if isCountdown || !isFirstRun {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self] in
+                            guard let self = self, self.isExerciseActive, self.isInstructionPhase, self.currentInstructionIndex == index else { return }
+                            self.runInstructionSequence(index: index + 1)
+                        }
                     }
                 }
+            }
+        } else {
+            finishInstructionsAndStartExercise()
+        }
+    }
+
+    private func setupInstructionButtons() {
+        let isFirstRun = InstructionTracker.isFirstRun(for: "NearFar")
+        
+        let nextBtn = UIButton(type: .system)
+        nextBtn.translatesAutoresizingMaskIntoConstraints = false
+        nextBtn.layer.cornerRadius = 14
+        nextBtn.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        nextBtn.setTitleColor(.white, for: .normal)
+        nextBtn.backgroundColor = UIColor(named: "AccentColor") ?? .systemOrange
+        view.addSubview(nextBtn)
+        self.instructionNextButton = nextBtn
+        nextBtn.addTarget(self, action: #selector(instructionNextTapped), for: .touchUpInside)
+        
+        if isFirstRun {
+            nextBtn.setTitle("Next", for: .normal)
+            
+            let prevBtn = UIButton(type: .system)
+            prevBtn.translatesAutoresizingMaskIntoConstraints = false
+            prevBtn.layer.cornerRadius = 14
+            prevBtn.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+            prevBtn.setTitleColor(.white, for: .normal)
+            prevBtn.backgroundColor = .clear
+            prevBtn.layer.borderWidth = 1
+            prevBtn.layer.borderColor = UIColor.white.withAlphaComponent(0.3).cgColor
+            prevBtn.setTitle("Previous", for: .normal)
+            view.addSubview(prevBtn)
+            self.instructionPrevButton = prevBtn
+            prevBtn.addTarget(self, action: #selector(instructionPrevTapped), for: .touchUpInside)
+            
+            NSLayoutConstraint.activate([
+                nextBtn.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+                nextBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+                nextBtn.bottomAnchor.constraint(equalTo: prevBtn.topAnchor, constant: -12),
+                nextBtn.heightAnchor.constraint(equalToConstant: 50),
+                
+                prevBtn.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+                prevBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+                prevBtn.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+                prevBtn.heightAnchor.constraint(equalToConstant: 50)
+            ])
+            
+            prevBtn.isHidden = true // Hidden initially for step 0
+        } else {
+            nextBtn.setTitle("Skip", for: .normal)
+            
+            NSLayoutConstraint.activate([
+                nextBtn.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+                nextBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+                nextBtn.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+                nextBtn.heightAnchor.constraint(equalToConstant: 50)
+            ])
+        }
+    }
+    
+    @objc private func instructionNextTapped() {
+        if InstructionTracker.isFirstRun(for: "NearFar") {
+            runInstructionSequence(index: currentInstructionIndex + 1)
+        } else {
+            finishInstructionsAndStartExercise()
+        }
+    }
+    
+    @objc private func instructionPrevTapped() {
+        if InstructionTracker.isFirstRun(for: "NearFar") && currentInstructionIndex > 0 {
+            runInstructionSequence(index: currentInstructionIndex - 1)
+        }
+    }
+    
+    private func finishInstructionsAndStartExercise() {
+        InstructionTracker.markAsCompleted(for: "NearFar")
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            self.instructionNextButton?.alpha = 0
+            self.instructionPrevButton?.alpha = 0
+        }) { _ in
+            self.instructionNextButton?.removeFromSuperview()
+            self.instructionPrevButton?.removeFromSuperview()
+        }
+        
+        fadeTransition(showCenterMessage: false, showExerciseUI: false) { [weak self] in
+            guard let self = self, self.isExerciseActive else { return }
+            self.sessionStartTime = Date()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                guard let self = self, self.isExerciseActive else { return }
+                self.startNearFocusPhase()
             }
         }
     }

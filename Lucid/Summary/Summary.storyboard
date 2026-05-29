@@ -27,7 +27,7 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="lRG-Ff-5hb">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="BadgeCell" id="lRG-Ff-5hb">
                                         <rect key="frame" x="0.0" y="0.0" width="127.99999999999997" height="128"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="4HN-7e-sXz">
@@ -164,7 +164,7 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Awards" id="is1-IH-ZNV">
-                        <barButtonItem key="leftBarButtonItem" image="chevron.left" catalog="system" style="plain" id="1pk-HF-VTZ">
+                        <barButtonItem key="leftBarButtonItem" image="chevron.left" catalog="system" style="done" id="1pk-HF-VTZ">
                             <connections>
                                 <action selector="backButtonTapped:" destination="uwp-Em-gGn" id="JKj-7E-TfX"/>
                             </connections>
@@ -193,7 +193,7 @@
         <!--Navigation Controller-->
         <scene sceneID="Ng9-tE-sBK">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="YjK-HN-JKj" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="ReportNavigationController" automaticallyAdjustsScrollViewInsets="NO" id="YjK-HN-JKj" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="COh-0E-Ymh">
                         <rect key="frame" x="0.0" y="118" width="393" height="106"/>
@@ -211,7 +211,7 @@
         <!--Navigation Controller-->
         <scene sceneID="byO-7o-WPV">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="ANK-1d-JXP" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="AwardsNavigationController" automaticallyAdjustsScrollViewInsets="NO" id="ANK-1d-JXP" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationItem key="navigationItem" id="kja-we-Q3R"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="WQd-1W-vxd">
@@ -245,7 +245,7 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="6da-gy-44R">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="ReportCell" id="6da-gy-44R">
                                         <rect key="frame" x="0.0" y="0.0" width="127.99999999999997" height="128"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="ECE-b0-lYu">
@@ -268,7 +268,7 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Performace Report" id="fcm-kz-ulH">
-                        <barButtonItem key="leftBarButtonItem" image="chevron.left" catalog="system" style="plain" id="aL3-Ne-l0W">
+                        <barButtonItem key="leftBarButtonItem" image="chevron.left" catalog="system" style="done" id="aL3-Ne-l0W">
                             <connections>
                                 <action selector="backButtonTapped:" destination="lGT-Pd-HSE" id="XMv-76-tA6"/>
                             </connections>

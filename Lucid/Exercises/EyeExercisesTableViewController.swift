@@ -141,8 +141,7 @@ class ExerciseCollectionViewController: UICollectionViewController {
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if let destinationVC = segue.destination as? UIViewController {
-            destinationVC.hidesBottomBarWhenPushed = true
-        }
+        let destinationVC = segue.destination
+        destinationVC.hidesBottomBarWhenPushed = true
     }
 }

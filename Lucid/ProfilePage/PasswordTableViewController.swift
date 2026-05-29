@@ -19,23 +19,23 @@ class PasswordTableViewController: UITableViewController {
         let confirmPassword = confirmPasswordField.text ?? ""
 
         if oldPassword.isEmpty || newPassword.isEmpty || confirmPassword.isEmpty {
-            showAlert(message: "All fields are required")
+            showAlert(message: "Please fill in all the password fields to continue!")
             return
         }
 
         if newPassword.count < 8 {
-            showAlert(message: "Password must be at least 8 characters")
+            showAlert(message: "Let's make sure your new password is at least 8 characters long for safety.")
             return
         }
 
         if newPassword != confirmPassword {
-            showAlert(message: "Passwords do not match")
+            showAlert(message: "Oops, the passwords you typed don't match. Could you check them again?")
             return
         }
 
         let savedPassword = user.password ?? user.email.flatMap { CredentialStore.shared.password(for: $0) } ?? ""
         if !savedPassword.isEmpty, savedPassword != oldPassword {
-            showAlert(message: "Old password is incorrect")
+            showAlert(message: "The old password you entered doesn't seem to match our records. Please try again!")
             return
         }
 
@@ -49,16 +49,16 @@ class PasswordTableViewController: UITableViewController {
             Task {
                 await SupabaseManager.shared.syncUser(user)
             }
-            showAlert(message: "Password changed successfully.")
+            showAlert(message: "All done! Your password has been successfully updated.")
         } catch {
-            showAlert(message: "Could not save your new password right now.")
+            showAlert(message: "We ran into a little trouble updating your password. Please try again in a moment!")
         }
     }
 
 
     func showAlert(message: String) {
-        let alert = UIAlertController(title: "Notice", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        let alert = UIAlertController(title: "Just a heads up", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Got it!", style: .default))
         present(alert, animated: true)
     }
 }

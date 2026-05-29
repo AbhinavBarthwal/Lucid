@@ -120,13 +120,13 @@ class ProfilePageTableViewController: UITableViewController {
     private func showAboutUsPopup() {
         let title = "About Lucid"
         let message = """
-        Lucid is your premium companion for visual comfort and eye wellness in the digital age.
+        Welcome to Lucid, your cozy companion for happy, healthy eyes in our digital world!
 
-        • What it does:
-        Lucid helps you combat digital eye strain (asthenopia) through clinically-designed exercises and assessments.
+        • What we do together:
+        We help you soothe and protect your eyes from digital strain using fun, scientifically-designed exercises and check-ups.
 
-        • How it helps:
-        With specialized workouts like Near Far Focus, Saccadic Jumps, and Blink Training, it improves focus flexibility, reduces dryness, and trains eye teaming coordination. Regular tracking with OSDI and Landolt C tests helps monitor and improve your overall eye health.
+        • How we support you:
+        Through simple, relaxing exercises like Near Far Focus, Saccadic Jumps, and Blink Training, we'll work on building focus, keeping your eyes refreshed, and improving how your eyes work together. With easy check-ups like the OSDI survey and Landolt C tests, you can watch your eye wellness bloom!
         """
         
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
@@ -137,36 +137,36 @@ class ProfilePageTableViewController: UITableViewController {
     private func showHelpPopup() {
         let title = "Support & Help"
         let message = """
-        Need assistance, want to submit feedback, or have questions?
+        Got questions, ideas, or just want to say hi? We'd love to hear from you!
 
-        You can reach our support team directly at:
+        Feel free to reach out to us anytime:
         • abhinavbarthwal212@gmail.com
         • mekanishkaBansal@gmail.com
         """
         
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         
-        alert.addAction(UIAlertAction(title: "Copy Email 1", style: .default) { _ in
+        alert.addAction(UIAlertAction(title: "Copy Abhinav's Email", style: .default) { _ in
             UIPasteboard.general.string = "abhinavbarthwal212@gmail.com"
-            let copyAlert = UIAlertController(title: "Copied!", message: "Email copied to clipboard.", preferredStyle: .alert)
-            copyAlert.addAction(UIAlertAction(title: "OK", style: .default))
+            let copyAlert = UIAlertController(title: "Copied!", message: "We've copied that email address for you! Ready to paste.", preferredStyle: .alert)
+            copyAlert.addAction(UIAlertAction(title: "Got it!", style: .default))
             self.present(copyAlert, animated: true)
         })
         
-        alert.addAction(UIAlertAction(title: "Copy Email 2", style: .default) { _ in
+        alert.addAction(UIAlertAction(title: "Copy Kanishka's Email", style: .default) { _ in
             UIPasteboard.general.string = "mekanishkaBansal@gmail.com"
-            let copyAlert = UIAlertController(title: "Copied!", message: "Email copied to clipboard.", preferredStyle: .alert)
-            copyAlert.addAction(UIAlertAction(title: "OK", style: .default))
+            let copyAlert = UIAlertController(title: "Copied!", message: "We've copied that email address for you! Ready to paste.", preferredStyle: .alert)
+            copyAlert.addAction(UIAlertAction(title: "Got it!", style: .default))
             self.present(copyAlert, animated: true)
         })
         
-        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Close", style: .cancel, handler: nil))
         
         present(alert, animated: true)
     }
     
     private func shareReport() {
-        let alert = UIAlertController(title: nil, message: "Generating Report...", preferredStyle: .alert)
+        let alert = UIAlertController(title: nil, message: "Creating your personalized report... almost ready!", preferredStyle: .alert)
         let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.style = .medium
@@ -179,7 +179,11 @@ class ProfilePageTableViewController: UITableViewController {
                 alert.dismiss(animated: true) {
                     guard let self = self else { return }
                     guard let fileURL = fileURL else {
-                        let errorAlert = UIAlertController(title: "Error", message: "Failed to generate report PDF.", preferredStyle: .alert)
+                        let errorAlert = UIAlertController(
+                            title: "Oops!",
+                            message: "We couldn't generate your report PDF just now. Let's try again in a moment!",
+                            preferredStyle: .alert
+                        )
                         errorAlert.addAction(UIAlertAction(title: "OK", style: .default))
                         self.present(errorAlert, animated: true)
                         return

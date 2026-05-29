@@ -22,15 +22,15 @@ struct CTestEyeResult {
         switch clampedScore {
         case 5...6:
             statusText = "Excellent"
-            insightText = "Strong response today."
+            insightText = "Your eyes are doing wonderful today! Keep it up."
             tintColor = .cTestPositive
         case 3...4:
             statusText = "Good"
-            insightText = "Steady, with room to improve."
+            insightText = "Nice and steady! You're doing great, and we can keep building on this."
             tintColor = .cTestOrange
         default:
-            statusText = "Needs Follow-Up"
-            insightText = "Had trouble with smaller targets."
+            statusText = "Room to Grow"
+            insightText = "A little tricky with the smaller shapes today. That's okay, we can practice!"
             tintColor = .cTestWarning
         }
 
@@ -231,8 +231,8 @@ final class CTestResultPageCollectionViewController: UICollectionViewController 
         if difference >= 2 {
             items.append(
                 CTestWisdomItem(
-                    title: "Support \(weakerEye)",
-                    body: "Use Focus Shift to help the weaker eye improve coordination."
+                    title: "Give \(weakerEye) some love",
+                    body: "A few focus shifts can help both eyes work perfectly together."
                 )
             )
         }
@@ -243,14 +243,14 @@ final class CTestResultPageCollectionViewController: UICollectionViewController 
             items.append(
                 CTestWisdomItem(
                     title: "Saccadic Jumps",
-                    body: "Improves reaction speed and directional accuracy."
+                    body: "This helps speed up your reaction time and sharpen your focus."
                 )
             )
 
             items.append(
                 CTestWisdomItem(
                     title: "Focus Shift",
-                    body: "Helps your eyes switch focus quickly between distances."
+                    body: "Perfect for training your eyes to adjust to different distances."
                 )
             )
 
@@ -259,14 +259,14 @@ final class CTestResultPageCollectionViewController: UICollectionViewController 
             items.append(
                 CTestWisdomItem(
                     title: "Smooth Pursuits",
-                    body: "Improves tracking control and stability."
+                    body: "Great for helping your eyes follow movements smoothly and comfortably."
                 )
             )
 
             items.append(
                 CTestWisdomItem(
                     title: "Blink Training",
-                    body: "Reduces strain and keeps vision clear during use."
+                    body: "Helps refresh your eyes and keep them feeling comfortable."
                 )
             )
 
@@ -275,14 +275,14 @@ final class CTestResultPageCollectionViewController: UICollectionViewController 
             items.append(
                 CTestWisdomItem(
                     title: "Figure Eight",
-                    body: "Enhances coordination and fine control."
+                    body: "A fun way to boost eye flexibility and coordination."
                 )
             )
 
             items.append(
                 CTestWisdomItem(
                     title: "Peripheral Awareness",
-                    body: "Improves awareness beyond central vision."
+                    body: "Helps relax your eyes and notice more around you."
                 )
             )
         }
@@ -292,14 +292,14 @@ final class CTestResultPageCollectionViewController: UICollectionViewController 
             items.append(
                 CTestWisdomItem(
                     title: "Digital Break",
-                    body: "Take short breaks to reduce visual fatigue and recover performance."
+                    body: "Remember to take short, cozy screen breaks to let your eyes rest."
                 )
             )
         } else if trend != nil {
             items.append(
                 CTestWisdomItem(
                     title: "Stay Consistent",
-                    body: "Continue your current exercises to maintain progress."
+                    body: "Keep up the fantastic daily routine to keep your eyes happy!"
                 )
             )
         }
@@ -455,7 +455,7 @@ private final class CTestHeroCell: CTestBaseCardCell {
         captionLabel.translatesAutoresizingMaskIntoConstraints = false
         captionLabel.font = .systemFont(ofSize: 13, weight: .semibold)
         captionLabel.textColor = UIColor.white.withAlphaComponent(0.56)
-        captionLabel.text = "AVERAGE C TEST SCORE"
+        captionLabel.text = "Your average C Test score"
         captionLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         infoButton.setContentHuggingPriority(.required, for: .horizontal)
 
@@ -540,17 +540,17 @@ private final class CTestHeroCell: CTestBaseCardCell {
         case 3..<5:
             return ("Steady Visual Performance", .cTestOrange)
         default:
-            return ("Needs More Attention", .cTestWarning)
+            return ("Let's Practice Together", .cTestWarning)
         }
     }
 
     private func heroInsight(left: CTestEyeResult, right: CTestEyeResult) -> String {
         if left.rawScore == right.rawScore {
-            return "Both eyes performed evenly today."
+            return "Both eyes did equally well today!"
         }
 
         let strongerEye = left.rawScore > right.rawScore ? left.eyeTitle : right.eyeTitle
-        return "\(strongerEye) scored higher today."
+        return "\(strongerEye) was a bit sharper today!"
     }
 
     @objc private func infoTapped() {
@@ -711,8 +711,7 @@ private final class CTestComparisonCell: CTestBaseCardCell {
     }
 
     private func configureSubviews() {
-        title.text = "AVERAGE RESULT"
-        title.text = "PREVIOUS SCORE"
+        title.text = "YOUR LAST SCORE"
         title.textColor = .cTestOrange
         title.font = .systemFont(ofSize: 12, weight: .semibold)
 
@@ -746,10 +745,10 @@ private final class CTestComparisonCell: CTestBaseCardCell {
         let delta = currentAverage - previousAverage
         let direction = delta > 0 ? "higher" : delta < 0 ? "lower" : "unchanged"
         let differenceText = delta == 0
-            ? "Current average is unchanged from your previous saved C Test."
-            : String(format: "Current average is %.1f points %@ than your previous saved C Test.", abs(delta), direction)
+            ? "Your current average is unchanged from your last saved C Test."
+            : String(format: "Your current average is %.1f points %@ than your last saved C Test.", abs(delta), direction)
         result.text = viewModel.previousText
-        subtitle.text = "\(viewModel.subtitleText). \(differenceText)"
+        subtitle.text = "Your previous score. \(differenceText)"
     }
 }
 
@@ -771,7 +770,7 @@ private final class CTestWisdomCell: CTestBaseCardCell {
 
     private func configureSubviews() {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.text = "RECOMMENDATIONS FOR YOUR EYES"
+        titleLabel.text = "YOUR CUSTOM RECOMMENDATIONS"
         titleLabel.font = .systemFont(ofSize: 12, weight: .semibold)
         titleLabel.textColor = .cTestOrange
         titleLabel.numberOfLines = 0

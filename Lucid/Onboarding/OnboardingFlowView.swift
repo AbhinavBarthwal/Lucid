@@ -292,7 +292,7 @@ struct OnboardingFlowView: View {
         if step == .email {
             if !isValidEmail(draft.normalizedEmail) {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                    validationMessage = "Enter a valid email address."
+                    validationMessage = "Please enter a valid email address."
                 }
                 return
             }
@@ -320,7 +320,7 @@ struct OnboardingFlowView: View {
             case .present:
                 if draft.password.isEmpty {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                        validationMessage = "Password is required."
+                        validationMessage = "Please enter your password to continue."
                     }
                     return
                 }
@@ -340,7 +340,7 @@ struct OnboardingFlowView: View {
                     } else {
                         withAnimation {
                             didSubmit = false
-                            validationMessage = "Incorrect email or password."
+                            validationMessage = "Oops! That email or password doesn't match our records. Could you try again?"
                         }
                     }
                 }
@@ -348,19 +348,19 @@ struct OnboardingFlowView: View {
             case .notPresent:
                 if draft.password.count < 8 {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                        validationMessage = "Password must be at least 8 characters."
+                        validationMessage = "Let's make sure your password is at least 8 characters long to keep your account secure."
                     }
                     return
                 }
                 if draft.confirmPassword.isEmpty {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                        validationMessage = "Confirm your password to continue."
+                        validationMessage = "Please confirm your password to continue."
                     }
                     return
                 }
                 if draft.password != draft.confirmPassword {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                        validationMessage = "Passwords do not match."
+                        validationMessage = "Oops! The passwords you typed don't match. Could you check them again?"
                     }
                     return
                 }
@@ -418,7 +418,11 @@ struct OnboardingFlowView: View {
             return nil
         case .personal:
             if draft.trimmedName.isEmpty {
-                return "Enter your name to continue."
+                return "We'd love to know your name! Please enter it to continue."
+            }
+            let tenYearsAgo = Calendar.current.date(byAdding: .year, value: -10, to: Date()) ?? Date()
+            if draft.dateOfBirth > tenYearsAgo {
+                return "Lucid is designed for ages 10 and up. We look forward to welcoming you soon!"
             }
         case .eyePower:
             return nil
@@ -492,7 +496,7 @@ struct OnboardingFlowView: View {
             } else {
                 await MainActor.run {
                     didSubmit = false
-                    validationMessage = "Could not retrieve email from Apple. Please sign up manually."
+                    validationMessage = "We couldn't get your email from Apple. No worries, let's try signing up manually!"
                 }
             }
         }
@@ -505,12 +509,12 @@ struct OnboardingLoadingOverlay: View {
     @State private var statusIndex = 0
     
     let statuses = [
-        "Verifying credentials...",
-        "Connecting to secure database...",
-        "Retrieving clinical parameters...",
-        "Analyzing dry-eye history...",
-        "Customizing daily goals...",
-        "Finalizing settings..."
+        "Verifying your details...",
+        "Connecting to our secure database...",
+        "Getting your personalized setup ready...",
+        "Looking at your dry-eye history...",
+        "Creating custom goals just for you...",
+        "Putting on the finishing touches..."
     ]
     
     let timer = Timer.publish(every: 1.5, on: .main, in: .common).autoconnect()
@@ -617,7 +621,7 @@ private struct LandingStep: View {
                         .foregroundStyle(.white)
                         .tracking(4)
                     
-                    Text("Fixing digital eye strain")
+                    Text("Soothing digital eye strain")
                         .font(.subheadline)
                         .foregroundStyle(Color.white.opacity(0.70))
                         .multilineTextAlignment(.center)
@@ -671,7 +675,7 @@ private struct LandingStep: View {
                 }
                 .padding(.horizontal, 16)
                 
-                Text("By continuing, you agree to Lucid's Terms & Privacy Policy")
+                Text("By continuing, you're agreeing to Lucid's Terms & Privacy Policy")
                     .font(.caption2)
                     .foregroundStyle(.white.opacity(0.4))
                     .multilineTextAlignment(.center)
@@ -829,22 +833,22 @@ private struct EmailLoginStep: View {
     private var instructionText: String {
         switch emailStatus {
         case .unchecked:
-            return "Hey! Enter your email and then we'll check it. If present, we'll ask for your password, else you can create an account."
+            return "Let's start with your email! We'll check if you have an account or help you make a new one."
         case .checking:
-            return "Checking..."
+            return "Checking for your account..."
         case .present:
-            return "Account found! Enter your password to sign in."
+            return "Welcome back! Please enter your password to sign in."
         case .notPresent:
-            return "No account found. Create a password to sign up!"
+            return "Create a safe password to set up your new account!"
         }
     }
 
     private var helperCopy: String {
         switch emailStatus {
         case .notPresent:
-            return "Your passwords are stored locally and synced via secure cloud endpoints."
+            return "Your passwords are safe, stored locally, and securely synced."
         case .present:
-            return "Enter credentials to fetch account status and test history."
+            return "Enter your details to load your previous test history."
         default:
             return ""
         }
@@ -913,7 +917,7 @@ private struct PersonalDetailsStep: View {
                     DatePicker(
                         "",
                         selection: $dateOfBirth,
-                        in: ...Date(),
+                        in: ...(Calendar.current.date(byAdding: .year, value: -10, to: Date()) ?? Date()),
                         displayedComponents: .date
                     )
                     .datePickerStyle(.compact)
@@ -934,7 +938,7 @@ private struct PersonalDetailsStep: View {
 
             // Gender Selector
             VStack(alignment: .leading, spacing: 10) {
-                fieldTitle("Gender")
+                fieldTitle("Gender   ( optional )")
                 
                 FlowLayout(tags: genderOptions) { option in
                     Text(option)
@@ -973,12 +977,31 @@ private struct EyePowerStep: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Adjust your eye power settings.")
+            Text("Adjust your eye power settings, or tell us if you're not sure.")
                 .font(.subheadline)
                 .foregroundStyle(Color.white.opacity(0.60))
 
             powerCard(title: "Left Eye", value: $left)
             powerCard(title: "Right Eye", value: $right)
+
+            Button(action: {
+                withAnimation {
+                    left = 0.0
+                    right = 0.0
+                }
+            }) {
+                HStack(spacing: 10) {
+                    Image(systemName: (left == 0.0 && right == 0.0) ? "checkmark.circle.fill" : "circle")
+                        .font(.system(size: 20))
+                        .foregroundStyle((left == 0.0 && right == 0.0) ? Color.accentColor : Color.white.opacity(0.4))
+                    Text("I don't know my eye power")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(Color.white.opacity(0.8))
+                }
+                .padding(.vertical, 8)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
         }
         .padding(.top, 10)
     }
@@ -1044,7 +1067,7 @@ private struct ConditionsStep: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Select any conditions that apply to you.")
+                Text("Select any conditions that apply to you so we can customize your care.")
                     .font(.subheadline)
                     .foregroundStyle(Color.white.opacity(0.60))
 

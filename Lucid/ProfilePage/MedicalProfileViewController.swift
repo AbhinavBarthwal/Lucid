@@ -138,6 +138,18 @@ class MedicalProfileViewController: UITableViewController {
     private func saveData(name: String, dob: Date, gender: String, left: Double, right: Double, conditions: [String]) {
         guard let user = user else { return }
         
+        let tenYearsAgo = Calendar.current.date(byAdding: .year, value: -10, to: Date()) ?? Date()
+        if dob > tenYearsAgo {
+            let alert = UIAlertController(
+                title: "Just a heads up",
+                message: "Lucid is designed for ages 10 and older. We look forward to welcoming you soon!",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "Got it!", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
         user.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
         user.dateOfBirth = dob
         user.age = Self.computeAge(from: dob)
@@ -151,7 +163,7 @@ class MedicalProfileViewController: UITableViewController {
             Task {
                 await SupabaseManager.shared.syncUser(user)
             }
-            let alert = UIAlertController(title: "Saved", message: nil, preferredStyle: .alert)
+            let alert = UIAlertController(title: "All saved!", message: nil, preferredStyle: .alert)
             present(alert, animated: true)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in
                 alert.dismiss(animated: true) {
@@ -159,7 +171,11 @@ class MedicalProfileViewController: UITableViewController {
                 }
             }
         } catch {
-            let alert = UIAlertController(title: "Couldn’t Save", message: error.localizedDescription, preferredStyle: .alert)
+            let alert = UIAlertController(
+                title: "Couldn't save changes",
+                message: "We ran into a little trouble saving your changes. Let's try again in a bit.",
+                preferredStyle: .alert
+            )
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert, animated: true)
         }

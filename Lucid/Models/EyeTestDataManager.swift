@@ -5,7 +5,6 @@ class EyeTestDataManager {
     static let shared = EyeTestDataManager()
     
     func saveEyeTestScore(score: Double, eye: String) {
-        let user = SwiftDataManager.shared.getOrCreateUser()
         let newSession = CTestSession(score: score, eye: eye)
         SwiftDataManager.shared.context.insert(newSession)
         

@@ -70,11 +70,6 @@
 			path = LucidwidgetExtension;
 			sourceTree = "<group>";
 		};
-		B5F2783F2FC29B24009CBA11 /* LucidDeviceActivityMonitorExtension */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = LucidDeviceActivityMonitorExtension;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,7 +95,6 @@
 			children = (
 				ADCBCE9C2F14ACAD008D4CCE /* Lucid */,
 				B5F278222FC29AF9009CBA11 /* LucidwidgetExtension */,
-				B5F2783F2FC29B24009CBA11 /* LucidDeviceActivityMonitorExtension */,
 				B5F2781D2FC29AF9009CBA11 /* Frameworks */,
 				ADCBCE9B2F14ACAD008D4CCE /* Products */,
 			);

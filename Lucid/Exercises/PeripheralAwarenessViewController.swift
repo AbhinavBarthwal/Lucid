@@ -8,6 +8,10 @@
 import UIKit
 import ARKit
 
+private enum PeripheralAwarenessExercisePhase {
+    case none, tracking
+}
+
 class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CAAnimationDelegate {
 
     @IBOutlet weak var instructionLabel: UILabel!
@@ -23,14 +27,25 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
 
     override var prefersStatusBarHidden: Bool { return true }
     
-    private enum ExercisePhase {
-        case none, tracking
-    }
-    private var currentPhase: ExercisePhase = .none
+    private var currentPhase: PeripheralAwarenessExercisePhase = .none
     
     private var gazeTimer: Timer?
     private var countdownRemaining = 0
     private var isAnimationPaused = false
+    
+    // Navigation/Skip buttons for instructions
+    private var instructionNextButton: UIButton?
+    private var instructionPrevButton: UIButton?
+    private var currentInstructionIndex = 0
+
+    private let exerciseInstructions: [InstructionStep] = [
+        InstructionStep(message: "3", duration: 1.0),
+        InstructionStep(message: "2", duration: 1.0),
+        InstructionStep(message: "1", duration: 1.0),
+        InstructionStep(message: "Keep your phone at\narm's length", duration: 3.0),
+        InstructionStep(message: "Focus on the yellow dot,\nkeeping the white dot in your vision", duration: 4.0),
+        InstructionStep(message: "Try to keep the white\ndot in check", duration: 3.0)
+    ]
     
     private var currentLoopIndex = 0
     private let totalLoops = 5
@@ -43,7 +58,8 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         setupInitialUI()
         errorHapticGenerator.prepare()
         successHapticGenerator.prepare()
-        startInitialCountdown()
+        setupInstructionButtons()
+        runInstructionSequence(index: 0)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -111,55 +127,193 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         }
     }
     
-    private func startInitialCountdown() {
-        currentPhase = .none
-        countdownRemaining = 5
-        centerMessageLabel.text = "\(countdownRemaining)"
+    private func runInstructionSequence(index: Int) {
+        guard isExerciseActive, currentPhase == .none else { return }
+        currentInstructionIndex = index
+        let isFirstRun = InstructionTracker.isFirstRun(for: "PeripheralAwareness")
         
-        gazeTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] timer in
-            guard let self = self, self.isExerciseActive, self.currentPhase == .none else {
-                timer.invalidate()
-                return
-            }
-            self.countdownRemaining -= 1
+        if index < exerciseInstructions.count {
+            let step = exerciseInstructions[index]
+            let isCountdown = Int(step.message) != nil
             
-            if self.countdownRemaining > 0 {
-                self.centerMessageLabel.text = "\(self.countdownRemaining)"
+            if isCountdown {
+                instructionNextButton?.isHidden = true
+                instructionPrevButton?.isHidden = true
             } else {
-                timer.invalidate()
-                self.fadeTransition(showCenterMessage: false, showDots: false) {
-                    guard self.isExerciseActive, self.currentPhase == .none else { return }
-                    self.showPreparationSequence()
+                if isFirstRun {
+                    instructionNextButton?.isHidden = false
+                    let canGoBack = index > 0 && Int(exerciseInstructions[index - 1].message) == nil
+                    instructionPrevButton?.isHidden = !canGoBack
+                    
+                    let isLastStep = (index == exerciseInstructions.count - 1)
+                    instructionNextButton?.setTitle(isLastStep ? "Start Exercise" : "Next", for: .normal)
+                } else {
+                    instructionNextButton?.isHidden = false
+                    instructionPrevButton?.isHidden = true
+                    instructionNextButton?.setTitle("Skip", for: .normal)
                 }
             }
+            
+            if index < 3 {
+                UIView.animate(withDuration: 0.4, animations: {
+                    self.centerMessageLabel.alpha = 0
+                    self.instructionLabel.alpha = 0
+                    self.centerDotView.alpha = 0
+                    self.peripheralDotView.alpha = 0
+                }) { _ in
+                    guard self.isExerciseActive, self.currentPhase == .none else { return }
+                    self.centerMessageLabel.text = step.message
+                    UIView.animate(withDuration: 0.4, animations: {
+                        self.centerMessageLabel.alpha = 1
+                    }) { _ in
+                        self.autoAdvanceIfRequired(index: index, duration: step.duration, isCountdown: true)
+                    }
+                }
+            } else if index == 3 {
+                UIView.animate(withDuration: 0.4, animations: {
+                    self.centerMessageLabel.alpha = 0
+                    self.instructionLabel.alpha = 0
+                    self.centerDotView.alpha = 0
+                    self.peripheralDotView.alpha = 0
+                }) { _ in
+                    guard self.isExerciseActive, self.currentPhase == .none else { return }
+                    self.centerMessageLabel.text = step.message
+                    UIView.animate(withDuration: 0.4, animations: {
+                        self.centerMessageLabel.alpha = 1
+                    }) { _ in
+                        self.autoAdvanceIfRequired(index: index, duration: step.duration, isCountdown: false)
+                    }
+                }
+            } else if index == 4 {
+                UIView.animate(withDuration: 0.4, animations: {
+                    self.centerMessageLabel.alpha = 0
+                    self.instructionLabel.alpha = 0
+                    self.peripheralDotView.alpha = 0
+                }) { _ in
+                    guard self.isExerciseActive, self.currentPhase == .none else { return }
+                    self.instructionLabel.text = step.message
+                    self.instructionLabel.textColor = .lightGray
+                    UIView.animate(withDuration: 0.4, animations: {
+                        self.instructionLabel.alpha = 1
+                        self.centerDotView.alpha = 1
+                    }) { _ in
+                        self.autoAdvanceIfRequired(index: index, duration: step.duration, isCountdown: false)
+                    }
+                }
+            } else if index == 5 {
+                UIView.animate(withDuration: 0.4, animations: {
+                    self.instructionLabel.alpha = 0
+                }) { _ in
+                    guard self.isExerciseActive, self.currentPhase == .none else { return }
+                    self.instructionLabel.text = step.message
+                    UIView.animate(withDuration: 0.4, animations: {
+                        self.instructionLabel.alpha = 1
+                        self.peripheralDotView.alpha = 1
+                    }) { _ in
+                        self.autoAdvanceIfRequired(index: index, duration: step.duration, isCountdown: false)
+                    }
+                }
+            }
+        } else {
+            finishInstructionsAndStartExercise()
         }
     }
     
-    private func showPreparationSequence() {
-        currentPhase = .none
-        centerMessageLabel.text = "Keep your phone at\narm's length"
-        fadeTransition(showCenterMessage: true, showDots: false)
+    private func autoAdvanceIfRequired(index: Int, duration: TimeInterval, isCountdown: Bool) {
+        if isCountdown || !InstructionTracker.isFirstRun(for: "PeripheralAwareness") {
+            DispatchQueue.main.asyncAfter(deadline: .now() + duration) { [weak self] in
+                guard let self = self, self.isExerciseActive, self.currentPhase == .none, self.currentInstructionIndex == index else { return }
+                self.runInstructionSequence(index: index + 1)
+            }
+        }
+    }
+
+    private func setupInstructionButtons() {
+        let isFirstRun = InstructionTracker.isFirstRun(for: "PeripheralAwareness")
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
-            guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
-            self.fadeTransition(showCenterMessage: false, showDots: true, instructionText: "Focus on the yellow dot,\nkeeping the white dot in your vision") {
-                guard self.isExerciseActive, self.currentPhase == .none else { return }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
-                    guard self.isExerciseActive, self.currentPhase == .none else { return }
-                    self.revealPeripheralDot()
-                }
-            }
+        let nextBtn = UIButton(type: .system)
+        nextBtn.translatesAutoresizingMaskIntoConstraints = false
+        nextBtn.layer.cornerRadius = 14
+        nextBtn.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        nextBtn.setTitleColor(.white, for: .normal)
+        nextBtn.backgroundColor = UIColor(named: "AccentColor") ?? .systemOrange
+        view.addSubview(nextBtn)
+        self.instructionNextButton = nextBtn
+        nextBtn.addTarget(self, action: #selector(instructionNextTapped), for: .touchUpInside)
+        
+        if isFirstRun {
+            nextBtn.setTitle("Next", for: .normal)
+            
+            let prevBtn = UIButton(type: .system)
+            prevBtn.translatesAutoresizingMaskIntoConstraints = false
+            prevBtn.layer.cornerRadius = 14
+            prevBtn.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+            prevBtn.setTitleColor(.white, for: .normal)
+            prevBtn.backgroundColor = .clear
+            prevBtn.layer.borderWidth = 1
+            prevBtn.layer.borderColor = UIColor.white.withAlphaComponent(0.3).cgColor
+            prevBtn.setTitle("Previous", for: .normal)
+            view.addSubview(prevBtn)
+            self.instructionPrevButton = prevBtn
+            prevBtn.addTarget(self, action: #selector(instructionPrevTapped), for: .touchUpInside)
+            
+            NSLayoutConstraint.activate([
+                nextBtn.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+                nextBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+                nextBtn.bottomAnchor.constraint(equalTo: prevBtn.topAnchor, constant: -12),
+                nextBtn.heightAnchor.constraint(equalToConstant: 50),
+                
+                prevBtn.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+                prevBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+                prevBtn.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+                prevBtn.heightAnchor.constraint(equalToConstant: 50)
+            ])
+            
+            prevBtn.isHidden = true // Hidden initially for step 0
+        } else {
+            nextBtn.setTitle("Skip", for: .normal)
+            
+            NSLayoutConstraint.activate([
+                nextBtn.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+                nextBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+                nextBtn.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+                nextBtn.heightAnchor.constraint(equalToConstant: 50)
+            ])
         }
     }
     
-    private func revealPeripheralDot() {
-        instructionLabel.text = "Try to keep the white\ndot in check"
-        UIView.animate(withDuration: 0.5) {
+    @objc private func instructionNextTapped() {
+        if InstructionTracker.isFirstRun(for: "PeripheralAwareness") {
+            runInstructionSequence(index: currentInstructionIndex + 1)
+        } else {
+            finishInstructionsAndStartExercise()
+        }
+    }
+    
+    @objc private func instructionPrevTapped() {
+        if InstructionTracker.isFirstRun(for: "PeripheralAwareness") && currentInstructionIndex > 0 {
+            runInstructionSequence(index: currentInstructionIndex - 1)
+        }
+    }
+    
+    private func finishInstructionsAndStartExercise() {
+        InstructionTracker.markAsCompleted(for: "PeripheralAwareness")
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            self.instructionNextButton?.alpha = 0
+            self.instructionPrevButton?.alpha = 0
+        }) { _ in
+            self.instructionNextButton?.removeFromSuperview()
+            self.instructionPrevButton?.removeFromSuperview()
+        }
+        
+        UIView.animate(withDuration: 0.5, animations: {
+            self.instructionLabel.alpha = 0
+            self.centerMessageLabel.alpha = 0
+            self.centerDotView.alpha = 1
             self.peripheralDotView.alpha = 1
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
-            guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
+        }) { _ in
+            guard self.isExerciseActive, self.currentPhase == .none else { return }
             self.startPeripheralPhase()
         }
     }
@@ -172,13 +326,8 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         resetLayerSpeed(layer: peripheralDotView.layer)
         currentPath = createPeripheralTrack()
         
-        UIView.animate(withDuration: 0.5) {
-            self.instructionLabel.alpha = 0
-        } completion: { _ in
-            guard self.isExerciseActive else { return }
-            self.startGazeMonitor()
-            self.startOrbitAnimation()
-        }
+        self.startGazeMonitor()
+        self.startOrbitAnimation()
     }
     
     private func createPeripheralTrack() -> UIBezierPath {
