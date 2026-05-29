@@ -108,7 +108,61 @@ class ProfilePageTableViewController: UITableViewController {
         
         if indexPath.section == 0 && indexPath.row == 3 {
             shareReport()
+        } else if indexPath.section == 1 {
+            if indexPath.row == 0 {
+                showAboutUsPopup()
+            } else if indexPath.row == 1 {
+                showHelpPopup()
+            }
         }
+    }
+    
+    private func showAboutUsPopup() {
+        let title = "About Lucid"
+        let message = """
+        Lucid is your premium companion for visual comfort and eye wellness in the digital age.
+
+        • What it does:
+        Lucid helps you combat digital eye strain (asthenopia) through clinically-designed exercises and assessments.
+
+        • How it helps:
+        With specialized workouts like Near Far Focus, Saccadic Jumps, and Blink Training, it improves focus flexibility, reduces dryness, and trains eye teaming coordination. Regular tracking with OSDI and Landolt C tests helps monitor and improve your overall eye health.
+        """
+        
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Awesome!", style: .default, handler: nil))
+        present(alert, animated: true)
+    }
+    
+    private func showHelpPopup() {
+        let title = "Support & Help"
+        let message = """
+        Need assistance, want to submit feedback, or have questions?
+
+        You can reach our support team directly at:
+        • abhinavbarthwal212@gmail.com
+        • mekanishkaBansal@gmail.com
+        """
+        
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "Copy Email 1", style: .default) { _ in
+            UIPasteboard.general.string = "abhinavbarthwal212@gmail.com"
+            let copyAlert = UIAlertController(title: "Copied!", message: "Email copied to clipboard.", preferredStyle: .alert)
+            copyAlert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(copyAlert, animated: true)
+        })
+        
+        alert.addAction(UIAlertAction(title: "Copy Email 2", style: .default) { _ in
+            UIPasteboard.general.string = "mekanishkaBansal@gmail.com"
+            let copyAlert = UIAlertController(title: "Copied!", message: "Email copied to clipboard.", preferredStyle: .alert)
+            copyAlert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(copyAlert, animated: true)
+        })
+        
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+        
+        present(alert, animated: true)
     }
     
     private func shareReport() {

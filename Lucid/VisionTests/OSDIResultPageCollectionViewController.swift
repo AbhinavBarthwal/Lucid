@@ -687,9 +687,11 @@ struct OSDIPerformanceView: View {
                 .foregroundStyle(.green)
                 .font(.system(size: 14, weight: .semibold))
 
-            Text(changeText)
-                .foregroundStyle(changeColor)
-                .font(.system(size: 30, weight: .bold))
+            if percentChange != nil {
+                Text(changeText)
+                    .foregroundStyle(changeColor)
+                    .font(.system(size: 30, weight: .bold))
+            }
 
             if let scoreDifferenceText {
                 Text(scoreDifferenceText)

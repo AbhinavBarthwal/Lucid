@@ -9,7 +9,6 @@ class PDFGenerator {
             let printFormatter = UIMarkupTextPrintFormatter(markupText: htmlContent)
             
             let renderer = UIPrintPageRenderer()
-            renderer.addPrintFormatter(printFormatter, startingAtPageAt: 0)
             
             // Standard A4 paper size: 595.2 x 841.8 points
             let paperRect = CGRect(x: 0, y: 0, width: 595.2, height: 841.8)
@@ -18,8 +17,13 @@ class PDFGenerator {
             renderer.setValue(NSValue(cgRect: paperRect), forKey: "paperRect")
             renderer.setValue(NSValue(cgRect: printableRect), forKey: "printableRect")
             
+            renderer.addPrintFormatter(printFormatter, startingAtPageAt: 0)
+            
             let pdfData = NSMutableData()
             UIGraphicsBeginPDFContextToData(pdfData, CGRect.zero, nil)
+            
+            // Prepare pages for drawing to avoid blank pages and layout issues
+            renderer.prepare(forDrawingPages: NSMakeRange(0, renderer.numberOfPages))
             
             for i in 0..<renderer.numberOfPages {
                 UIGraphicsBeginPDFPage()
@@ -192,6 +196,12 @@ class PDFGenerator {
                     background-color: #FED7D7;
                     color: #742A2A;
                 }
+                .page-break {
+                    page-break-before: always;
+                }
+                tr {
+                    page-break-inside: avoid;
+                }
             </style>
         </head>
         <body>
@@ -256,7 +266,7 @@ class PDFGenerator {
                 </table>
             </div>
             
-            <div class="section">
+            <div class="section page-break">
                 <div class="section-title">Vision Test History (Last 30 Days)</div>
                 <table>
                     <thead>
@@ -272,7 +282,7 @@ class PDFGenerator {
                 </table>
             </div>
             
-            <div class="section">
+            <div class="section page-break">
                 <div class="section-title">Daily Exercise Goals & Streaks (Last 30 Days)</div>
                 <table>
                     <thead>

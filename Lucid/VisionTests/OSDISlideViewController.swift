@@ -6,16 +6,16 @@ class OSDIViewController: UIViewController {
     @IBOutlet weak var categoryLabel: UILabel!
     @IBOutlet weak var instructionLabel: UILabel!
     @IBOutlet weak var questionLabel: UILabel!
-    @IBOutlet weak var valueLabel: UILabel!
-    @IBOutlet weak var responseSlider: UISlider!
-    @IBOutlet weak var nextButton: UIButton!
+    @IBOutlet weak var valueLabel: UILabel?
+    @IBOutlet weak var responseSlider: UISlider?
+    @IBOutlet weak var nextButton: UIButton?
 
     // MARK: - New Onboarding Properties
     var onTestCompleted: ((Double, String) -> Void)?
     var shouldShowResultUI: Bool = true
 
     private var currentIndex = 0
-    private var scores: [Int] = Array(repeating: 0, count: 12)
+    private var scores: [Int] = Array(repeating: -1, count: 12)
     private var originalCenter: CGPoint = .zero
     private var FirstLoad = true
     private var didComplete = false
@@ -39,15 +39,100 @@ class OSDIViewController: UIViewController {
         ("Environmental Triggers", "Redness or stinging when near heavy traffic, dust, or smoke?")
     ]
 
+    // Custom UI Elements for Rating Circles (linked to Storyboard)
+    @IBOutlet weak var neverLabel: UILabel!
+    @IBOutlet weak var mostlyLabel: UILabel!
+    @IBOutlet weak var circleStackView: UIStackView!
+    @IBOutlet weak var prevNavButton: UIButton!
+    @IBOutlet weak var nextNavButton: UIButton!
+    
+    private var circleButtons: [UIButton] = []
+
+    // Custom Intro Transition Elements
+    private let introContainerView = UIView()
+    private let introCategoryLabel = UILabel()
+    private let introInstructionLabel = UILabel()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupInitialState()
+        setupCustomUI()
+        setupIntroUI()
     }
 
     private func setupInitialState() {
-        [instructionLabel, questionLabel, valueLabel, responseSlider, nextButton, pageControl, categoryLabel].forEach {
+        [instructionLabel, questionLabel, pageControl, categoryLabel, neverLabel, mostlyLabel, circleStackView, prevNavButton, nextNavButton, introContainerView].forEach {
             $0?.alpha = 0
         }
+        responseSlider?.isHidden = true
+        valueLabel?.isHidden = true
+        nextButton?.isHidden = true
+    }
+
+    private func setupCustomUI() {
+        // Retrieve circular buttons configured in storyboard
+        circleButtons = circleStackView.arrangedSubviews.compactMap { $0 as? UIButton }
+        
+        for i in 0..<circleButtons.count {
+            let btn = circleButtons[i]
+            btn.tag = i
+            btn.layer.cornerRadius = 22 // Diameter 44x44
+            btn.layer.borderWidth = 2
+            btn.layer.borderColor = UIColor.lightGray.cgColor
+            btn.backgroundColor = .clear
+            btn.setTitle("", for: .normal)
+            
+            // Set up target action
+            btn.addTarget(self, action: #selector(circleTapped(_:)), for: .touchUpInside)
+        }
+        
+        neverLabel.text = "never"
+        neverLabel.textColor = .lightGray
+        neverLabel.font = .systemFont(ofSize: 14, weight: .medium)
+        
+        mostlyLabel.text = "mostly"
+        mostlyLabel.textColor = .lightGray
+        mostlyLabel.font = .systemFont(ofSize: 14, weight: .medium)
+        
+        // Setup Navigation Actions
+        prevNavButton.addTarget(self, action: #selector(prevTapped), for: .touchUpInside)
+        nextNavButton.addTarget(self, action: #selector(customNextTapped), for: .touchUpInside)
+    }
+
+    private func setupIntroUI() {
+        introContainerView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(introContainerView)
+        
+        introCategoryLabel.translatesAutoresizingMaskIntoConstraints = false
+        introCategoryLabel.font = .systemFont(ofSize: 34, weight: .bold)
+        introCategoryLabel.textColor = .white
+        introCategoryLabel.textAlignment = .center
+        introCategoryLabel.numberOfLines = 0
+        
+        introInstructionLabel.translatesAutoresizingMaskIntoConstraints = false
+        introInstructionLabel.font = .systemFont(ofSize: 20, weight: .semibold)
+        introInstructionLabel.textColor = .lightGray
+        introInstructionLabel.textAlignment = .center
+        introInstructionLabel.numberOfLines = 0
+        
+        introContainerView.addSubview(introCategoryLabel)
+        introContainerView.addSubview(introInstructionLabel)
+        
+        NSLayoutConstraint.activate([
+            introContainerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            introContainerView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -20),
+            introContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+            introContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
+            
+            introCategoryLabel.topAnchor.constraint(equalTo: introContainerView.topAnchor),
+            introCategoryLabel.leadingAnchor.constraint(equalTo: introContainerView.leadingAnchor),
+            introCategoryLabel.trailingAnchor.constraint(equalTo: introContainerView.trailingAnchor),
+            
+            introInstructionLabel.topAnchor.constraint(equalTo: introCategoryLabel.bottomAnchor, constant: 18),
+            introInstructionLabel.leadingAnchor.constraint(equalTo: introContainerView.leadingAnchor),
+            introInstructionLabel.trailingAnchor.constraint(equalTo: introContainerView.trailingAnchor),
+            introInstructionLabel.bottomAnchor.constraint(equalTo: introContainerView.bottomAnchor)
+        ])
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -60,18 +145,32 @@ class OSDIViewController: UIViewController {
     }
 
     private func handleCategoryTransition() {
-        [instructionLabel, questionLabel, valueLabel, responseSlider, nextButton, pageControl].forEach { $0?.alpha = 0 }
+        // Fade out all main UI elements during category/section transition
+        [questionLabel, pageControl, neverLabel, mostlyLabel, circleStackView, prevNavButton, nextNavButton, categoryLabel, instructionLabel].forEach { $0?.alpha = 0 }
         
-        categoryLabel.text = questionnaire[currentIndex].cat
-        categoryLabel.font = .systemFont(ofSize: 34, weight: .bold)
-        categoryLabel.center = view.center
+        introCategoryLabel.text = questionnaire[currentIndex].cat
         
+        let sectionInstruction: String
+        switch questionnaire[currentIndex].cat {
+        case "Symptoms":
+            sectionInstruction = "Have you experienced any of the following during the last week?"
+        case "Vision Functionality":
+            sectionInstruction = "Have you experienced problems with your eyes during the last week when performing the following activities?"
+        case "Environmental Triggers":
+            sectionInstruction = "Have your eyes felt uncomfortable in the following situations during the last week?"
+        default:
+            sectionInstruction = "Have you experienced this problem during the last week?"
+        }
+        introInstructionLabel.text = sectionInstruction
+        
+        // Fade intro category & instruction in the middle of the screen
         UIView.animate(withDuration: 0.5, animations: {
-            self.categoryLabel.alpha = 1.0
+            self.introContainerView.alpha = 1.0
         }) { _ in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) { [weak self] in
+                guard let self = self else { return }
                 UIView.animate(withDuration: 0.4, animations: {
-                    self.categoryLabel.alpha = 0
+                    self.introContainerView.alpha = 0
                 }) { _ in
                     self.moveToHeaderAndReveal()
                 }
@@ -80,14 +179,15 @@ class OSDIViewController: UIViewController {
     }
 
     private func moveToHeaderAndReveal() {
-        categoryLabel.font = .systemFont(ofSize: 32, weight: .semibold)
-        categoryLabel.center = originalCenter
+        categoryLabel.text = questionnaire[currentIndex].cat
+        categoryLabel.font = .systemFont(ofSize: 32, weight: .bold)
         
         updateContent()
         
         UIView.animate(withDuration: 0.5) {
             self.categoryLabel.alpha = 1.0
-            [self.instructionLabel, self.questionLabel, self.valueLabel, self.responseSlider, self.nextButton, self.pageControl].forEach { $0?.alpha = 1.0 }
+            self.instructionLabel.alpha = 0 // Hide section instructions from the top during questions
+            [self.questionLabel, self.neverLabel, self.mostlyLabel, self.circleStackView, self.prevNavButton, self.nextNavButton, self.pageControl].forEach { $0?.alpha = 1.0 }
         }
     }
 
@@ -108,12 +208,12 @@ class OSDIViewController: UIViewController {
         guard !didComplete else { return }
         didComplete = true
         
-        // New logic: Branch based on whether we should show the UI
+        // Branch based on whether we should show the UI
         if shouldShowResultUI {
             showResultScreen(score: finalOSDI, severity: severity)
         } else {
-            nextButton?.isEnabled = false
-            responseSlider?.isEnabled = false
+            nextNavButton.isEnabled = false
+            circleButtons.forEach { $0.isEnabled = false }
             onTestCompleted?(finalOSDI, severity)
         }
     }
@@ -135,14 +235,45 @@ class OSDIViewController: UIViewController {
         }
     }
 
-    @IBAction func sliderValueChanged(_ sender: UISlider) {
-        let roundedValue = Int(round(sender.value))
-        sender.value = Float(roundedValue)
-        valueLabel.text = options[roundedValue]
-        scores[currentIndex] = roundedValue
+    @objc private func circleTapped(_ sender: UIButton) {
+        let selectedValue = sender.tag
+        scores[currentIndex] = selectedValue
+        
+        // Haptic feedback
+        let generator = UISelectionFeedbackGenerator()
+        generator.selectionChanged()
+        
+        // Update highlight states
+        updateCircleHighlightStates()
+        
+        // Enable Next button
+        nextNavButton.isEnabled = true
+        nextNavButton.alpha = 1.0
+    }
+    
+    private func updateCircleHighlightStates() {
+        let selectedValue = scores[currentIndex]
+        for i in 0..<5 {
+            let btn = circleButtons[i]
+            if i == selectedValue {
+                btn.backgroundColor = UIColor(red: 1.0, green: 0.5, blue: 0.15, alpha: 1.0) // Accent orange
+                btn.layer.borderColor = UIColor(red: 1.0, green: 0.5, blue: 0.15, alpha: 1.0).cgColor
+            } else {
+                btn.backgroundColor = .clear
+                btn.layer.borderColor = UIColor.lightGray.cgColor
+            }
+        }
     }
 
-    @IBAction func nextTapped(_ sender: UIButton) {
+    @objc private func prevTapped() {
+        if currentIndex > 0 {
+            currentIndex -= 1
+            animateSlideLeft()
+            updateContent()
+        }
+    }
+
+    @objc private func customNextTapped() {
         if currentIndex < questionnaire.count - 1 {
             let oldCat = questionnaire[currentIndex].cat
             currentIndex += 1
@@ -157,6 +288,14 @@ class OSDIViewController: UIViewController {
         }
     }
 
+    private func animateSlideLeft() {
+        let transition = CATransition()
+        transition.duration = 0.3
+        transition.type = .push
+        transition.subtype = .fromLeft
+        view.layer.add(transition, forKey: nil)
+    }
+
     private func animateSlide() {
         let transition = CATransition()
         transition.duration = 0.3
@@ -169,7 +308,18 @@ class OSDIViewController: UIViewController {
         categoryLabel.text = questionnaire[currentIndex].cat
         questionLabel.text = questionnaire[currentIndex].q
         pageControl.currentPage = currentIndex
-        responseSlider.value = 0
-        valueLabel.text = options[0]
+        
+        updateCircleHighlightStates()
+        
+        let selectedValue = scores[currentIndex]
+        if selectedValue == -1 {
+            nextNavButton.isEnabled = false
+            nextNavButton.alpha = 0.3
+        } else {
+            nextNavButton.isEnabled = true
+            nextNavButton.alpha = 1.0
+        }
+        
+        prevNavButton.isHidden = (currentIndex == 0)
     }
 }

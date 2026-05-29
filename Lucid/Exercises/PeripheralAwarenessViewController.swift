@@ -50,6 +50,7 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         super.viewWillAppear(animated)
         isExerciseActive = true
         guard ARFaceTrackingConfiguration.isSupported else { return }
+        arSession.delegate = self
         let config = ARFaceTrackingConfiguration()
         self.navigationController?.setNavigationBarHidden(false, animated: animated)
         arSession.run(config, options: [.resetTracking, .removeExistingAnchors])
@@ -66,12 +67,19 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         centerMessageLabel.layer.removeAllAnimations()
         currentPhase = .none
     }
+
+    func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
+        // ARSessionDelegate delegate callback to ensure tracking updates are processed smoothly
+    }
     
     private func setupInitialUI() {
+        peripheralDotView.translatesAutoresizingMaskIntoConstraints = true
+        peripheralDotView.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+        peripheralDotView.layer.cornerRadius = 10
+        peripheralDotView.backgroundColor = .white
+        
         centerDotView.layer.cornerRadius = centerDotView.bounds.width / 2
         centerDotView.backgroundColor = .accent
-        peripheralDotView.layer.cornerRadius = peripheralDotView.bounds.width / 2
-        peripheralDotView.backgroundColor = .white
         
         instructionLabel.alpha = 0
         centerDotView.alpha = 0

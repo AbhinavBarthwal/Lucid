@@ -33,7 +33,7 @@ class SetGoalViewController: UIViewController {
     private var minMinutes: Int {
         let user = SwiftDataManager.shared.getOrCreateUser()
         let recommendedSeconds = user.calculateDailyGoalFromRecommendations()
-        let recommendedMinutes = Int(ceil(Double(recommendedSeconds) / 60.0))
+        let recommendedMinutes = Int(floor(Double(recommendedSeconds) / 60.0))
         return max(1, recommendedMinutes)
     }
 

@@ -66,7 +66,7 @@ final class User: Codable {
             "Figure8": 90,
             "Blink": 90,
             "PeripheralAwareness": 75,
-            "NearFar": 60
+            "NearFar": 110
         ]
         let currentRecs = recommendedExercises.isEmpty ? ["SmoothPursuit", "Blink"] : recommendedExercises
         return currentRecs.compactMap { exerciseTimes[$0] }.reduce(0, +)

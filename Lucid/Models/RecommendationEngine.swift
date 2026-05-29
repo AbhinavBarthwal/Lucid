@@ -58,7 +58,7 @@ class RecommendationEngine {
             "Figure8": 90,
             "Blink": 90,
             "PeripheralAwareness": 75,
-            "NearFar": 60
+            "NearFar": 110
         ]
         let sumOfRecommendedExercises = newRecommendations.compactMap { exerciseTimes[$0] }.reduce(0, +)
         user.dailyExerciseGoal = sumOfRecommendedExercises

@@ -27,6 +27,9 @@ class ExerciseDataManager {
             user.updateTodayStreakStatus()
             ProgressManager.shared.evaluateAndUnlock()
             
+            // Reschedule exercise reminders since the completed time changed
+            NotificationManager.shared.scheduleExerciseReminders()
+            
             // REMOVED syncExercise call because we are only keeping
             // exercises locally to keep the Supabase database clean.
             

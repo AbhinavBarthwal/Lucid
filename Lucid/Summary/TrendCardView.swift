@@ -29,6 +29,28 @@ struct TrendCardView: View {
     var hasAverageData: Bool {
         return averageValue >= 0
     }
+
+    var cleanAverageScore: String {
+        if averageScore.hasSuffix(".0") {
+            return String(averageScore.dropLast(2))
+        }
+        return averageScore
+    }
+    
+    var denominatorText: String {
+        switch title {
+        case "Exercise Accuracy":
+            return "/100"
+        case "C Test Score":
+            return "/6"
+        case "OSDI Score":
+            return "/100"
+        case "Eye Responsiveness":
+            return "s"
+        default:
+            return ""
+        }
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -45,9 +67,16 @@ struct TrendCardView: View {
                     Text("Average Score")
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.gray)
-                    Text(hasAverageData ? averageScore : "--")
-                        .font(.system(size: 42, weight: .bold))
-                        .foregroundColor(.white)
+                    HStack(alignment: .firstTextBaseline, spacing: 2) {
+                        Text(hasAverageData ? cleanAverageScore : "--")
+                            .font(.system(size: 42, weight: .bold))
+                            .foregroundColor(.white)
+                        if hasAverageData && !denominatorText.isEmpty {
+                            Text(denominatorText)
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.6))
+                        }
+                    }
                     Text(betterDirection == 1 ? "Higher is better" : "Lower is better")
                         .font(.system(size: 12, weight: .regular))
                         .foregroundColor(.gray)

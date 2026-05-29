@@ -18,7 +18,7 @@ class ExerciseCollectionViewController: UICollectionViewController {
             ExerciseInfo(id: "Figure8", title: "Figure Eight", description: "Enhances eye flexibility and coordination.", iconName: "FigureEight", segueIdentifier: "ShowFigureEight", estimatedTimeSeconds: 90),
             ExerciseInfo(id: "Blink", title: "Blink Training", description: "Reduces dryness and refreshes eye comfort.", iconName: "BlinkTraining", segueIdentifier: "ShowBlinkTraining", estimatedTimeSeconds: 90),
             ExerciseInfo(id: "PeripheralAwareness", title: "Peripheral Awareness", description: "Expands peripheral vision and awareness.", iconName: "PeripheralAwareness", segueIdentifier: "ShowPeripheralAwareness", estimatedTimeSeconds: 75),
-            ExerciseInfo(id: "NearFar", title: "Near Far Focus", description: "Improves focusing ability at different distances.", iconName: "NearFarFocus", segueIdentifier: "ShowNearFarFocus", estimatedTimeSeconds: 60)
+            ExerciseInfo(id: "NearFar", title: "Near Far Focus", description: "Improves focusing ability at different distances.", iconName: "NearFarFocus", segueIdentifier: "ShowNearFarFocus", estimatedTimeSeconds: 110)
         ]
 
     // MARK: - Lifecycle
@@ -68,7 +68,7 @@ class ExerciseCollectionViewController: UICollectionViewController {
             // Group
             let groupSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0),
-                heightDimension: .fractionalHeight(0.10625)
+                heightDimension: .absolute(100)
             )
             let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
 

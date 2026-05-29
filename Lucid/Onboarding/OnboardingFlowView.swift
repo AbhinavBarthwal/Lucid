@@ -385,6 +385,21 @@ struct OnboardingFlowView: View {
         draft.leftEyePower = String(format: "%.2f", leftPower)
         draft.rightEyePower = String(format: "%.2f", rightPower)
 
+        if step == .personal {
+            if Calendar.current.isDateInToday(draft.dateOfBirth) {
+                var components = DateComponents()
+                components.year = 1950
+                components.month = 1
+                components.day = 1
+                if let fallbackDate = Calendar.current.date(from: components) {
+                    draft.dateOfBirth = fallbackDate
+                }
+            }
+            if draft.gender.isEmpty {
+                draft.gender = "Prefer not to say"
+            }
+        }
+
         if step == .conditions {
             withAnimation { didSubmit = true }
             onFinished(draft)
@@ -404,12 +419,6 @@ struct OnboardingFlowView: View {
         case .personal:
             if draft.trimmedName.isEmpty {
                 return "Enter your name to continue."
-            }
-            if draft.gender.isEmpty {
-                return "Choose your gender to continue."
-            }
-            if computeAge(from: draft.dateOfBirth) <= 0 {
-                return "Choose a valid date of birth."
             }
         case .eyePower:
             return nil
@@ -644,7 +653,7 @@ private struct LandingStep: View {
                             Image(systemName: "envelope.fill")
                                 .font(.body.bold())
                             Text("Continue with Email")
-                                .font(.headline)
+                                .font(.title3)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 18)

@@ -13,7 +13,7 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
         ExerciseInfo(id: "Figure8", title: "Figure Eight", description: "Trace a loopy path with your eyes to boost flexibility and make focusing feel easier.", iconName: "FigureEight", segueIdentifier: "ShowFigureEight", estimatedTimeSeconds: 90),
         ExerciseInfo(id: "Blink", title: "Blink Training", description: "Take a moment for full, slow blinks to refresh your eyes and keep them from getting dry.", iconName: "BlinkTraining", segueIdentifier: "ShowBlinkTraining", estimatedTimeSeconds: 90),
         ExerciseInfo(id: "PeripheralAwareness", title: "Peripheral Awareness", description: "Learn to notice what is happening around you without having to turn your head.", iconName: "PeripheralAwareness", segueIdentifier: "ShowPeripheralAwareness", estimatedTimeSeconds: 75),
-        ExerciseInfo(id: "NearFar", title: "Near Far Focus", description: "Switch focus between close and distant objects to help your eyes adjust faster.", iconName: "NearFarFocus", segueIdentifier: "ShowNearFarFocus", estimatedTimeSeconds: 60)
+        ExerciseInfo(id: "NearFar", title: "Near Far Focus", description: "Switch focus between close and distant objects to help your eyes adjust faster.", iconName: "NearFarFocus", segueIdentifier: "ShowNearFarFocus", estimatedTimeSeconds: 110)
     ]
     
     // MARK: - Data Properties for Trends
@@ -518,7 +518,11 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
         }
         // Section 2: Daily Goals & Strains
         else if indexPath.section == 2 {
-            if indexPath.item == 1 {
+            if indexPath.item == 0 {
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                let vc = storyboard.instantiateViewController(withIdentifier: "OSDIViewController")
+                navigationController?.pushViewController(vc, animated: true)
+            } else if indexPath.item == 1 {
                 let storyboard = UIStoryboard(name: "Summary", bundle: nil)
                 let vc = storyboard.instantiateViewController(withIdentifier: "AwardsViewController")
                 navigationController?.pushViewController(vc, animated: true)

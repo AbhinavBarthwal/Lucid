@@ -125,7 +125,8 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
                     cell.configure(score: self.overallScore, sessionType: self.sessionType, errors: totalErrors)
                 } else {
                     if let rt = avgReactionTimeSeconds {
-                        cell.configureResponsiveness(avgReactionTimeSeconds: rt)
+                        let finalRt = self.overallScore == 0 ? 0.0 : rt
+                        cell.configureResponsiveness(avgReactionTimeSeconds: finalRt)
                     }
                 }
             }
@@ -195,19 +196,18 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
             if sectionIndex == 0 {
                 let hasReaction = self.avgReactionTimeSeconds != nil && self.sessionType != "Completion"
                 
+                let singleCardHeight: CGFloat = self.sessionType == "Completion" ? 210 : 140
                 let itemSize = NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
-                    heightDimension: .fractionalHeight(1.0)
+                    heightDimension: .absolute(singleCardHeight)
                 )
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
                 item.contentInsets = .init(top: 6, leading: 0, bottom: 6, trailing: 0)
                 
-                 let numItems = hasReaction ? 2 : 1
-                let cardHeight: CGFloat = self.sessionType == "Completion" ? 210 : 105
-                
+                let numItems = hasReaction ? 2 : 1
                 let groupSize = NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
-                    heightDimension: .absolute(cardHeight * CGFloat(numItems))
+                    heightDimension: .absolute(singleCardHeight * CGFloat(numItems))
                 )
                 let group = NSCollectionLayoutGroup.vertical(
                     layoutSize: groupSize,
@@ -228,7 +228,7 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
                         subitems: [item, item]
                     )
                     let group = NSCollectionLayoutGroup.vertical(
-                        layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(0.16)), // 2 rows * 8% = 16% of screen height
+                        layoutSize: .init(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(0.20)), // 2 rows * 10% = 20% of screen height
                         subitems: [row, row]
                     )
                     let section = NSCollectionLayoutSection(group: group)
@@ -240,7 +240,7 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
                 let width = self.usesDirectionalReport ? 0.5 : 0.33
                 let heightDimension: NSCollectionLayoutDimension
                 if self.usesDirectionalReport {
-                    heightDimension = .fractionalHeight(0.08) // 8% of screen height
+                    heightDimension = .fractionalHeight(0.10) // 10% of screen height (increased by 25% from 8%)
                 } else {
                     heightDimension = .absolute(100)
                 }

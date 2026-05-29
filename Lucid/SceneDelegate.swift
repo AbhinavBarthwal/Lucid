@@ -28,6 +28,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             if !OnboardingGate.shouldShow {
                 Twenty2020Manager.shared.requestAuthorization()
                 Twenty2020Manager.shared.startMonitoring()
+                NotificationManager.shared.scheduleExerciseReminders()
             }
         }
     }

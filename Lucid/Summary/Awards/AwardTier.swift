@@ -502,6 +502,7 @@ class ProgressManager {
                 badges[i].dateEarned = today
                 newlyUnlocked.append(def.id)
                 print("🏅 Unlocked: \(def.title)")
+                NotificationManager.shared.sendBadgeUnlockedNotification(badgeTitle: def.title)
             }
         }
 

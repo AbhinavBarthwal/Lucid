@@ -164,7 +164,7 @@ final class OnboardingPresenter {
             user.name = draft.trimmedName
             user.dateOfBirth = draft.dateOfBirth
             user.age = computeAge(from: draft.dateOfBirth)
-            user.gender = draft.gender.isEmpty ? nil : draft.gender
+            user.gender = draft.gender.isEmpty ? "Prefer not to say" : draft.gender
             user.leftEyePower = Double(draft.leftEyePower.trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
             user.rightEyePower = Double(draft.rightEyePower.trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
             user.previousConditions = draft.cleanedConditions
