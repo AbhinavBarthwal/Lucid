@@ -333,12 +333,12 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
     
 
     
-    private func startTransitionPhase(nextPhase: @escaping () -> Void) {
+    private func startTransitionPhase(message: String = "Nicely Done!", nextPhase: @escaping () -> Void) {
         isAcceptingInput = false
         responseTimer?.invalidate()
         phaseTimer?.invalidate()
         
-        centerMessageLAbel.text = "Nicely Done!"
+        centerMessageLAbel.text = message
         fadeTransition(showCenterMessage: true, showExerciseUI: false)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
@@ -403,11 +403,38 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
     
     private func startResponseTimer() {
         responseTimer?.invalidate()
-        responseTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { [weak self] _ in
+        responseTimer = Timer.scheduledTimer(withTimeInterval: 7.0, repeats: false) { [weak self] _ in
             guard let self = self, self.isExerciseActive else { return }
-            self.showContextualNudge()
-            self.impactMed.impactOccurred()
-            self.impactMed.impactOccurred()
+            self.skipCurrentBlinkSectionDueToNoResponse()
+        }
+    }
+
+    private func skipCurrentBlinkSectionDueToNoResponse() {
+        guard isExerciseActive, isAcceptingInput else { return }
+        isAcceptingInput = false
+        responseTimer?.invalidate()
+        phaseTimer?.invalidate()
+        recordZeroMarksForSkippedSection()
+        cueTime = nil
+        failedAttemptsForCurrentBlink = 0
+        consecutiveErrors = 0
+        hideNudge()
+        advancePhase(skippedCurrentSection: true)
+    }
+
+    private func recordZeroMarksForSkippedSection() {
+        switch currentPhase {
+        case .doubleBlink(let remaining):
+            leftMaxBlinks.append(contentsOf: Array(repeating: 0.0, count: remaining))
+            rightMaxBlinks.append(contentsOf: Array(repeating: 0.0, count: remaining))
+        case .singleBlink(let eye, let remaining):
+            if eye == "left" {
+                leftMaxBlinks.append(contentsOf: Array(repeating: 0.0, count: remaining))
+            } else if eye == "right" {
+                rightMaxBlinks.append(contentsOf: Array(repeating: 0.0, count: remaining))
+            }
+        case .completed:
+            break
         }
     }
     
@@ -543,13 +570,15 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         }
     }
     
-    private func advancePhase() {
+    private func advancePhase(skippedCurrentSection: Bool = false) {
         guard isExerciseActive else { return }
         consecutiveErrors = 0
+        let transitionMessage = skippedCurrentSection ? "Let's go to the next step" : "Nicely Done!"
+        
         switch currentPhase {
         case .doubleBlink:
             self.currentPhase = .singleBlink(eye: "left", remaining: LeftRighEyeBlink)
-            startTransitionPhase { [weak self] in
+            startTransitionPhase(message: transitionMessage) { [weak self] in
                 guard let self = self, self.isExerciseActive else { return }
                 self.showPreparationMessage("Blink left eye only after the vibration") {
                     guard self.isExerciseActive else { return }
@@ -559,7 +588,7 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         case .singleBlink(let eye, _):
             if eye == "left" {
                 self.currentPhase = .singleBlink(eye: "right", remaining: LeftRighEyeBlink)
-                startTransitionPhase { [weak self] in
+                startTransitionPhase(message: transitionMessage) { [weak self] in
                     guard let self = self, self.isExerciseActive else { return }
                     self.showPreparationMessage("Blink right eye only after the vibration") {
                         guard self.isExerciseActive else { return }
@@ -567,6 +596,11 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
                     }
                 }
             } else {
+                guard !skippedCurrentSection else {
+                    finishSession()
+                    return
+                }
+                
                 startTransitionPhase { [weak self] in
                     guard let self = self, self.isExerciseActive else { return }
                     self.finishSession()

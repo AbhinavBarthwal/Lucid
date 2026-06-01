@@ -483,13 +483,13 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
             // Map the data into the 4 grid items
             switch indexPath.item {
             case 0:
-                cell.configure(title: "Accuracy", subtitle: "\(accuracyAverage)% AVG", color: .accent, iconName: "target")
+                cell.configure(title: "Accuracy", subtitle: "\(accuracyAverage)% avg", color: .accent, iconName: "target")
             case 1:
-                cell.configure(title: "Responsiveness", subtitle: "\(responsivenessAverage)s AVG", color: .accent, iconName: "bolt.fill")
+                cell.configure(title: "Responsiveness", subtitle: "\(responsivenessAverage)s avg", color: .accent, iconName: "bolt.fill")
             case 2:
-                cell.configure(title: "C Test Score", subtitle: "\(eyeTestAverage) SCORE", color: .accent, iconName: "eye.fill")
+                cell.configure(title: "C Test Score", subtitle: "\(eyeTestAverage) score", color: .accent, iconName: "eye.fill")
             case 3:
-                cell.configure(title: "OSDI Score", subtitle: "\(osdiAverage) SCORE", color: .accent, iconName: "doc.text.fill")
+                cell.configure(title: "OSDI Score", subtitle: "\(osdiAverage) score", color: .accent, iconName: "doc.text.fill")
             default:
                 break
             }

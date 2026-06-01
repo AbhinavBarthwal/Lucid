@@ -326,11 +326,11 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         successHapticGenerator.notificationOccurred(.success)
         successHapticGenerator.prepare()
 
-        if currentSpeedLevel > 0 {
+        if currentSpeedLevel >= phaseDurations.count {
             finishExercise()
         } else {
             gazeTimer?.invalidate()
-            let message = currentSpeedLevel == 4 ? "Final round! Maximum speed" : "Good, Let's ramp up the speed"
+            let message = currentSpeedLevel == phaseDurations.count - 1 ? "Final round! Maximum speed" : "Good, Let's ramp up the speed"
             
             showTransitionMessage(message) { [weak self] in
                 guard let self = self, self.isExerciseActive else { return }
@@ -399,19 +399,21 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     private func startGazeMonitor() {
         gazeTimer?.invalidate()
         gazeTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
-            guard let self = self, self.isExerciseActive, self.currentPhase == .tracking else { return }
-            self.totalFramesChecked += 1
-            let currentDirection = self.getDirectionName(for: self.currentTargetDirectionIndex)
-            self.directionChecks[currentDirection, default: 0] += 1
-            if self.isLookingAtScreen {
-                if self.instructionLabel.alpha != 0 { UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 0 } }
-            } else {
-                self.totalErrors += 1
-                self.directionFails[currentDirection, default: 0] += 1
-                self.errorHapticGenerator.notificationOccurred(.error)
-                self.instructionLabel.textColor = .systemRed
-                self.instructionLabel.text = "⚠️ Please keep your eyes on the screen!"
-                self.instructionLabel.alpha = 1
+            Task { @MainActor [weak self] in
+                guard let self = self, self.isExerciseActive, self.currentPhase == .tracking else { return }
+                self.totalFramesChecked += 1
+                let currentDirection = self.getDirectionName(for: self.currentTargetDirectionIndex)
+                self.directionChecks[currentDirection, default: 0] += 1
+                if self.isLookingAtScreen {
+                    if self.instructionLabel.alpha != 0 { UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 0 } }
+                } else {
+                    self.totalErrors += 1
+                    self.directionFails[currentDirection, default: 0] += 1
+                    self.errorHapticGenerator.notificationOccurred(.error)
+                    self.instructionLabel.textColor = .systemRed
+                    self.instructionLabel.text = "⚠️ Please keep your eyes on the screen!"
+                    self.instructionLabel.alpha = 1
+                }
             }
         }
     }

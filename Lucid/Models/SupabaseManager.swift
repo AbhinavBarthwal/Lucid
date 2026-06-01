@@ -134,8 +134,8 @@ class SupabaseManager {
                  if let name = json["name"] as? String { localUser.name = name }
                  if let age = json["age"] as? Int { localUser.age = age }
                  if let gender = json["gender"] as? String { localUser.gender = gender }
-                 if let left = json["left_eye_power"] as? Double { localUser.leftEyePower = left }
-                 if let right = json["right_eye_power"] as? Double { localUser.rightEyePower = right }
+                 if let left = (json["left_eye_power"] as? NSNumber)?.doubleValue { localUser.leftEyePower = left }
+                 if let right = (json["right_eye_power"] as? NSNumber)?.doubleValue { localUser.rightEyePower = right }
                  if let conditions = json["previous_conditions"] as? [String] { localUser.previousConditions = conditions }
                  if let password = json["password"] as? String { localUser.password = password }
                  
@@ -201,8 +201,8 @@ class SupabaseManager {
                 if let name = json["name"] as? String { localUser.name = name }
                 if let age = json["age"] as? Int { localUser.age = age }
                 if let gender = json["gender"] as? String { localUser.gender = gender }
-                if let left = json["left_eye_power"] as? Double { localUser.leftEyePower = left }
-                if let right = json["right_eye_power"] as? Double { localUser.rightEyePower = right }
+                if let left = (json["left_eye_power"] as? NSNumber)?.doubleValue { localUser.leftEyePower = left }
+                if let right = (json["right_eye_power"] as? NSNumber)?.doubleValue { localUser.rightEyePower = right }
                 if let conditions = json["previous_conditions"] as? [String] { localUser.previousConditions = conditions }
                 if let password = json["password"] as? String { localUser.password = password }
                 

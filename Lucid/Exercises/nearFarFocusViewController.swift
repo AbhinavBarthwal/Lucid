@@ -32,7 +32,7 @@ class NearFarFocusViewController: UIViewController {
     private var currentInstructionIndex = 0
 
     private let exerciseInstructions: [InstructionStep] = [
-        InstructionStep(message: "Alternate focusing on the screen and looking away.\nFollow the audio and visual cues.", duration: 5.5)
+        InstructionStep(message: "Alternate focusing on the screen and looking away", duration: 5.5)
     ]
     
     override func viewDidLoad() {
@@ -136,7 +136,7 @@ class NearFarFocusViewController: UIViewController {
                 self.centerMessageLabel.text = step.message
                 
                 self.instructionLabel.textColor = .lightGray
-                self.instructionLabel.text = "Alternate focusing on the screen and looking away.\nFollow the audio and visual cues."
+                self.instructionLabel.text = ""
                 
                 UIView.animate(withDuration: 0.4, animations: {
                     self.centerMessageLabel.alpha = 1

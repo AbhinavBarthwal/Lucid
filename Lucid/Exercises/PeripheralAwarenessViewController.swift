@@ -12,6 +12,7 @@ private enum PeripheralAwarenessExercisePhase {
     case none, tracking
 }
 
+@MainActor
 class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CAAnimationDelegate {
 
     @IBOutlet weak var instructionLabel: UILabel!
@@ -415,7 +416,7 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
     
     private func startGazeMonitor() {
         gazeTimer?.invalidate()
-        gazeTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+        gazeTimer = Timer(timeInterval: 0.1, repeats: true) { [weak self] _ in
             guard let self = self, self.isExerciseActive, self.currentPhase == .tracking else { return }
             
             self.totalFramesChecked += 1
@@ -449,6 +450,7 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
                 }
             }
         }
+        RunLoop.main.add(self.gazeTimer!, forMode: .common)
     }
     
     private func pauseLayer(layer: CALayer) {

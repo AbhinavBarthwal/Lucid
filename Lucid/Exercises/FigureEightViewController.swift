@@ -37,6 +37,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
     private var totalFramesChecked = 0
     private var totalErrors = 0
     private var isFinished = false
+    private let loopDurations: [CFTimeInterval] = [10.0, 8.0, 6.5]
 
     // Navigation/Skip buttons for instructions
     private var instructionNextButton: UIButton?
@@ -44,7 +45,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
     private var currentInstructionIndex = 0
 
     private let exerciseInstructions: [InstructionStep] = [
-        InstructionStep(message: "Keep the phone close to your face, but where you can clearly see the screen,\nand move your eyes with the yellow dot", duration: 6.5)
+        InstructionStep(message: "Keep the phone close to your face", duration: 6.5)
     ]
 
     override var prefersStatusBarHidden: Bool { return true }
@@ -421,7 +422,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         isAnimationPaused = false
         resetLayerSpeed(layer: circleView.layer)
             
-        instructionLabel.text = "Keep the phone close to your face (where you can clearly see the screen) and track the yellow dot"
+        instructionLabel.text = "Keep the phone close to your face "
         instructionLabel.textColor = .lightGray
         instructionLabel.alpha = 1
             
@@ -443,7 +444,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         isAnimationPaused = false
         resetLayerSpeed(layer: circleView.layer)
         
-        instructionLabel.text = "Keep the phone close to your face (where you can clearly see the screen) and track the yellow dot"
+        instructionLabel.text = "Keep the phone close to your face "
         instructionLabel.textColor = .lightGray
         instructionLabel.alpha = 1
         
@@ -523,7 +524,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
     private func startFigureEightAnimation() {
         guard isExerciseActive, currentPhase == .tracking, let path = currentPath else { return }
             
-        if currentLoopIndex >= 1 {
+        if currentLoopIndex >= loopDurations.count {
             if !isSecondPart {
                 promptRotationPhase()
             } else {
@@ -532,7 +533,6 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
             return
         }
             
-        let loopDurations: [CFTimeInterval] = [10.0, 8.0, 6.5, 5.0, 4.0]
         let currentDuration = loopDurations[currentLoopIndex]
             
         let animation = CAKeyframeAnimation(keyPath: "position")
@@ -548,7 +548,13 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         circleView.layer.add(animation, forKey: "figureEightAnimation_\(currentLoopIndex)")
     }
         
-    func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+    nonisolated func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+        Task { @MainActor [weak self] in
+            self?.handleAnimationDidStop(finished: flag)
+        }
+    }
+
+    private func handleAnimationDidStop(finished flag: Bool) {
         if isExerciseActive && flag && currentPhase == .tracking {
             currentLoopIndex += 1
             resetLayerSpeed(layer: circleView.layer)
@@ -560,19 +566,21 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
     private func startGazeMonitor() {
         gazeTimer?.invalidate()
         gazeTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
-            guard let self = self, self.isExerciseActive, self.currentPhase == .tracking else { return }
-            
-            self.totalFramesChecked += 1
-            
-            let isLooking = true
+            Task { @MainActor [weak self] in
+                guard let self = self, self.isExerciseActive, self.currentPhase == .tracking else { return }
                 
-            if isLooking {
-                if self.isAnimationPaused {
-                    self.resumeLayer(layer: self.circleView.layer)
-                    self.isAnimationPaused = false
-                }
-                if self.instructionLabel.alpha != 0 {
-                    UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 0 }
+                self.totalFramesChecked += 1
+                
+                let isLooking = true
+                    
+                if isLooking {
+                    if self.isAnimationPaused {
+                        self.resumeLayer(layer: self.circleView.layer)
+                        self.isAnimationPaused = false
+                    }
+                    if self.instructionLabel.alpha != 0 {
+                        UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 0 }
+                    }
                 }
             }
         }
