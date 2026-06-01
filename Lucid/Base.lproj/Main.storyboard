@@ -59,27 +59,27 @@
             <objects>
                 <viewController storyboardIdentifier="BlinkTrainingVC" useStoryboardIdentifierAsRestorationIdentifier="YES" id="Gb3-N5-TTw" customClass="BlinkTrainingViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="1sP-0S-309">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <arscnView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="62U-uL-F7K">
-                                <rect key="frame" x="0.0" y="178" width="440" height="710"/>
+                                <rect key="frame" x="0.0" y="62" width="440" height="832"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </arscnView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Xc2-eH-0Pt">
-                                <rect key="frame" x="194" y="869.66666666666663" width="52" height="26.333333333333371"/>
+                                <rect key="frame" x="194" y="807.66666666666663" width="52" height="26.333333333333371"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PWJ-Ob-Fyh">
-                                <rect key="frame" x="180" y="237.99999999999997" width="80" height="40.666666666666657"/>
+                                <rect key="frame" x="180" y="122.00000000000001" width="80" height="40.666666666666671"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle0"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FQm-Do-fsc">
-                                <rect key="frame" x="20" y="466" width="400" height="24"/>
+                                <rect key="frame" x="20" y="435" width="400" height="24"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle3"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -124,29 +124,29 @@
             <objects>
                 <viewController storyboardIdentifier="NearFarFocusVC" useStoryboardIdentifierAsRestorationIdentifier="YES" id="0ce-i1-YqH" customClass="NearFarFocusViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="adv-k2-edC">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UR9-p3-ome">
-                                <rect key="frame" x="180" y="290" width="80" height="41"/>
+                                <rect key="frame" x="180" y="122" width="80" height="41"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle0"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tzu-0B-rBM">
-                                <rect key="frame" x="20" y="804" width="400" height="24"/>
+                                <rect key="frame" x="20" y="810" width="400" height="24"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle3"/>
                                 <color key="textColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WgA-XM-cjO">
-                                <rect key="frame" x="20" y="465" width="400" height="26.333333333333314"/>
+                                <rect key="frame" x="20" y="434" width="400" height="26.333333333333314"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aZv-We-kXG">
-                                <rect key="frame" x="120" y="378" width="200" height="200"/>
+                                <rect key="frame" x="120" y="347" width="200" height="200"/>
                                 <color key="backgroundColor" name="AccentColor"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="200" id="9hK-PX-GFv"/>
@@ -484,10 +484,10 @@
                                 </buttonConfiguration>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nex-bu-tton">
-                                <rect key="frame" x="336" y="748" width="80" height="40"/>
+                                <rect key="frame" x="296" y="748" width="120" height="40"/>
                                 <constraints>
+                                    <constraint firstAttribute="width" constant="120" id="3BW-gD-SUb"/>
                                     <constraint firstAttribute="height" constant="40" id="next-height"/>
-                                    <constraint firstAttribute="width" constant="80" id="next-width"/>
                                 </constraints>
                                 <state key="normal" title="next"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Next">
@@ -809,17 +809,8 @@
         </scene>
     </scenes>
     <resources>
-        <image name="BlinkTraining" width="181" height="139"/>
         <image name="C-Test" width="170" height="200"/>
-        <image name="FigureEight" width="204" height="95"/>
-        <image name="NearFarFocus" width="243" height="97"/>
         <image name="OSDI" width="188" height="188"/>
-        <image name="PencilPushUps" width="123" height="122"/>
-        <image name="PeripheralAwareness" width="197" height="154"/>
-        <image name="SaccadicJumps" width="240" height="182"/>
-        <image name="SmoothPursuits" width="189" height="189"/>
-        <image name="dumbbell" catalog="system" width="128" height="72"/>
-        <image name="dumbbell.fill" catalog="system" width="128" height="72"/>
         <image name="heart.text.clipboard" catalog="system" width="103" height="128"/>
         <image name="heart.text.clipboard.fill" catalog="system" width="103" height="128"/>
         <image name="person.fill" catalog="system" width="128" height="120"/>
@@ -827,10 +818,10 @@
             <color red="1" green="0.50199997425079346" blue="0.15700000524520874" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="placeholderTextColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.29803921570000003" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.29803921568627451" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

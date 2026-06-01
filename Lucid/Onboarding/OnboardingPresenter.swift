@@ -3,6 +3,7 @@ import Security
 import SwiftUI
 import AVFoundation
 import Speech
+import UserNotifications
 
 enum OnboardingGate {
     static let hasCompletedKey = "hasCompletedLoginOnboarding"
@@ -91,23 +92,39 @@ final class OnboardingPresenter {
         isPresenting = true
         
         let topVC = topViewController(from: root)
-        if topVC.restorationIdentifier == hostingIdentifier {
+        if topVC.restorationIdentifier == hostingIdentifier || topVC is OSDIViewController || topVC is LandoltCViewController {
             isPresenting = false
             return
         }
         
-        let hosting = UIHostingController(rootView: AnyView(EmptyView()))
-        hosting.restorationIdentifier = hostingIdentifier
-        hosting.rootView = AnyView(OnboardingFlowView { draft in
-            Task { @MainActor in
-                await handleOnboardingSubmitted(draft: draft, window: window, presenter: hosting)
+        let user = SwiftDataManager.shared.getOrCreateUser()
+        let hasCompletedDetails = !(user.email ?? "").isEmpty
+        
+        if hasCompletedDetails {
+            presentMandatoryTestsAlert(on: topVC) {
+                requestAllPermissions {
+                    let coordinator = MandatoryTestsCoordinator(presenter: topVC)
+                    activeTestsCoordinator = coordinator
+                    coordinator.start {
+                        activeTestsCoordinator = nil
+                        showSettingUpAndFinish(window: window, presenter: topVC)
+                    }
+                }
             }
-        })
-        
-        hosting.modalPresentationStyle = .fullScreen
-        hosting.modalTransitionStyle = .crossDissolve
-        
-        topVC.present(hosting, animated: true)
+        } else {
+            let hosting = UIHostingController(rootView: AnyView(EmptyView()))
+            hosting.restorationIdentifier = hostingIdentifier
+            hosting.rootView = AnyView(OnboardingFlowView { draft in
+                Task { @MainActor in
+                    await handleOnboardingSubmitted(draft: draft, window: window, presenter: hosting)
+                }
+            })
+            
+            hosting.modalPresentationStyle = .fullScreen
+            hosting.modalTransitionStyle = .crossDissolve
+            
+            topVC.present(hosting, animated: true)
+        }
     }
     
     private static var shouldPresent: Bool {
@@ -143,16 +160,26 @@ final class OnboardingPresenter {
             if #available(iOS 17.0, *) {
                 AVAudioApplication.requestRecordPermission { _ in
                     SFSpeechRecognizer.requestAuthorization { _ in
-                        DispatchQueue.main.async {
-                            completion()
+                        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, error in
+                            if let error {
+                                print("Lucid: Notification permission error: \(error)")
+                            }
+                            DispatchQueue.main.async {
+                                completion()
+                            }
                         }
                     }
                 }
             } else {
                 AVAudioSession.sharedInstance().requestRecordPermission { _ in
                     SFSpeechRecognizer.requestAuthorization { _ in
-                        DispatchQueue.main.async {
-                            completion()
+                        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, error in
+                            if let error {
+                                print("Lucid: Notification permission error: \(error)")
+                            }
+                            DispatchQueue.main.async {
+                                completion()
+                            }
                         }
                     }
                 }

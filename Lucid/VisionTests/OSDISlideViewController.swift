@@ -71,8 +71,8 @@ class OSDIViewController: UIViewController {
         valueLabel?.alpha = 0
         
         responseSlider?.alpha = 0
-        submitButton?.isHidden = true
-        submitButton?.alpha = 0
+        submitButton?.isHidden = false
+        submitButton?.alpha = 1
         
         nextButton?.isHidden = true
     }
@@ -96,6 +96,9 @@ class OSDIViewController: UIViewController {
         
         slider.addTarget(self, action: #selector(sliderValueChanged(_:)), for: .valueChanged)
         
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(sliderTapped(_:)))
+        slider.addGestureRecognizer(tapGesture)
+        
         NSLayoutConstraint.activate([
             slider.leadingAnchor.constraint(equalTo: circleStackView.leadingAnchor),
             slider.trailingAnchor.constraint(equalTo: circleStackView.trailingAnchor),
@@ -104,6 +107,43 @@ class OSDIViewController: UIViewController {
         ])
         
         setupSliderTicks(slider: slider)
+        
+        // Setup valueLabel programmatically if not present in storyboard
+        if self.valueLabel == nil {
+            let label = UILabel()
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.font = .systemFont(ofSize: 22, weight: .bold)
+            label.textColor = .lightGray
+            label.textAlignment = .center
+            label.numberOfLines = 0
+            view.addSubview(label)
+            self.valueLabel = label
+            
+            NSLayoutConstraint.activate([
+                label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                label.bottomAnchor.constraint(equalTo: slider.topAnchor, constant: -20),
+                label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
+                label.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
+            ])
+        }
+        
+        // Setup Skip Button programmatically
+        let skipBtn = UIButton(type: .system)
+        skipBtn.translatesAutoresizingMaskIntoConstraints = false
+        skipBtn.setTitle("Skip", for: .normal)
+        skipBtn.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        let orangeColor = UIColor(named: "AccentColor") ?? .systemOrange
+        skipBtn.setTitleColor(orangeColor, for: .normal)
+        view.addSubview(skipBtn)
+        self.skipButton = skipBtn
+        skipBtn.addTarget(self, action: #selector(skipTapped), for: .touchUpInside)
+        
+        NSLayoutConstraint.activate([
+            skipBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            skipBtn.topAnchor.constraint(equalTo: slider.bottomAnchor, constant: 20),
+            skipBtn.heightAnchor.constraint(equalToConstant: 44)
+        ])
+        skipBtn.isHidden = true
         
         // Capitalize labels and increase font size to 22 bold
         neverLabel.text = "Never"
@@ -115,7 +155,6 @@ class OSDIViewController: UIViewController {
         mostlyLabel.font = .systemFont(ofSize: 22, weight: .bold)
         
         // Setup Orange navigation button colors
-        let orangeColor = UIColor(named: "AccentColor") ?? .systemOrange
         prevNavButton.setTitleColor(orangeColor, for: .normal)
         nextNavButton.setTitleColor(orangeColor, for: .normal)
         if #available(iOS 15.0, *) {
@@ -178,7 +217,7 @@ class OSDIViewController: UIViewController {
 
     private func handleCategoryTransition() {
         // Fade out all main UI elements during category/section transition
-        [questionLabel, pageControl, neverLabel, mostlyLabel, prevNavButton, nextNavButton, categoryLabel, instructionLabel].forEach { $0?.alpha = 0 }
+        [questionLabel, pageControl, neverLabel, mostlyLabel, prevNavButton, nextNavButton, categoryLabel, instructionLabel, skipButton].forEach { $0?.alpha = 0 }
         responseSlider?.alpha = 0
         tickContainerView?.alpha = 0
         valueLabel?.alpha = 0
@@ -228,6 +267,10 @@ class OSDIViewController: UIViewController {
             self.responseSlider?.alpha = 1.0
             self.tickContainerView?.alpha = 1.0
             self.valueLabel?.alpha = 1.0
+            
+            let isDailyActivity = (self.currentIndex >= 4 && self.currentIndex <= 7)
+            self.skipButton?.alpha = isDailyActivity ? 1.0 : 0.0
+            
             if self.currentIndex == self.questionnaire.count - 1 {
                 self.submitButton?.alpha = 1.0
             }
@@ -235,8 +278,16 @@ class OSDIViewController: UIViewController {
     }
 
     private func calculateScore() {
-        let sum = scores.reduce(0, +)
-        let finalOSDI = (Double(sum) * 25.0) / 12.0
+        let answeredScores = scores.filter { $0 >= 0 }
+        let totalAnsweredCount = answeredScores.count
+        
+        let finalOSDI: Double
+        if totalAnsweredCount > 0 {
+            let sum = answeredScores.reduce(0, +)
+            finalOSDI = (Double(sum) * 25.0) / Double(totalAnsweredCount)
+        } else {
+            finalOSDI = 0.0
+        }
         
         // Determine severity
         var severity = ""
@@ -278,6 +329,29 @@ class OSDIViewController: UIViewController {
         }
     }
 
+    private var skipButton: UIButton?
+
+    @objc private func sliderTapped(_ gestureRecognizer: UITapGestureRecognizer) {
+        guard let slider = responseSlider else { return }
+        let point = gestureRecognizer.location(in: slider)
+        let percentage = point.x / slider.bounds.width
+        let delta = Float(percentage) * (slider.maximumValue - slider.minimumValue)
+        let value = slider.minimumValue + delta
+        
+        slider.value = value
+        sliderValueChanged(slider)
+    }
+
+    @objc private func skipTapped() {
+        scores[currentIndex] = -2
+        
+        // Haptic feedback
+        let generator = UISelectionFeedbackGenerator()
+        generator.selectionChanged()
+        
+        customNextTapped()
+    }
+
     @objc private func sliderValueChanged(_ sender: UISlider) {
         let roundedValue = round(sender.value)
         sender.setValue(roundedValue, animated: true)
@@ -302,7 +376,8 @@ class OSDIViewController: UIViewController {
     private func setupSliderTicks(slider: UISlider) {
         let tickContainer = UIView()
         tickContainer.translatesAutoresizingMaskIntoConstraints = false
-        view.insertSubview(tickContainer, belowSubview: slider)
+        tickContainer.isUserInteractionEnabled = false
+        view.insertSubview(tickContainer, aboveSubview: slider)
         self.tickContainerView = tickContainer
         
         NSLayoutConstraint.activate([
@@ -315,8 +390,8 @@ class OSDIViewController: UIViewController {
         for i in 0..<5 {
             let dot = UIView()
             dot.translatesAutoresizingMaskIntoConstraints = false
-            dot.backgroundColor = .lightGray.withAlphaComponent(0.6)
-            dot.layer.cornerRadius = 3
+            dot.backgroundColor = .white.withAlphaComponent(0.8)
+            dot.layer.cornerRadius = 4
             tickContainer.addSubview(dot)
             
             let fraction = CGFloat(i) / 4.0
@@ -339,8 +414,8 @@ class OSDIViewController: UIViewController {
             }
             
             NSLayoutConstraint.activate([
-                dot.widthAnchor.constraint(equalToConstant: 6),
-                dot.heightAnchor.constraint(equalToConstant: 6),
+                dot.widthAnchor.constraint(equalToConstant: 8),
+                dot.heightAnchor.constraint(equalToConstant: 8),
                 dot.centerYAnchor.constraint(equalTo: tickContainer.centerYAnchor)
             ])
         }
@@ -401,8 +476,8 @@ class OSDIViewController: UIViewController {
             nextNavButton?.isHidden = false
             submitButton?.isHidden = true
             
-            nextNavButton?.isEnabled = isAnswered
-            nextNavButton?.alpha = isAnswered ? 1.0 : 0.3
+            nextNavButton?.isEnabled = true
+            nextNavButton?.alpha = 1.0
         }
     }
 
@@ -455,11 +530,19 @@ class OSDIViewController: UIViewController {
             responseSlider?.value = 0
             valueLabel?.text = "Slide to answer"
             valueLabel?.textColor = .placeholderText
+        } else if selectedValue == -2 {
+            responseSlider?.value = 0
+            valueLabel?.text = "Skipped"
+            valueLabel?.textColor = .systemGray
         } else {
             responseSlider?.value = Float(selectedValue)
             valueLabel?.text = options[selectedValue]
             valueLabel?.textColor = UIColor(named: "AccentColor") ?? .systemOrange
         }
+        
+        let isDailyActivity = (currentIndex >= 4 && currentIndex <= 7)
+        skipButton?.isHidden = !isDailyActivity
+        skipButton?.alpha = isDailyActivity ? 1.0 : 0.0
         
         updateNavigationButtonsState()
     }
