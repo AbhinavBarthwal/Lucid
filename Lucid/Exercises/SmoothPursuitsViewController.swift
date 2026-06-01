@@ -1,5 +1,7 @@
 import UIKit
 import ARKit
+import AudioToolbox
+import AVFoundation
 
 struct InstructionStep {
     let message: String
@@ -30,7 +32,8 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     private let exerciseInstructions: [InstructionStep] = [
         InstructionStep(message: "Follow the dot closely", duration: 3.0),
         InstructionStep(message: "Keep your head still", duration: 3.5),
-        InstructionStep(message: "Keep your phone at 20cm", duration: 3.5)
+        InstructionStep(message: "Keep your phone at 20cm", duration: 3.5),
+        InstructionStep(message: "The phone will vibrate if you look away from the screen, and also when you finish a round.", duration: 6.0)
     ]
 
     private let phaseDurations: [Double] = [2.0 , 1.75 , 1.5 , 1.25 , 1.0]
@@ -50,6 +53,16 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playAndRecord, mode: .default, options: [.mixWithOthers, .defaultToSpeaker])
+            try session.setAllowHapticsAndSystemSoundsDuringRecording(true)
+            try session.setActive(true)
+        } catch {
+            print("Audio Session error: \(error)")
+        }
+        
         setupInitialUI()
         arSession.delegate = self
         errorHapticGenerator.prepare()
@@ -323,8 +336,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     private func handlePhaseTransition() {
         guard isExerciseActive else { return }
         currentSpeedLevel += 1
-        successHapticGenerator.notificationOccurred(.success)
-        successHapticGenerator.prepare()
+        Vibrator.playSuccess()
 
         if currentSpeedLevel >= phaseDurations.count {
             finishExercise()
@@ -386,6 +398,9 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         instructionLabel.isHidden = false
         circleView.isHidden = false
         centerMessageLabel.isHidden = false
+        
+        instructionLabel.numberOfLines = 0
+        centerMessageLabel.numberOfLines = 0
     }
 
     private func fadeTransition(showCenterMessage: Bool, showExerciseUI: Bool, completion: (() -> Void)? = nil) {
@@ -409,7 +424,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
                 } else {
                     self.totalErrors += 1
                     self.directionFails[currentDirection, default: 0] += 1
-                    self.errorHapticGenerator.notificationOccurred(.error)
+                    Vibrator.playError()
                     self.instructionLabel.textColor = .systemRed
                     self.instructionLabel.text = "⚠️ Please keep your eyes on the screen!"
                     self.instructionLabel.alpha = 1
@@ -467,7 +482,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
             
             rootVC.present(nav, animated: true)
         }
-        do { try context.save(); successHapticGenerator.notificationOccurred(.success) } catch { print("Error: \(error)") }
+        do { try context.save(); Vibrator.playSuccess() } catch { print("Error: \(error)") }
     }
 
     private func startTransitionPhase(message: String, nextPhase: @escaping () -> Void) {

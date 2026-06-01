@@ -252,7 +252,7 @@ class AwardsViewController: UIViewController, UICollectionViewDataSource, UIColl
         if badge.isUnlocked {
             popupDetailLabel.text = definition.detail
             popupDateLabel.text   = "Earned on \(badge.dateEarned ?? "")"
-            popupProgressLabel.text = "Completed! 🌟"
+            popupProgressLabel.text = "Completed!"
         } else {
             popupDetailLabel.text = getLockedDescription(for: definition)
             popupDateLabel.text   = "Still working on it!"

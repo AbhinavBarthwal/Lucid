@@ -3,6 +3,7 @@ import ARKit
 import SceneKit
 import AVFoundation
 import SwiftUI
+import AudioToolbox
 
 var doubleBlink = 8
 var LeftRighEyeBlink = 8
@@ -69,7 +70,8 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
     private var currentInstructionIndex = 0
 
     private let exerciseInstructions: [InstructionStep] = [
-        InstructionStep(message: "Blink both eyes after the vibration", duration: 4.0)
+        InstructionStep(message: "Blink both eyes after the vibration", duration: 4.0),
+        InstructionStep(message: "If you blink incorrectly, the phone will vibrate twice to let you know.", duration: 5.5)
     ]
     
     private var leftMaxBlinks: [Float] = []
@@ -86,6 +88,16 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playAndRecord, mode: .default, options: [.mixWithOthers, .defaultToSpeaker])
+            try session.setAllowHapticsAndSystemSoundsDuringRecording(true)
+            try session.setActive(true)
+        } catch {
+            print("Audio Session error: \(error)")
+        }
+        
         setupBackgroundVideo()
         setupInitialUI()
         setupInstructionButtons()
@@ -128,6 +140,10 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         centerMessageLAbel.alpha = 1
         sceneView.delegate = self
         sceneView.alpha = 0
+        
+        instructionLabel.numberOfLines = 0
+        centerMessageLAbel.numberOfLines = 0
+        largeCountLabel.numberOfLines = 0
     }
     
     private func fadeTransition(showCenterMessage: Bool, showExerciseUI: Bool, completion: (() -> Void)? = nil) {
@@ -393,8 +409,7 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self] in
             guard let self = self, self.isExerciseActive else { return }
-            self.impactMed.impactOccurred()
-            self.impactMed.impactOccurred()
+            Vibrator.playDouble()
             self.isAcceptingInput = true
             self.cueTime = Date()
             self.startResponseTimer()
@@ -520,10 +535,7 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         default: break
         }
         
-        self.notificationGen.notificationOccurred(.error)
-        self.notificationGen.notificationOccurred(.error)
-        self.impactHeavy.impactOccurred()
-        self.impactHeavy.impactOccurred()
+        Vibrator.playError()
         
         DispatchQueue.main.async { [weak self] in
             guard let self = self, self.isExerciseActive else { return }
@@ -556,12 +568,10 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
             guard let self = self, self.isExerciseActive else { return }
             self.currentPhase.decrement()
             self.largeCountLabel.text = "\(self.currentPhase.remaining)"
-            self.impactRigid.impactOccurred()
-            self.impactRigid.impactOccurred()
+            Vibrator.playSingle()
             
             if self.currentPhase.remaining <= 0 {
-                self.notificationGen.notificationOccurred(.success)
-                self.notificationGen.notificationOccurred(.success)
+                Vibrator.playSuccess()
                 self.phaseTimer?.invalidate()
                 self.advancePhase()
             } else {
@@ -692,8 +702,74 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         playerLayer?.frame = view.bounds
         playerLayer?.videoGravity = .resizeAspectFill
         view.layer.insertSublayer(playerLayer!, at: 0)
+        player?.isMuted = true
         player?.play()
     }
 
 
+}
+
+struct Vibrator {
+    /// Plays a short, distinct vibration representing a success event.
+    static func playSuccess() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.prepare()
+        generator.notificationOccurred(.success)
+        
+        // Play system pop/success haptic sound (1520 is a physical double/medium tap sound)
+        AudioServicesPlaySystemSound(1520)
+    }
+    
+    /// Plays an error vibration sequence (e.g. double tap/vibration).
+    static func playError() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.prepare()
+        generator.notificationOccurred(.error)
+        
+        // Play error system sound (1521 is a rapid triple vibration)
+        AudioServicesPlaySystemSound(1521)
+    }
+    
+    /// Plays a standard single vibration.
+    static func playSingle() {
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.prepare()
+        generator.impactOccurred()
+        
+        AudioServicesPlaySystemSound(1520)
+    }
+    
+    /// Plays a standard double vibration with a short delay.
+    static func playDouble() {
+        let generator = UIImpactFeedbackGenerator(style: .heavy)
+        generator.prepare()
+        generator.impactOccurred()
+        
+        AudioServicesPlaySystemSound(1520)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            let secondGenerator = UIImpactFeedbackGenerator(style: .heavy)
+            secondGenerator.prepare()
+            secondGenerator.impactOccurred()
+            AudioServicesPlaySystemSound(1520)
+        }
+    }
+    
+    /// Plays a strong physical vibration (e.g. using the full vibration motor).
+    static func playHeavy() {
+        let generator = UIImpactFeedbackGenerator(style: .heavy)
+        generator.prepare()
+        generator.impactOccurred()
+        
+        // 4095 is kSystemSoundID_Vibrate, which physically shakes the device
+        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+    }
+    
+    /// Plays a warning style vibration.
+    static func playWarning() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.prepare()
+        generator.notificationOccurred(.warning)
+        
+        AudioServicesPlaySystemSound(1520)
+    }
 }

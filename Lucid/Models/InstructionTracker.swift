@@ -4,7 +4,7 @@ struct InstructionTracker {
     // Static dictionary to store state in memory, initialized from UserDefaults
     static var firstRunStatus: [String: Int] = {
         var status: [String: Int] = [:]
-        let keys = ["PencilPushup", "SaccadicJumps", "SmoothPursuits", "PeripheralAwareness", "Figure8", "NearFar", "Blink", "CTest"]
+        let keys = ["PencilPushup", "SaccadicJumps", "SmoothPursuits", "PeripheralAwareness", "Figure8", "NearFar", "Blink", "CTest", "OSDI"]
         for key in keys {
             if let savedValue = UserDefaults.standard.object(forKey: "InstructionFirstRun_\(key)") as? Int {
                 status[key] = savedValue

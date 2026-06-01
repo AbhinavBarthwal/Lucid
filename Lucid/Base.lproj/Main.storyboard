@@ -139,8 +139,8 @@
                                 <color key="textColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WgA-XM-cjO">
-                                <rect key="frame" x="20" y="434" width="400" height="26.333333333333314"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WgA-XM-cjO">
+                                <rect key="frame" x="20" y="447" width="400" height="0.0"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
@@ -385,6 +385,12 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="osd-in-lbl">
+                                <rect key="frame" x="20" y="447" width="400" height="0.0"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Symptoms" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="X9o-N7-Dod">
                                 <rect key="frame" x="63" y="88" width="314" height="97"/>
                                 <constraints>
@@ -521,6 +527,10 @@
                             <constraint firstItem="7ID-P7-php" firstAttribute="trailing" secondItem="Ks8-2a-CDu" secondAttribute="trailing" constant="20" id="ques-trailing"/>
                             <constraint firstItem="cir-st-view" firstAttribute="leading" secondItem="7ID-P7-php" secondAttribute="leading" constant="24" id="stack-leading"/>
                             <constraint firstItem="7ID-P7-php" firstAttribute="trailing" secondItem="cir-st-view" secondAttribute="trailing" constant="24" id="stack-trailing"/>
+                            <constraint firstItem="osd-in-lbl" firstAttribute="centerY" secondItem="pFt-lq-Bcb" secondAttribute="centerY" id="osd-in-centerY"/>
+                            <constraint firstItem="osd-in-lbl" firstAttribute="leading" secondItem="pFt-lq-Bcb" secondAttribute="leading" constant="20" id="osd-in-leading"/>
+                            <constraint firstAttribute="trailing" secondItem="osd-in-lbl" secondAttribute="trailing" constant="20" id="osd-in-trailing"/>
+                            <constraint firstItem="osd-in-lbl" firstAttribute="centerX" secondItem="pFt-lq-Bcb" secondAttribute="centerX" id="osd-in-centerX"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="OSDI" id="iNE-3G-ejS"/>
@@ -532,6 +542,7 @@
                         <outlet property="mostlyLabel" destination="mos-la-bel" id="mos-la-conn"/>
                         <outlet property="neverLabel" destination="nev-la-bel" id="nev-la-conn"/>
                         <outlet property="nextNavButton" destination="nex-bu-tton" id="nex-bu-conn"/>
+                        <outlet property="onboardingInstructionLabel" destination="osd-in-lbl" id="osd-in-conn"/>
                         <outlet property="pageControl" destination="1U6-I6-HB4" id="7SV-JX-2So"/>
                         <outlet property="prevNavButton" destination="pre-bu-tton" id="pre-bu-conn"/>
                         <outlet property="questionLabel" destination="Ks8-2a-CDu" id="a2i-TK-cdb"/>

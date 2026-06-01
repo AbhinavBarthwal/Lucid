@@ -6,6 +6,7 @@ final class GuidanceOverlayViewController: UIViewController {
     static let didRequestNavigateToTestNotification = Notification.Name("Lucid.guidanceOverlay.didRequestNavigateToTest")
 
     private enum Target {
+        case checkupTest
         case exerciseRecommendation
         case exerciseStreak
         case awards
@@ -27,29 +28,7 @@ final class GuidanceOverlayViewController: UIViewController {
     private let hintLabel = UILabel()
     private var skipButton: UIButton?
 
-    private let steps: [Step] = [
-        Step(
-            callout: Callout(
-                title: "Daily Recommendation",
-                body: "See your personalized daily eye exercise recommendation right here."
-            ),
-            target: .exerciseRecommendation
-        ),
-        Step(
-            callout: Callout(
-                title: "Exercise Streak",
-                body: "Track your consistency. Complete exercises daily to keep Luc happy and healthy!"
-            ),
-            target: .exerciseStreak
-        ),
-        Step(
-            callout: Callout(
-                title: "Awards & Milestones",
-                body: "Check out the custom awards, badges, and streaks you've unlocked along the way."
-            ),
-            target: .awards
-        )
-    ]
+    private var steps: [Step] = []
 
     private let arrowLayer = CAShapeLayer()
     private let blurMask = CAShapeLayer()
@@ -76,10 +55,54 @@ final class GuidanceOverlayViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         modalPresentationStyle = .overFullScreen
+        configureSteps()
         configureViewHierarchy()
         setupLayers()
         applyAppearance()
         addTapGesture()
+    }
+
+    private func configureSteps() {
+        var stepsList: [Step] = []
+        
+        // Find SummaryViewController to check if checkup test is due
+        if let summary = Self.findVisibleSummary(in: presentingViewController ?? view.window?.rootViewController), summary.isTestDue() {
+            let state = summary.getCheckupState()
+            let testName = state == .OSDIDue ? "OSDI Test" : "C Test"
+            stepsList.append(Step(
+                callout: Callout(
+                    title: "Checkup Test Reminder",
+                    body: "Complete your pending \(testName) here when you are ready."
+                ),
+                target: .checkupTest
+            ))
+        }
+        
+        stepsList.append(contentsOf: [
+            Step(
+                callout: Callout(
+                    title: "Daily Recommendation",
+                    body: "See your personalized daily eye exercise recommendation right here."
+                ),
+                target: .exerciseRecommendation
+            ),
+            Step(
+                callout: Callout(
+                    title: "Exercise Streak",
+                    body: "Track your consistency. Complete exercises daily to keep Luc happy and healthy!"
+                ),
+                target: .exerciseStreak
+            ),
+            Step(
+                callout: Callout(
+                    title: "Awards & Milestones",
+                    body: "Check out the custom awards, badges, and streaks you've unlocked along the way."
+                ),
+                target: .awards
+            )
+        ])
+        
+        self.steps = stepsList
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -319,7 +342,7 @@ final class GuidanceOverlayViewController: UIViewController {
 
         let candidates: [CGRect]
         switch target {
-        case .exerciseRecommendation:
+        case .checkupTest, .exerciseRecommendation:
             candidates = [below, above, right, left]
         case .exerciseStreak:
             candidates = [below, above, left, right]
@@ -366,11 +389,25 @@ final class GuidanceOverlayViewController: UIViewController {
         collectionView.layoutIfNeeded()
 
         switch target {
+        case .checkupTest:
+            let count = collectionView.numberOfItems(inSection: 0)
+            for item in 0..<count {
+                let indexPath = IndexPath(item: item, section: 0)
+                if let cell = visibleCell(at: indexPath, in: collectionView) as? RecommendationCollectionViewCell {
+                    if cell.titleLabel.text == "OSDI" || cell.titleLabel.text == "C Test" {
+                        return rectForTargetView(cell.contentView)
+                    }
+                }
+            }
+            return nil
         case .exerciseRecommendation:
             let count = collectionView.numberOfItems(inSection: 0)
             for item in 0..<count {
                 let indexPath = IndexPath(item: item, section: 0)
                 if let cell = visibleCell(at: indexPath, in: collectionView) as? RecommendationCollectionViewCell {
+                    if cell.titleLabel.text == "OSDI" || cell.titleLabel.text == "C Test" {
+                        continue
+                    }
                     return rectForTargetView(cell.contentView)
                 }
             }
@@ -480,7 +517,7 @@ final class GuidanceOverlayViewController: UIViewController {
 
     private func arrowEndPoint(for target: Target, spotlightRect: CGRect, fallback: CGPoint) -> CGPoint {
         switch target {
-        case .exerciseRecommendation:
+        case .checkupTest, .exerciseRecommendation:
             return CGPoint(x: spotlightRect.midX, y: spotlightRect.minY + 4)
         case .exerciseStreak:
             return fallback

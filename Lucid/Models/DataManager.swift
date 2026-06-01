@@ -76,7 +76,56 @@ class SwiftDataManager {
     func insert(_ session: ExerciseSession) {
         cachedDatabase?.exerciseSessions.append(session)
         saveInternal()
+        
         UserDefaults.standard.set(true, forKey: "summary.dailyExercises.lastLaunchSuccess")
+        
+        // 1. Mark the exercise as completed in daily completed list
+        let exerciseId = getExerciseId(from: session.type)
+        markExerciseCompletedInUserDefaults(exerciseId: exerciseId)
+        
+        // 2. Update user's streak status
+        let user = getOrCreateUser()
+        user.updateTodayStreakStatus()
+        
+        // 3. Evaluate and unlock badges
+        ProgressManager.shared.evaluateAndUnlock()
+        
+        // 4. Reschedule exercise reminders
+        NotificationManager.shared.scheduleExerciseReminders()
+    }
+    
+    private func getExerciseId(from sessionType: String) -> String {
+        switch sessionType {
+        case "SaccadicJumps":
+            return "SaccadicJump"
+        default:
+            return sessionType
+        }
+    }
+    
+    private func markExerciseCompletedInUserDefaults(exerciseId: String) {
+        let stamp = dayStamp()
+        let existing = UserDefaults.standard.string(forKey: "summary.dailyExercises.dayStamp")
+        var completed: [String] = []
+        if existing == stamp {
+            completed = UserDefaults.standard.stringArray(forKey: "summary.dailyExercises.completedIds") ?? []
+        } else {
+            UserDefaults.standard.set(stamp, forKey: "summary.dailyExercises.dayStamp")
+            UserDefaults.standard.removeObject(forKey: "summary.dailyExercises.lastLaunchExerciseId")
+            UserDefaults.standard.removeObject(forKey: "summary.dailyExercises.lastLaunchCompletedSeconds")
+            let user = getOrCreateUser()
+            user.checkDailyReset()
+        }
+        if !completed.contains(exerciseId) {
+            completed.append(exerciseId)
+            UserDefaults.standard.set(completed, forKey: "summary.dailyExercises.completedIds")
+        }
+    }
+    
+    private func dayStamp(date: Date = Date()) -> String {
+        let calendar = Calendar.current
+        let comps = calendar.dateComponents([.year, .month, .day], from: date)
+        return String(format: "%04d-%02d-%02d", comps.year ?? 0, comps.month ?? 0, comps.day ?? 0)
     }
     
     func insert(_ session: CTestSession) {

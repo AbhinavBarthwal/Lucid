@@ -1,7 +1,9 @@
 import UIKit
 import AVFoundation
+import ARKit
+import AudioToolbox
 
-class NearFarFocusViewController: UIViewController {
+class NearFarFocusViewController: UIViewController, ARSessionDelegate {
     
     @IBOutlet weak var timerLabel: UILabel!
     @IBOutlet weak var instructionLabel: UILabel!
@@ -25,6 +27,11 @@ class NearFarFocusViewController: UIViewController {
     private var currentRound = 1
     private let totalRounds = 10
     private let speechSynthesizer = AVSpeechSynthesizer()
+    private let arSession = ARSession()
+    private var isLookingAtScreen = false
+    private var totalFramesChecked = 0
+    private var totalErrors = 0
+    private var gazeTimer: Timer?
     
     // Navigation/Skip buttons for instructions
     private var instructionNextButton: UIButton?
@@ -41,12 +48,14 @@ class NearFarFocusViewController: UIViewController {
         
         do {
             let session = AVAudioSession.sharedInstance()
-            try session.setCategory(.playback, mode: .default, options: [.duckOthers])
+            try session.setCategory(.playAndRecord, mode: .default, options: [.mixWithOthers, .defaultToSpeaker])
+            try session.setAllowHapticsAndSystemSoundsDuringRecording(true)
             try session.setActive(true)
         } catch {
             print("Audio Session error: \(error)")
         }
         
+        setupEyeTracking()
         setupInstructionButtons()
         runInstructionSequence(index: 0)
     }
@@ -62,9 +71,11 @@ class NearFarFocusViewController: UIViewController {
         super.viewWillDisappear(animated)
         isExerciseActive = false
         phaseTimer?.invalidate(); phaseTimer = nil
+        gazeTimer?.invalidate(); gazeTimer = nil
         circleView.layer.removeAllAnimations()
         instructionLabel.layer.removeAllAnimations()
         currentPhase = .none
+        arSession.pause()
         self.tabBarController?.tabBar.isHidden = false
         
         if speechSynthesizer.isSpeaking {
@@ -82,6 +93,10 @@ class NearFarFocusViewController: UIViewController {
         circleView.isHidden = false
         centerMessageLabel.alpha = 1
         centerMessageLabel.isHidden = false
+        
+        timerLabel.numberOfLines = 0
+        instructionLabel.numberOfLines = 0
+        centerMessageLabel.numberOfLines = 0
     }
     
     private func fadeTransition(showCenterMessage: Bool, showExerciseUI: Bool, completion: (() -> Void)? = nil) {
@@ -96,6 +111,7 @@ class NearFarFocusViewController: UIViewController {
     }
     
     private func transitionToNextPhase(completion: @escaping () -> Void) {
+        gazeTimer?.invalidate(); gazeTimer = nil
         UIView.animate(withDuration: 0.3, animations: {
             self.timerLabel.alpha = 0
             self.instructionLabel.alpha = 0
@@ -310,7 +326,7 @@ class NearFarFocusViewController: UIViewController {
         timerLabel.text = "\(secondsRemaining)"
         
         instructionLabel.textColor = .lightGray
-        instructionLabel.text = "Look at the screen\n(Round \(currentRound)/\(totalRounds))"
+        instructionLabel.text = "Look at the screen\n\(currentRound)/\(totalRounds)"
         
         speak("Look at the screen")
         
@@ -322,6 +338,7 @@ class NearFarFocusViewController: UIViewController {
             UIView.animate(withDuration: Double(randomDuration), delay: 0, options: [.curveLinear]) {
                 self.circleView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
             }
+            self.startGazeMonitor()
             self.startPhaseTimer {
                 guard self.isExerciseActive else { return }
                 self.transitionToNextPhase {
@@ -340,7 +357,7 @@ class NearFarFocusViewController: UIViewController {
         timerLabel.text = "\(secondsRemaining)"
         
         instructionLabel.textColor = .lightGray
-        instructionLabel.text = "Look away from the screen\n(Round \(currentRound)/\(totalRounds))"
+        instructionLabel.text = "Look away from the screen\n\(currentRound)/\(totalRounds)"
         
         speak("Look away")
         
@@ -352,6 +369,7 @@ class NearFarFocusViewController: UIViewController {
             UIView.animate(withDuration: Double(randomDuration), delay: 0, options: [.curveLinear]) {
                 self.circleView.transform = CGAffineTransform(scaleX: 0.3, y: 0.3)
             }
+            self.startGazeMonitor()
             self.startPhaseTimer {
                 guard self.isExerciseActive else { return }
                 
@@ -389,23 +407,27 @@ class NearFarFocusViewController: UIViewController {
     }
     
     private func finishExercise() {
+        gazeTimer?.invalidate(); gazeTimer = nil
+        arSession.pause()
+        
         let startTime = sessionStartTime ?? Date()
         let elapsedSeconds = Int(Date().timeIntervalSince(startTime))
         
         let context = SwiftDataManager.shared.context
         let user = SwiftDataManager.shared.getOrCreateUser()
+        let accuracy = totalFramesChecked > 0 ? Int((Double(totalFramesChecked - totalErrors) / Double(totalFramesChecked)) * 100.0) : 100
         let newSession = ExerciseSession(
             type: "NearFar",
             duration: elapsedSeconds,
-            accuracy: 100,
-            errors: 0
+            accuracy: accuracy,
+            errors: totalErrors
         )
         newSession.user = user
         context.insert(newSession)
         
         do {
             try context.save()
-            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            Vibrator.playSuccess()
         } catch {
             print("❌ Near Far Focus Save failed: \(error)")
         }
@@ -433,6 +455,62 @@ class NearFarFocusViewController: UIViewController {
                 nav.popViewController(animated: true)
             } else {
                 self.dismiss(animated: true)
+            }
+        }
+    }
+    
+    private func setupEyeTracking() {
+        guard ARFaceTrackingConfiguration.isSupported else { return }
+        arSession.delegate = self
+        let configuration = ARFaceTrackingConfiguration()
+        arSession.run(configuration, options: [.resetTracking, .removeExistingAnchors])
+    }
+    
+    func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
+        guard isExerciseActive, let faceAnchor = anchors.compactMap({ $0 as? ARFaceAnchor }).first else {
+            isLookingAtScreen = false
+            return
+        }
+        let lookAt = faceAnchor.lookAtPoint
+        isLookingAtScreen = abs(lookAt.x) < 0.2 && abs(lookAt.y) < 0.2
+    }
+    
+    private func startGazeMonitor() {
+        gazeTimer?.invalidate()
+        gazeTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self = self, self.isExerciseActive else { return }
+                self.totalFramesChecked += 1
+                
+                if self.currentPhase == .near {
+                    if self.isLookingAtScreen {
+                        if self.instructionLabel.textColor == .systemRed {
+                            UIView.animate(withDuration: 0.3) {
+                                self.instructionLabel.textColor = .lightGray
+                                self.instructionLabel.text = "Look at the screen\n\(self.currentRound)/\(self.totalRounds)"
+                            }
+                        }
+                    } else {
+                        self.totalErrors += 1
+                        Vibrator.playError()
+                        self.instructionLabel.textColor = .systemRed
+                        self.instructionLabel.text = "⚠️ Please look at the screen!"
+                    }
+                } else if self.currentPhase == .far {
+                    if !self.isLookingAtScreen {
+                        if self.instructionLabel.textColor == .systemRed {
+                            UIView.animate(withDuration: 0.3) {
+                                self.instructionLabel.textColor = .lightGray
+                                self.instructionLabel.text = "Look away from the screen\n\(self.currentRound)/\(self.totalRounds)"
+                            }
+                        }
+                    } else {
+                        self.totalErrors += 1
+                        Vibrator.playError()
+                        self.instructionLabel.textColor = .systemRed
+                        self.instructionLabel.text = "⚠️ Please look away from the screen!"
+                    }
+                }
             }
         }
     }

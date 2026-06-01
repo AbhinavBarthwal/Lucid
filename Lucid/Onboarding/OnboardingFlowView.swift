@@ -621,7 +621,7 @@ private struct LandingStep: View {
                         .foregroundStyle(.white)
                         .tracking(4)
                     
-                    Text("Soothing digital eye strain")
+                    Text("Fixing digital eye strain")
                         .font(.subheadline)
                         .foregroundStyle(Color.white.opacity(0.70))
                         .multilineTextAlignment(.center)
@@ -658,6 +658,7 @@ private struct LandingStep: View {
                                 .font(.body.bold())
                             Text("Continue with Email")
                                 .font(.title3)
+                                .fontWeight(.semibold)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 18)
@@ -722,7 +723,7 @@ private struct EmailLoginStep: View {
                 HStack {
                     Image(systemName: "envelope")
                         .foregroundStyle(Color.white.opacity(0.4))
-                    TextField("you@example.com", text: $email)
+                    TextField("", text: $email)
                         .keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never)
                         .textContentType(.username)

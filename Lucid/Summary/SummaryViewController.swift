@@ -389,7 +389,7 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                 
                 if state == .OSDIDue {
                     titleText = "OSDI"
-                    reasonText = "Hey! Quick check-in time. Let's see how your eyes have been feeling — it only takes a minute, I promise 👀"
+                    reasonText = "Hey check-in time. Let's see how your eyes have been feeling"
                     iconName = "doc.text.fill"
                 } else {
                     titleText = "C Test"
@@ -589,7 +589,7 @@ extension SummaryViewController {
         case CTestDue
     }
 
-    private func getCheckupState() -> CheckupState {
+    func getCheckupState() -> CheckupState {
         let user = SwiftDataManager.shared.getOrCreateUser()
         let lastOSDI = user.osdiSessions.map { $0.date }.max()
         let lastCTest = user.eyeTestSessions.map { $0.startingTime }.max()
@@ -628,7 +628,7 @@ extension SummaryViewController {
         return .notDue
     }
 
-    private func isTestDue() -> Bool {
+    func isTestDue() -> Bool {
         return getCheckupState() != .notDue
     }
     

@@ -27,7 +27,8 @@ class AwardsCollectionViewCell: UICollectionViewCell {
         dateLabel.text = "  "
         dateLabel.textColor = .clear
 
-        iconImageView.image = UIImage(systemName: image)
+        let awardImage = UIImage(systemName: image) ?? UIImage(named: image)
+        iconImageView.image = awardImage?.withRenderingMode(.alwaysTemplate)
         iconImageView.tintColor = UIColor(named: "AccentColor") ?? .systemOrange
     }
     

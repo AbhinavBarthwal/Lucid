@@ -1,10 +1,13 @@
 import UIKit
 import ARKit
+import AudioToolbox
+import AVFoundation
 
 private enum PencilPushUpExercisePhase {
     case none, bringingCloser, waitingForReset
 }
 
+@MainActor
 class PencilPushUpViewController: UIViewController, ARSessionDelegate {
 
     @IBOutlet weak var instructionLabel: UILabel!
@@ -40,11 +43,22 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
     private let exerciseInstructions: [InstructionStep] = [
         InstructionStep(message: "Keep your phone at arm's length", duration: 3.5),
         InstructionStep(message: "Focus on the green dot at the top of the display", duration: 4.5),
-        InstructionStep(message: "Bring the phone closer slowly", duration: 3.5)
+        InstructionStep(message: "Bring the phone closer slowly", duration: 3.5),
+        InstructionStep(message: "The phone will vibrate if you look away, complete a rep, or return to the starting position.", duration: 6.0)
     ]
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playAndRecord, mode: .default, options: [.mixWithOthers, .defaultToSpeaker])
+            try session.setAllowHapticsAndSystemSoundsDuringRecording(true)
+            try session.setActive(true)
+        } catch {
+            print("Audio Session error: \(error)")
+        }
+        
         setupInitialUI()
         arSession.delegate = self
         errorHapticGenerator.prepare()
@@ -272,8 +286,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
 
     private func handleFullRepCompletion() {
         guard isExerciseActive else { return }
-        successHapticGenerator.notificationOccurred(.success)
-        successHapticGenerator.prepare()
+        Vibrator.playSuccess()
         gazeTimer?.invalidate()
         
         if currentRep < maxReps {
@@ -316,7 +329,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         
         do {
             try context.save()
-            heavyHapticGenerator.impactOccurred()
+            Vibrator.playHeavy()
         } catch {
             print("❌ Pencil Push-Ups Save failed: \(error)")
         }
@@ -357,8 +370,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
             }
         } else if currentPhase == .waitingForReset {
             if currentFaceDistance >= 0.40 {
-                heavyHapticGenerator.impactOccurred()
-                heavyHapticGenerator.prepare()
+                Vibrator.playHeavy()
                 startBringingCloserPhase()
             }
         }
@@ -395,6 +407,10 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         circleView.alpha = 0
         circleView.isHidden = true
         centerMessageLabel.alpha = 0
+        
+        instructionLabel.numberOfLines = 0
+        centerMessageLabel.numberOfLines = 0
+        distanceLabel.numberOfLines = 0
     }
 
     private func fadeTransition(showCenterMessage: Bool, showExerciseUI: Bool, completion: (() -> Void)? = nil) {
@@ -408,24 +424,28 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         }
     }
 
-    private func startGazeMonitor() {
+    @MainActor private func startGazeMonitor() {
         gazeTimer?.invalidate()
-        gazeTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
-            guard let self = self, self.isExerciseActive, self.currentPhase == .bringingCloser else { return }
-            self.totalFramesChecked += 1
-            
-            if self.isLookingAtScreen {
-                if self.instructionLabel.text != "Bring phone closer" {
-                    UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 0 }
+        let timer = Timer(timeInterval: 0.5, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+            Task { @MainActor in
+                guard self.isExerciseActive, self.currentPhase == .bringingCloser else { return }
+                self.totalFramesChecked += 1
+                if self.isLookingAtScreen {
+                    if self.instructionLabel.text != "Bring phone closer" {
+                        UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 0 }
+                    }
+                } else {
+                    self.totalErrors += 1
+                    Vibrator.playError()
+                    self.instructionLabel.textColor = .systemRed
+                    self.instructionLabel.text = "⚠️ Please look at the green dot at the top of the display!"
+                    self.instructionLabel.alpha = 1
                 }
-            } else {
-                self.totalErrors += 1
-                self.errorHapticGenerator.notificationOccurred(.error)
-                self.instructionLabel.textColor = .systemRed
-                self.instructionLabel.text = "⚠️ Please look at the green dot at the top of the display!"
-                self.instructionLabel.alpha = 1
             }
         }
+        RunLoop.main.add(timer, forMode: .common)
+        self.gazeTimer = timer
     }
 
 

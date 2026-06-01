@@ -1,6 +1,7 @@
 import UIKit
 import ARKit
 import Speech
+import AudioToolbox
 
 class LandoltCViewController: UIViewController, ARSessionDelegate {
 
@@ -57,9 +58,11 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
     private var isWarningShown = false
 
     private let exerciseInstructions: [InstructionStep] = [
+        InstructionStep(message: "In this test, you must speak the matching numbers out loud!", duration: 4.5),
         InstructionStep(message: "Please hold your phone at arm's length", duration: 3.5),
         InstructionStep(message: "Look at the opening and say the matching number out loud!", duration: 4.5),
-        InstructionStep(message: "If it's hard to see, just say 'cannot see' or 'skip' to move on.", duration: 5.5)
+        InstructionStep(message: "If it's hard to see, just say 'cannot see' or 'skip' to move on.", duration: 5.5),
+        InstructionStep(message: "You will see the flashes around the edges for your response.", duration: 6.0)
     ]
 
     private let directionMap: [Int: String] = [
@@ -121,7 +124,11 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         statusLabel.alpha = 0
         self.numbers.forEach { $0.alpha = 0 }
         
+        statusLabel.numberOfLines = 0
+        instructionLabel.numberOfLines = 0
+        
         view.addSubview(eyeWarningLabel)
+        eyeWarningLabel.numberOfLines = 0
         NSLayoutConstraint.activate([
             eyeWarningLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             eyeWarningLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -120),
@@ -310,6 +317,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
 
     private func startActivePhase() {
         isInstructionPhase = false
+
         UIView.animate(withDuration: 0.8) {
             self.instructionLabel.alpha = 0
             self.landoltImageView.alpha = 1
@@ -324,6 +332,8 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
     }
 
     private func startActivePhaseFromSwitch() {
+
+        
         UIView.animate(withDuration: 0.5) {
             self.instructionLabel.alpha = 0
             self.landoltImageView.alpha = 1
@@ -414,7 +424,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
             self.stopAudio(hideBorder: false)
 
             if isSuccess {
-                self.notificationGen.notificationOccurred(.success)
+                Vibrator.playSuccess()
                 if !self.isTestingRightEye { self.leftEyeScore += 1 } else { self.rightEyeScore += 1 }
                 self.currentScale /= 1.258 // LogMAR Step
             }
@@ -449,7 +459,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
     private func handleUserSkip() {
         self.isTestActive = false
         self.stopAudio(hideBorder: true)
-        self.notificationGen.notificationOccurred(.warning)
+        Vibrator.playWarning()
 
         DispatchQueue.main.async {
             UIView.animate(withDuration: 1.0, animations: {
@@ -594,6 +604,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
 
                 if isMatch {
                     self.isProcessing = true
+                    SiriListeningBorderView.shared.setBorderState(.correct)
                     self.generateNextTarget(isSuccess: true)
                 } else if isSkip {
                     self.isProcessing = true
@@ -602,7 +613,8 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
                     let words = spoken.components(separatedBy: " ")
                     if let lastWord = words.last, self.isNumber(lastWord) {
                         self.isProcessing = true
-                        self.notificationGen.notificationOccurred(.error)
+                        SiriListeningBorderView.shared.setBorderState(.incorrect)
+                        Vibrator.playError()
                         self.generateNextTarget(isSuccess: false)
                     }
                 }
@@ -623,6 +635,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
 
         // Mark mic as open, then smoothly show the border
         isMicActive = true
+        SiriListeningBorderView.shared.setBorderState(.listening)
         SiriListeningBorderView.shared.startListening(audioEngine: audioEngine)
         SiriListeningBorderView.shared.show()
     }

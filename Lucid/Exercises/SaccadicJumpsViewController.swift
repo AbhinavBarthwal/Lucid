@@ -1,6 +1,7 @@
 import UIKit
 import ARKit
 import AVFoundation
+import AudioToolbox
 
 class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
 
@@ -41,7 +42,8 @@ class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
     
     private let exerciseInstructions: [InstructionStep] = [
         InstructionStep(message: "Move your eyes in the\ndirection announced", duration: 4.0),
-        InstructionStep(message: "Keep your head still", duration: 3.5)
+        InstructionStep(message: "Keep your head still", duration: 3.5),
+        InstructionStep(message: "You'll feel vibration when you look correctly, and a double if you miss.", duration: 6.0)
     ]
 
     private var sessionStartTime: Date?
@@ -87,7 +89,8 @@ class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
     private func configureAudioSession() {
         do {
             let session = AVAudioSession.sharedInstance()
-            try session.setCategory(.playback, mode: .default, options: [.duckOthers])
+            try session.setCategory(.playAndRecord, mode: .default, options: [.mixWithOthers, .defaultToSpeaker])
+            try session.setAllowHapticsAndSystemSoundsDuringRecording(true)
             try session.setActive(true)
         } catch {
             print("Audio Session error: \(error)")
@@ -300,19 +303,19 @@ class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
         }
         hasLookedInDirection = true
         successfulFollows += 1
-        impactGenerator.impactOccurred()
+        Vibrator.playSingle()
     }
 
     private func startExercise() {
         guard isExerciseActive else { return }
         var pool: [Direction] = []
         for direction in Direction.allCases {
-            for _ in 0..<4 {
+            for _ in 0..<6 {
                 pool.append(direction)
             }
         }
         
-        for _ in 0..<1000 {
+        for _ in 0..<2000 {
             pool.shuffle()
             var hasAdjacentDuplicate = false
             for i in 0..<(pool.count - 1) {
@@ -363,7 +366,7 @@ class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
                 if let currentDirection = self.currentDirection {
                     self.directionMisses[currentDirection, default: 0] += 1
                 }
-                self.notificationGenerator.notificationOccurred(.error)
+                Vibrator.playDouble()
             }
             UIView.animate(withDuration: 0.2) { self.centerMessageLabel.alpha = 0 }
             self.triggerNextRep()
@@ -412,7 +415,7 @@ class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
         
         do {
             try context.save()
-            notificationGenerator.notificationOccurred(.success)
+            Vibrator.playSuccess()
         } catch {
             print("❌ Saccadic Jumps Save failed: \(error)")
         }
@@ -422,6 +425,7 @@ class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
 
     private func prepareInitialState() {
         centerMessageLabel.alpha = 0
+        centerMessageLabel.numberOfLines = 0
     }
 
     private func setupEyeTracking() {

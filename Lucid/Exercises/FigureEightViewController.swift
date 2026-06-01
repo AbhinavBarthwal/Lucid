@@ -34,10 +34,12 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
     private var currentPath: UIBezierPath?
     private var isSecondPart = false
     private var hasStartedCountdown = false
+    private var hasStartedSecondPhaseCountdown = false
+    private var secondPhaseCountdownGeneration = 0
     private var totalFramesChecked = 0
     private var totalErrors = 0
     private var isFinished = false
-    private let loopDurations: [CFTimeInterval] = [10.0, 8.0, 6.5]
+    private let loopDurations: [CFTimeInterval] = [10.0, 9.0 , 8.0 , 7.0 , 6.0]
 
     // Navigation/Skip buttons for instructions
     private var instructionNextButton: UIButton?
@@ -108,11 +110,17 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
     private func fadeTransition(showCenterMessage: Bool, showExerciseUI: Bool, completion: (() -> Void)? = nil) {
         UIView.animate(withDuration: 0.5, animations: {
             self.centerMessageLabel.alpha = showCenterMessage ? 1 : 0
-            self.instructionLabel.alpha = showExerciseUI ? 1 : 0
+            self.instructionLabel.alpha = 0
             self.circleView.alpha = showExerciseUI ? 1 : 0
         }) { _ in
             completion?()
         }
+    }
+
+    private func setExerciseVisualsVisible(_ isVisible: Bool) {
+        circleView.alpha = isVisible ? 1 : 0
+        trackLayer?.opacity = isVisible ? 1 : 0
+        instructionLabel.alpha = 0
     }
 
     private func runInstructionSequence(index: Int) {
@@ -263,6 +271,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
     }
 
     private func runStartCountdown(completion: @escaping () -> Void) {
+        setExerciseVisualsVisible(false)
         UIView.animate(withDuration: 0.2, animations: {
             self.centerMessageLabel.alpha = 0
         }) { _ in
@@ -373,11 +382,25 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         } else {
             if isPortrait {
                 if currentPhase == .none {
-                    startSecondPhaseTracking()
+                    guard !hasStartedSecondPhaseCountdown else { return }
+                    hasStartedSecondPhaseCountdown = true
+                    secondPhaseCountdownGeneration += 1
+                    let countdownGeneration = secondPhaseCountdownGeneration
+                    setExerciseVisualsVisible(false)
+                    runStartCountdown { [weak self] in
+                        guard let self = self,
+                              self.isExerciseActive,
+                              self.currentPhase == .none,
+                              self.isSecondPart,
+                              self.secondPhaseCountdownGeneration == countdownGeneration,
+                              self.view.bounds.height > self.view.bounds.width else {
+                            return
+                        }
+                        self.startSecondPhaseTracking()
+                    }
                 } else if currentPhase == .tracking {
                     centerMessageLabel.alpha = 0
-                    circleView.alpha = 1
-                    trackLayer?.opacity = 1
+                    setExerciseVisualsVisible(true)
                     
                     // Re-draw path for current portrait bounds
                     currentPath = createInfinityPath(isVertical: true)
@@ -398,9 +421,14 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
                         pauseLayer(layer: circleView.layer)
                         isAnimationPaused = true
                     }
-                    circleView.alpha = 0
-                    trackLayer?.opacity = 0
+                    setExerciseVisualsVisible(false)
                     gazeTimer?.invalidate()
+                } else if currentPhase == .none {
+                    if hasStartedSecondPhaseCountdown {
+                        hasStartedSecondPhaseCountdown = false
+                        secondPhaseCountdownGeneration += 1
+                    }
+                    setExerciseVisualsVisible(false)
                 }
                 centerMessageLabel.text = "Halfway there!\nRotate phone to Portrait"
                 centerMessageLabel.alpha = 1
@@ -418,13 +446,16 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
 
     private func startFigureEightPhase() {
         currentPhase = .tracking
+        if sessionStartTime == nil {
+            sessionStartTime = Date()
+        }
         currentLoopIndex = 0
         isAnimationPaused = false
         resetLayerSpeed(layer: circleView.layer)
             
         instructionLabel.text = "Keep the phone close to your face "
         instructionLabel.textColor = .lightGray
-        instructionLabel.alpha = 1
+        instructionLabel.alpha = 0
             
         currentPath = createInfinityPath(isVertical: false)
         if let path = currentPath {
@@ -446,7 +477,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         
         instructionLabel.text = "Keep the phone close to your face "
         instructionLabel.textColor = .lightGray
-        instructionLabel.alpha = 1
+        instructionLabel.alpha = 0
         
         currentPath = createInfinityPath(isVertical: true)
         if let path = currentPath {
@@ -454,8 +485,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         }
         
         centerMessageLabel.alpha = 0
-        circleView.alpha = 1
-        trackLayer?.opacity = 1
+        setExerciseVisualsVisible(true)
         
         startGazeMonitor()
         startFigureEightAnimation()
@@ -467,8 +497,8 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         
         if isVertical {
             // Vertical figure eight (loops top and bottom)
-            let loopHeight = ((view.bounds.height - 180) / 2) * 0.80
-            let loopWidth = min(view.bounds.width - 40, ((view.bounds.height - 180) / 2) * 0.8) * 0.80
+            let loopHeight = ((view.bounds.height - 10) / 2) * 0.80
+            let loopWidth = min(view.bounds.width - 20, ((view.bounds.height - 180) / 2) * 0.8) * 0.80
             
             path.move(to: center)
             path.addCurve(to: CGPoint(x: center.x, y: center.y - loopHeight),
@@ -487,8 +517,8 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         } else {
             // Horizontal figure eight (loops left and right) — fits in portrait
             let screenWidth = view.bounds.width
-            let loopWidth = ((screenWidth - 60) / 2) * 0.80
-            let loopHeight = loopWidth * 0.55
+            let loopWidth = ((screenWidth - 10) / 2) * 0.80
+            let loopHeight = loopWidth * 0.70
             
             path.move(to: center)
             path.addCurve(to: CGPoint(x: center.x + loopWidth, y: center.y),
@@ -613,6 +643,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         circleView.layer.removeAllAnimations()
         circleView.layer.speed = 0.0
         circleView.transform = .identity
+        setExerciseVisualsVisible(false)
         isSecondPart = true
             
         UIView.animate(withDuration: 0.5) { self.trackLayer?.opacity = 0 }
@@ -627,9 +658,11 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         circleView.layer.removeAllAnimations()
         circleView.layer.speed = 0.0
         circleView.transform = .identity
+        setExerciseVisualsVisible(false)
         
         let startTime = sessionStartTime ?? Date()
-        let elapsedSeconds = Int(Date().timeIntervalSince(startTime))
+        let endTime = Date()
+        let elapsedSeconds = Int(endTime.timeIntervalSince(startTime))
         let accuracy = totalFramesChecked > 0 ? Int((Double(totalFramesChecked - totalErrors) / Double(totalFramesChecked)) * 100.0) : 0
         
         let context = SwiftDataManager.shared.context
@@ -640,6 +673,9 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
             accuracy: accuracy,
             errors: totalErrors
         )
+        newSession.startingDate = startTime
+        newSession.startingTime = startTime
+        newSession.endingTime = endTime
         newSession.user = user
         context.insert(newSession)
         

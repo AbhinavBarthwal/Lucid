@@ -84,7 +84,7 @@ final class User: Codable {
             self.dailyExerciseGoal = calculateDailyGoalFromRecommendations()
             
             let completedSeconds = getTotalSeconds(for: today)
-            let isCompleted = (completedSeconds / 60) >= (dailyExerciseGoal / 60)
+            let isCompleted = completedSeconds >= dailyExerciseGoal
             self.streak.append(StreakDay(date: today, isCompleted: isCompleted))
             self.streak.sort(by: { $0.date < $1.date })
             
@@ -99,7 +99,7 @@ final class User: Codable {
         checkDailyReset()
         
         let completedSeconds = getTotalSeconds(for: today)
-        let isCompleted = (completedSeconds / 60) >= (dailyExerciseGoal / 60)
+        let isCompleted = completedSeconds >= dailyExerciseGoal
         
         if let index = streak.firstIndex(where: { calendar.isDate($0.date, inSameDayAs: today) }) {
             streak[index].isCompleted = isCompleted

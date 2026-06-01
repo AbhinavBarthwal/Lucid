@@ -17,7 +17,7 @@ class ExerciseCollectionViewController: UICollectionViewController {
             ExerciseInfo(id: "Blink", title: "Blink Training", description: "Reduces dryness and refreshes eye comfort.", iconName: "BlinkTraining", segueIdentifier: "ShowBlinkTraining", estimatedTimeSeconds: 90),
             ExerciseInfo(id: "PencilPushup", title: "Pencil Push-Ups", description: "Strengthens near focus and eye teaming.", iconName: "PencilPushUps", segueIdentifier: "ShowPencilPushUps", estimatedTimeSeconds: 60),
             ExerciseInfo(id: "Figure8", title: "Figure Eight", description: "Enhances eye flexibility and coordination.", iconName: "FigureEight", segueIdentifier: "ShowFigureEight", estimatedTimeSeconds: 90),
-            ExerciseInfo(id: "PeripheralAwareness", title: "Peripheral Awareness", description: "Expands peripheral vision and awareness.", iconName: "PeripheralAwareness", segueIdentifier: "ShowPeripheralAwareness", estimatedTimeSeconds: 75),
+//            ExerciseInfo(id: "PeripheralAwareness", title: "Peripheral Awareness", description: "Expands peripheral vision and awareness.", iconName: "PeripheralAwareness", segueIdentifier: "ShowPeripheralAwareness", estimatedTimeSeconds: 75),
             ExerciseInfo(id: "NearFar", title: "Near Far Focus", description: "Improves focusing ability at different distances.", iconName: "NearFarFocus", segueIdentifier: "ShowNearFarFocus", estimatedTimeSeconds: 110)
         ]
 
@@ -79,16 +79,7 @@ class ExerciseCollectionViewController: UICollectionViewController {
             section.interGroupSpacing = 8
             
 
-            // Header
-            let headerSize = NSCollectionLayoutSize(
-                widthDimension: .fractionalWidth(1.0),
-                heightDimension: .absolute(40)
-            )
-            let header = NSCollectionLayoutBoundarySupplementaryItem(
-                layoutSize: headerSize,
-                elementKind: UICollectionView.elementKindSectionHeader,
-                alignment: .top
-            )
+
 
             return section
         }

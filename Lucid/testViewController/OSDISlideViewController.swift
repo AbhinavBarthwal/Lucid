@@ -6,6 +6,7 @@ class OSDIViewController: UIViewController {
     @IBOutlet weak var categoryLabel: UILabel!
     @IBOutlet weak var instructionLabel: UILabel!
     @IBOutlet weak var questionLabel: UILabel!
+    @IBOutlet weak var onboardingInstructionLabel: UILabel!
     @IBOutlet weak var valueLabel: UILabel?
     @IBOutlet weak var responseSlider: UISlider?
     @IBOutlet weak var nextButton: UIButton?
@@ -13,6 +14,19 @@ class OSDIViewController: UIViewController {
     // MARK: - New Onboarding Properties
     var onTestCompleted: ((Double, String) -> Void)?
     var shouldShowResultUI: Bool = true
+
+    // MARK: - Instructions Phase Properties
+    private var isInstructionPhase = true
+    private var currentInstructionIndex = 0
+    private var instructionNextButton: UIButton?
+    private var instructionPrevButton: UIButton?
+    
+    private let osdiInstructions: [InstructionStep] = [
+        InstructionStep(message: "This test will check for Dry Eye Symptoms & Digital Strain.", duration: 4.5),
+        InstructionStep(message: "We'll ask simple questions about your eye comfort over the past week.", duration: 4.5),
+        InstructionStep(message: "Use the slider to rate how often you feel irritation, from Never to Mostly.", duration: 5.5),
+        InstructionStep(message: "If a daily activity doesn't apply to you, you can tap Skip.", duration: 5.5)
+    ]
 
     private var currentIndex = 0
     private var scores: [Int] = Array(repeating: 0, count: 12)
@@ -61,21 +75,28 @@ class OSDIViewController: UIViewController {
         setupInitialState()
         setupCustomUI()
         setupIntroUI()
+        setupInstructionButtons()
     }
 
     private func setupInitialState() {
         categoryLabel?.isHidden = true
-        [instructionLabel, questionLabel, pageControl, categoryLabel, neverLabel, mostlyLabel, prevNavButton, nextNavButton, introContainerView].forEach {
+        [instructionLabel, questionLabel, pageControl, categoryLabel, neverLabel, mostlyLabel, prevNavButton, nextNavButton, introContainerView, onboardingInstructionLabel].forEach {
             $0?.alpha = 0
         }
+        
+        categoryLabel?.numberOfLines = 0
+        instructionLabel?.numberOfLines = 0
+        questionLabel?.numberOfLines = 0
+        neverLabel?.numberOfLines = 0
+        mostlyLabel?.numberOfLines = 0
+        onboardingInstructionLabel?.numberOfLines = 0
+        valueLabel?.numberOfLines = 0
         
         // Hide valueLabel as requested by the user
         valueLabel?.isHidden = true
         valueLabel?.alpha = 0
         
         responseSlider?.alpha = 0
-        submitButton?.isHidden = false
-        submitButton?.alpha = 1
         
         nextButton?.isHidden = true
     }
@@ -160,56 +181,26 @@ class OSDIViewController: UIViewController {
         mostlyLabel.text = "Mostly"
         mostlyLabel.textColor = .lightGray
         mostlyLabel.font = .systemFont(ofSize: 22, weight: .bold)
-        
-        // Setup navigation button styles - plain text buttons (no background) on a single line
+        // Apply titleTextAttributesTransformer to preserve size 24 bold/medium on dynamic title updates
         if #available(iOS 15.0, *) {
-            var prevConfig = UIButton.Configuration.plain()
-            prevConfig.baseForegroundColor = .lightGray
-            
-            var prevContainer = AttributeContainer()
-            prevContainer.font = UIFont.systemFont(ofSize: 18, weight: .bold)
-            prevConfig.attributedTitle = AttributedString("Previous", attributes: prevContainer)
-            prevNavButton.configuration = prevConfig
-            
-            var nextConfig = UIButton.Configuration.plain()
-            nextConfig.baseForegroundColor = UIColor(named: "AccentColor") ?? .systemOrange
-            
-            var nextContainer = AttributeContainer()
-            nextContainer.font = UIFont.systemFont(ofSize: 18, weight: .bold)
-            nextConfig.attributedTitle = AttributedString("Next", attributes: nextContainer)
-            nextNavButton.configuration = nextConfig
+            nextNavButton.configuration?.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+                var outgoing = incoming
+                outgoing.font = .systemFont(ofSize: 24, weight: .bold)
+                return outgoing
+            }
+            prevNavButton.configuration?.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+                var outgoing = incoming
+                outgoing.font = .systemFont(ofSize: 24, weight: .medium)
+                return outgoing
+            }
         } else {
-            prevNavButton.backgroundColor = .clear
-            prevNavButton.setTitleColor(.lightGray, for: .normal)
-            prevNavButton.setTitle("Previous", for: .normal)
-            prevNavButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
-            
-            nextNavButton.backgroundColor = .clear
-            nextNavButton.setTitleColor(UIColor(named: "AccentColor") ?? .systemOrange, for: .normal)
-            nextNavButton.setTitle("Next", for: .normal)
-            nextNavButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
-        }
-        
-        // Deactivate width constraints programmatically so titles don't wrap and display on a single line
-        for button in [prevNavButton, nextNavButton] {
-            button?.constraints.forEach { constraint in
-                if constraint.firstAttribute == .width {
-                    constraint.isActive = false
-                }
-            }
-            button?.superview?.constraints.forEach { constraint in
-                if (constraint.firstItem === button || constraint.secondItem === button) && constraint.firstAttribute == .width {
-                    constraint.isActive = false
-                }
-            }
+            nextNavButton.titleLabel?.font = .systemFont(ofSize: 24, weight: .bold)
+            prevNavButton.titleLabel?.font = .systemFont(ofSize: 24, weight: .medium)
         }
         
         // Setup Navigation Actions
         prevNavButton.addTarget(self, action: #selector(prevTapped), for: .touchUpInside)
         nextNavButton.addTarget(self, action: #selector(customNextTapped), for: .touchUpInside)
-        
-        // Setup Submit button
-        setupSubmitButton()
         
         // Shift slider and labels up by increasing the distance between the buttons and the slider container
         for constraint in view.constraints {
@@ -261,9 +252,143 @@ class OSDIViewController: UIViewController {
         super.viewDidAppear(animated)
         if FirstLoad {
             originalCenter = categoryLabel.center
-            handleCategoryTransition()
+            if isInstructionPhase {
+                runInstructionSequence(index: 0)
+            } else {
+                handleCategoryTransition()
+            }
             FirstLoad = false
         }
+    }
+
+    // MARK: - Countdown & Instructions
+
+    private func runInstructionSequence(index: Int) {
+        guard isInstructionPhase else { return }
+        currentInstructionIndex = index
+        let isFirstRun = InstructionTracker.isFirstRun(for: "OSDI")
+        
+        if index < osdiInstructions.count {
+            let step = osdiInstructions[index]
+            
+            if isFirstRun {
+                instructionNextButton?.isHidden = false
+                let canGoBack = index > 0
+                instructionPrevButton?.isHidden = !canGoBack
+                
+                let isLastStep = (index == osdiInstructions.count - 1)
+                instructionNextButton?.setTitle(isLastStep ? "Start Test" : "Next", for: .normal)
+            } else {
+                instructionNextButton?.isHidden = false
+                instructionPrevButton?.isHidden = true
+                instructionNextButton?.setTitle("Skip", for: .normal)
+            }
+            
+            UIView.animate(withDuration: 0.4, animations: {
+                self.onboardingInstructionLabel.alpha = 0
+            }) { _ in
+                self.onboardingInstructionLabel.text = step.message
+                UIView.animate(withDuration: 0.4, animations: {
+                    self.onboardingInstructionLabel.alpha = 1
+                }) { _ in
+                    if !isFirstRun {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self] in
+                            guard let self = self, self.isInstructionPhase, self.currentInstructionIndex == index else { return }
+                            self.runInstructionSequence(index: index + 1)
+                        }
+                    }
+                }
+            }
+        } else {
+            finishInstructionsAndStartOSDI()
+        }
+    }
+
+    private func setupInstructionButtons() {
+        let isFirstRun = InstructionTracker.isFirstRun(for: "OSDI")
+        
+        let nextBtn = UIButton(type: .system)
+        nextBtn.translatesAutoresizingMaskIntoConstraints = false
+        nextBtn.layer.cornerRadius = 14
+        nextBtn.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        nextBtn.setTitleColor(.white, for: .normal)
+        nextBtn.backgroundColor = UIColor(named: "AccentColor") ?? .systemOrange
+        view.addSubview(nextBtn)
+        self.instructionNextButton = nextBtn
+        nextBtn.addTarget(self, action: #selector(instructionNextTapped), for: .touchUpInside)
+        
+        if isFirstRun {
+            nextBtn.setTitle("Next", for: .normal)
+            
+            let prevBtn = UIButton(type: .system)
+            prevBtn.translatesAutoresizingMaskIntoConstraints = false
+            prevBtn.layer.cornerRadius = 14
+            prevBtn.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+            prevBtn.setTitleColor(.white, for: .normal)
+            prevBtn.backgroundColor = .clear
+            prevBtn.layer.borderWidth = 1
+            prevBtn.layer.borderColor = UIColor.white.withAlphaComponent(0.3).cgColor
+            prevBtn.setTitle("Previous", for: .normal)
+            view.addSubview(prevBtn)
+            self.instructionPrevButton = prevBtn
+            prevBtn.addTarget(self, action: #selector(instructionPrevTapped), for: .touchUpInside)
+            
+            NSLayoutConstraint.activate([
+                nextBtn.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+                nextBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+                nextBtn.bottomAnchor.constraint(equalTo: prevBtn.topAnchor, constant: -12),
+                nextBtn.heightAnchor.constraint(equalToConstant: 50),
+                
+                prevBtn.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+                prevBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+                prevBtn.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+                prevBtn.heightAnchor.constraint(equalToConstant: 50)
+            ])
+            
+            prevBtn.isHidden = true // Hidden initially for step 0
+        } else {
+            nextBtn.setTitle("Skip", for: .normal)
+            
+            NSLayoutConstraint.activate([
+                nextBtn.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+                nextBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+                nextBtn.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+                nextBtn.heightAnchor.constraint(equalToConstant: 50)
+            ])
+        }
+    }
+    
+    @objc private func instructionNextTapped() {
+        if InstructionTracker.isFirstRun(for: "OSDI") {
+            runInstructionSequence(index: currentInstructionIndex + 1)
+        } else {
+            finishInstructionsAndStartOSDI()
+        }
+    }
+    
+    @objc private func instructionPrevTapped() {
+        if InstructionTracker.isFirstRun(for: "OSDI") && currentInstructionIndex > 0 {
+            runInstructionSequence(index: currentInstructionIndex - 1)
+        }
+    }
+    
+    private func finishInstructionsAndStartOSDI() {
+        InstructionTracker.markAsCompleted(for: "OSDI")
+        currentInstructionIndex = 999
+        isInstructionPhase = false
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            self.instructionNextButton?.alpha = 0
+            self.instructionPrevButton?.alpha = 0
+            self.onboardingInstructionLabel?.alpha = 0
+        }) { _ in
+            self.instructionNextButton?.removeFromSuperview()
+            self.instructionPrevButton?.removeFromSuperview()
+            self.onboardingInstructionLabel?.removeFromSuperview()
+        }
+        
+        // Start OSDI
+        handleCategoryTransition()
     }
 
     private func handleCategoryTransition() {
@@ -274,7 +399,6 @@ class OSDIViewController: UIViewController {
         tickContainerView?.alpha = 0
         tickContainerView?.isHidden = true
         valueLabel?.alpha = 0
-        submitButton?.alpha = 0
         
         introCategoryLabel.text = questionnaire[currentIndex].cat
         
@@ -325,10 +449,6 @@ class OSDIViewController: UIViewController {
             
             let isDailyActivity = (self.currentIndex >= 8 && self.currentIndex <= 11)
             self.skipButton?.alpha = isDailyActivity ? 1.0 : 0.0
-            
-            if self.currentIndex == self.questionnaire.count - 1 {
-                self.submitButton?.alpha = 1.0
-            }
         }
     }
 
@@ -478,70 +598,23 @@ class OSDIViewController: UIViewController {
         }
     }
     
-    private var submitButton: UIButton?
-
-    private func setupSubmitButton() {
-        let btn = UIButton(type: .system)
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        
-        let orangeColor = UIColor(named: "AccentColor") ?? .systemOrange
-        btn.setTitle("Submit", for: .normal)
-        btn.titleLabel?.font = .systemFont(ofSize: 24, weight: .bold)
-        btn.setTitleColor(.white, for: .normal)
-        if #available(iOS 15.0, *) {
-            var config = UIButton.Configuration.filled()
-            config.title = "Submit"
-            config.baseBackgroundColor = orangeColor
-            config.baseForegroundColor = .white
-            config.cornerStyle = .capsule
-            config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
-                var outgoing = incoming
-                outgoing.font = .systemFont(ofSize: 24, weight: .bold)
-                return outgoing
-            }
-            btn.configuration = config
-        } else {
-            btn.backgroundColor = orangeColor
-            btn.setTitleColor(.white, for: .normal)
-            btn.layer.cornerRadius = 14
-        }
-        
-        view.addSubview(btn)
-        self.submitButton = btn
-        btn.addTarget(self, action: #selector(submitTapped), for: .touchUpInside)
-        
-        NSLayoutConstraint.activate([
-            btn.trailingAnchor.constraint(equalTo: nextNavButton!.trailingAnchor),
-            btn.bottomAnchor.constraint(equalTo: nextNavButton!.bottomAnchor),
-            btn.topAnchor.constraint(equalTo: nextNavButton!.topAnchor),
-            btn.leadingAnchor.constraint(equalTo: nextNavButton!.leadingAnchor)
-        ])
-        
-        btn.isHidden = true
-    }
-    
-    @objc private func submitTapped() {
-        calculateScore()
-    }
-    
     private func updateNavigationButtonsState() {
         let isAnswered = scores[currentIndex] != -1
         
         prevNavButton.isHidden = (currentIndex == 0)
         
-        if currentIndex == questionnaire.count - 1 {
-            nextNavButton?.isHidden = true
-            submitButton?.isHidden = false
-            
-            submitButton?.isEnabled = isAnswered
-            submitButton?.alpha = isAnswered ? 1.0 : 0.3
+        let isLastQuestion = (currentIndex == questionnaire.count - 1)
+        let title = isLastQuestion ? "Submit" : "Next"
+        
+        if #available(iOS 15.0, *), var config = nextNavButton.configuration {
+            config.title = title
+            nextNavButton.configuration = config
         } else {
-            nextNavButton?.isHidden = false
-            submitButton?.isHidden = true
-            
-            nextNavButton?.isEnabled = true
-            nextNavButton?.alpha = 1.0
+            nextNavButton.setTitle(title, for: .normal)
         }
+        
+        nextNavButton.isEnabled = isAnswered
+        nextNavButton.alpha = isAnswered ? 1.0 : 0.3
     }
 
     @objc private func prevTapped() {

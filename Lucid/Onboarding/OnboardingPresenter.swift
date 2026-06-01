@@ -101,7 +101,7 @@ final class OnboardingPresenter {
         let hasCompletedDetails = !(user.email ?? "").isEmpty
         
         if hasCompletedDetails {
-            presentMandatoryTestsAlert(on: topVC) {
+            presentMandatoryTestsAlert(on: topVC, window: window) {
                 requestAllPermissions {
                     let coordinator = MandatoryTestsCoordinator(presenter: topVC)
                     activeTestsCoordinator = coordinator
@@ -142,7 +142,7 @@ final class OnboardingPresenter {
             print("🚀 Recurring user detected with full test history. Bypassing mandatory tests.")
             showSettingUpAndFinish(window: window, presenter: presenter)
         } else {
-            presentMandatoryTestsAlert(on: presenter) {
+            presentMandatoryTestsAlert(on: presenter, window: window) {
                 requestAllPermissions {
                     let coordinator = MandatoryTestsCoordinator(presenter: presenter)
                     activeTestsCoordinator = coordinator
@@ -223,15 +223,20 @@ final class OnboardingPresenter {
         }
     }
     
-    private static func presentMandatoryTestsAlert(on presenter: UIViewController, start: @escaping () -> Void) {
+    private static func presentMandatoryTestsAlert(on presenter: UIViewController, window: UIWindow, start: @escaping () -> Void) {
         let alert = UIAlertController(
             title: "Let's check your vision!",
-            message: "We'll start with a couple of quick, easy tests to customize Lucid for your eyes.",
+            message: "We'll start with a couple of quick, easy tests to customize Lucid for your eyes. Note: The C Test will require you to speak the numbers out loud.",
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "Let's Start!", style: .default) { _ in
             DispatchQueue.main.async {
                 start()
+            }
+        })
+        alert.addAction(UIAlertAction(title: "Skip for Now", style: .cancel) { _ in
+            DispatchQueue.main.async {
+                showSettingUpAndFinish(window: window, presenter: presenter)
             }
         })
         presenter.present(alert, animated: true)
@@ -441,10 +446,7 @@ final class TestTransitionViewController: UIViewController {
         view.backgroundColor = .black
 
         let emoji = UILabel()
-        emoji.text = "👁️"
-        emoji.font = .systemFont(ofSize: 56)
-        emoji.textAlignment = .center
-        emoji.translatesAutoresizingMaskIntoConstraints = false
+
 
         let title = UILabel()
         title.text = "Nice work!"
@@ -454,14 +456,14 @@ final class TestTransitionViewController: UIViewController {
         title.translatesAutoresizingMaskIntoConstraints = false
 
         let subtitle = UILabel()
-        subtitle.text = "OSDI done \nNow let's check how sharp your eyes are with a quick C Test!"
+        subtitle.text = "OSDI done!\nNow let's check how sharp your eyes are with a quick C Test.\n\nYou will need to say the matching numbers out loud!"
         subtitle.font = .systemFont(ofSize: 17, weight: .medium)
         subtitle.textColor = UIColor.white.withAlphaComponent(0.7)
         subtitle.textAlignment = .center
         subtitle.numberOfLines = 0
         subtitle.translatesAutoresizingMaskIntoConstraints = false
 
-        let stack = UIStackView(arrangedSubviews: [emoji, title, subtitle])
+        let stack = UIStackView(arrangedSubviews: [ title, subtitle])
         stack.axis = .vertical
         stack.alignment = .center
         stack.spacing = 16

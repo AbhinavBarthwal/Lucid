@@ -15,10 +15,67 @@ class SiriListeningBorderView: UIView {
     // MARK: - Config
     private let edgePadding:        CGFloat = 10      // inset from screen edge
     private let screenCornerRadius: CGFloat = 44
-    private let baseStrokeWidth:    CGFloat = 6.0     // heavy single border
+    private let baseStrokeWidth:    CGFloat = 10.0     // heavy single border
     private let maxStrokeWidth:     CGFloat = 14.0    // expands when loud
     private let baseOpacity:        Float   = 0.55    // always visible at rest
     private let maxOpacity:         Float   = 1.0
+
+    // MARK: - Border State
+    enum BorderState {
+        case listening
+        case correct
+        case incorrect
+    }
+    
+    private var borderState: BorderState = .listening
+    
+    func setBorderState(_ state: BorderState) {
+        self.borderState = state
+        updateColorsForCurrentState()
+    }
+    
+    private func updateColorsForCurrentState() {
+        guard shimmerLayer != nil, borderLayer != nil, glowLayer != nil else { return }
+        
+        switch borderState {
+        case .listening:
+            shimmerLayer.colors = [
+                UIColor.systemBlue.cgColor,
+                UIColor.systemPurple.cgColor,
+                UIColor.systemPink.cgColor,
+                UIColor.systemOrange.cgColor,
+                UIColor.systemBlue.cgColor
+            ]
+            borderLayer.strokeColor = UIColor.clear.withAlphaComponent(0.6).cgColor
+            borderLayer.shadowColor = UIColor.clear.cgColor
+            glowLayer.strokeColor = UIColor.clear.withAlphaComponent(0.25).cgColor
+            glowLayer.shadowColor = UIColor.clear.cgColor
+        case .correct:
+            shimmerLayer.colors = [
+                UIColor.systemGreen.cgColor,
+                UIColor.systemGreen.withAlphaComponent(0.85).cgColor,
+                UIColor.systemGreen.withAlphaComponent(0.7).cgColor,
+                UIColor.systemGreen.withAlphaComponent(0.85).cgColor,
+                UIColor.systemGreen.cgColor
+            ]
+            borderLayer.strokeColor = UIColor.systemGreen.cgColor
+            borderLayer.shadowColor = UIColor.systemGreen.cgColor
+            glowLayer.strokeColor = UIColor.systemGreen.withAlphaComponent(0.4).cgColor
+            glowLayer.shadowColor = UIColor.systemGreen.cgColor
+        case .incorrect:
+            shimmerLayer.colors = [
+                UIColor.systemRed.cgColor,
+                UIColor.systemRed.withAlphaComponent(0.85).cgColor,
+                UIColor.systemRed.withAlphaComponent(0.7).cgColor,
+                UIColor.systemRed.withAlphaComponent(0.85).cgColor,
+                UIColor.systemRed.cgColor
+            ]
+            borderLayer.strokeColor = UIColor.systemRed.cgColor
+            borderLayer.shadowColor = UIColor.systemRed.cgColor
+            glowLayer.strokeColor = UIColor.systemRed.withAlphaComponent(0.4).cgColor
+            glowLayer.shadowColor = UIColor.systemRed.cgColor
+        }
+    }
 
     // MARK: - Layers
     private var borderLayer:   CAShapeLayer!   // main heavy stroke
@@ -83,6 +140,7 @@ class SiriListeningBorderView: UIView {
         if isActive { return }
         isActive      = true
         linkedEngine  = audioEngine
+        borderState   = .listening
         SiriListeningBorderView._latestRMS = 0
         smoothedLevel = 0
         breathPhase   = 0
@@ -216,6 +274,8 @@ class SiriListeningBorderView: UIView {
         borderLayer.shadowRadius = 8
         borderLayer.shadowOpacity = 0.6
         layer.addSublayer(borderLayer)
+        
+        updateColorsForCurrentState()
     }
 
     // MARK: - Display link
