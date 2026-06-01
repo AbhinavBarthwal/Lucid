@@ -337,20 +337,30 @@ private final class MandatoryTestsCoordinator {
     
     private func showLandoltC() {
         guard let nav = navigationController else { return }
-        
-        guard let landoltVC = storyboard.instantiateViewController(withIdentifier: "LandoltCViewController") as? LandoltCViewController else {
-            assertionFailure("LandoltCViewController storyboardIdentifier is missing or mismatched.")
-            finish()
-            return
+
+        // Show a friendly transition screen for 2.5s before pushing LandoltC
+        let transitionVC = TestTransitionViewController()
+        transitionVC.navigationItem.hidesBackButton = true
+        nav.setNavigationBarHidden(true, animated: false)
+        nav.pushViewController(transitionVC, animated: true)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { [weak self, weak nav] in
+            guard let self, let nav else { return }
+
+            guard let landoltVC = storyboard.instantiateViewController(withIdentifier: "LandoltCViewController") as? LandoltCViewController else {
+                assertionFailure("LandoltCViewController storyboardIdentifier is missing or mismatched.")
+                self.finish()
+                return
+            }
+
+            landoltVC.shouldShowCompletionSummary = false
+            landoltVC.onTestCompleted = { [weak self] in
+                self?.finish()
+            }
+            landoltVC.navigationItem.hidesBackButton = true
+
+            nav.pushViewController(landoltVC, animated: true)
         }
-        
-        landoltVC.shouldShowCompletionSummary = false
-        landoltVC.onTestCompleted = { [weak self] in
-            self?.finish()
-        }
-        landoltVC.navigationItem.hidesBackButton = true
-        
-        nav.pushViewController(landoltVC, animated: true)
     }
     
     private func finish() {
@@ -419,5 +429,53 @@ private struct SettingThingsUpView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+    }
+}
+
+// MARK: - OSDI → C-Test Transition Screen
+
+final class TestTransitionViewController: UIViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .black
+
+        let emoji = UILabel()
+        emoji.text = "👁️"
+        emoji.font = .systemFont(ofSize: 56)
+        emoji.textAlignment = .center
+        emoji.translatesAutoresizingMaskIntoConstraints = false
+
+        let title = UILabel()
+        title.text = "Nice work!"
+        title.font = .systemFont(ofSize: 30, weight: .bold)
+        title.textColor = .white
+        title.textAlignment = .center
+        title.translatesAutoresizingMaskIntoConstraints = false
+
+        let subtitle = UILabel()
+        subtitle.text = "OSDI done \nNow let's check how sharp your eyes are with a quick C Test!"
+        subtitle.font = .systemFont(ofSize: 17, weight: .medium)
+        subtitle.textColor = UIColor.white.withAlphaComponent(0.7)
+        subtitle.textAlignment = .center
+        subtitle.numberOfLines = 0
+        subtitle.translatesAutoresizingMaskIntoConstraints = false
+
+        let stack = UIStackView(arrangedSubviews: [emoji, title, subtitle])
+        stack.axis = .vertical
+        stack.alignment = .center
+        stack.spacing = 16
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        view.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            stack.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -20),
+            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 36),
+            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -36)
+        ])
+
+        stack.alpha = 0
+        UIView.animate(withDuration: 0.5) { stack.alpha = 1 }
     }
 }

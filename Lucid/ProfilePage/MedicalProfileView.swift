@@ -135,7 +135,7 @@ struct MedicalProfileView: View {
                                 Image(systemName: (model.leftPower == 0.0 && model.rightPower == 0.0) ? "checkmark.circle.fill" : "circle")
                                     .font(.system(size: 20))
                                     .foregroundStyle((model.leftPower == 0.0 && model.rightPower == 0.0) ? Color.accentColor : Color.white.opacity(0.4))
-                                Text("I don't know my eye power")
+                                Text("I don't know my / have eye power")
                                     .font(.system(size: 15, weight: .medium))
                                     .foregroundStyle(Color.white.opacity(0.8))
                             }

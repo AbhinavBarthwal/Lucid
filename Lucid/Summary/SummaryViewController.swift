@@ -29,8 +29,13 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
     var osdiTrends: [TrendData] = []
     var osdiAverage: String = "0"
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
 //        navigationController?.setNavigationBarHidden(false, animated: animated)
 //        navigationController?.navigationBar.prefersLargeTitles = false
 //        navigationItem.largeTitleDisplayMode = .never
@@ -340,7 +345,7 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
         } else if section == 1 {
             return 1 // Exercise Test Entry
         } else if section == 2 {
-            return 2 // Daily Goals & Awards (removed digital eye strain & low light usage)
+            return 2 // Daily Goals & Awards (reverted back to original 2 items)
         }
         // Return 4 items for the Trends grid
         return 4
@@ -377,15 +382,30 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                     for: indexPath
                 ) as! RecommendationCollectionViewCell
 
+                let state = getCheckupState()
+                let titleText: String
+                let reasonText: String
+                let iconName: String
+                
+                if state == .OSDIDue {
+                    titleText = "OSDI"
+                    reasonText = "Hey! Quick check-in time. Let's see how your eyes have been feeling — it only takes a minute, I promise 👀"
+                    iconName = "doc.text.fill"
+                } else {
+                    titleText = "C Test"
+                    reasonText = "Nice work on the OSDI! One more let's check how sharp your focus is today"
+                    iconName = "eye.fill"
+                }
+
                 let testReminder = ExerciseInfo(
                     id: "TestReminder",
-                    title: "Eye Test ",
+                    title: titleText,
                     description: "",
-                    iconName: "C-Test",
+                    iconName: iconName,
                     segueIdentifier: "",
                     estimatedTimeSeconds: 0
                 )
-                cell.configure(with: testReminder, reason: "It's time for your check-up! Let's see how your eyes are doing.")
+                cell.configure(with: testReminder, reason: reasonText)
                 return cell
             } else { // "rec"
                 let cell = collectionView.dequeueReusableCell(
@@ -407,7 +427,7 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                         segueIdentifier: "",
                         estimatedTimeSeconds: 600
                     )
-                    cell.configure(with: fallback, reason: "Complete an exercise to maintain your daily streak.")
+                    cell.configure(with: fallback, reason: "Take a gentle moment to refresh your eyes and nurture your daily visual wellness streak.")
                 }
 
                 return cell
@@ -449,7 +469,7 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                     withReuseIdentifier: "AwardsCell",
                     for: indexPath
                 ) as! AwardsCollectionViewCell
-                cell.configure(name: ".", date: "." , image: "trophy.circle")
+                cell.configure(name: "Awards", date: "  ", image: "trophy.circle")
                 return cell
             }
             
@@ -492,9 +512,19 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
             let currentItemType = items[indexPath.item]
             
             if currentItemType == "test" {
+                let state = getCheckupState()
                 let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                let vc = storyboard.instantiateViewController(withIdentifier: "EyeTestStoryBoard")
-                navigationController?.pushViewController(vc, animated: true)
+                if state == .OSDIDue {
+                    if let vc = storyboard.instantiateViewController(withIdentifier: "OSDIViewController") as? OSDIViewController {
+                        vc.hidesBottomBarWhenPushed = true
+                        navigationController?.pushViewController(vc, animated: true)
+                    }
+                } else if state == .CTestDue {
+                    if let vc = storyboard.instantiateViewController(withIdentifier: "LandoltCViewController") as? LandoltCViewController {
+                        vc.hidesBottomBarWhenPushed = true
+                        navigationController?.pushViewController(vc, animated: true)
+                    }
+                }
             } else if currentItemType == "rec" {
                 guard let exercise = currentDailyExercise() else { return }
                 launchExercise(exercise)
@@ -503,11 +533,6 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                 user.updateTodayStreakStatus()
                 let todayCompleted = user.streak.first(where: { Calendar.current.isDateInToday($0.date) })?.isCompleted ?? false
                 if !todayCompleted {
-                    if let exercise = currentDailyExercise() {
-                        launchExercise(exercise)
-                    } else if let fallback = allExercises.first {
-                        launchExercise(fallback)
-                    }
                 } else {
                     let alert = UIAlertController(
                         title: "Goal Completed!",
@@ -524,8 +549,9 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
         else if indexPath.section == 2 {
             if indexPath.item == 1 {
                 let storyboard = UIStoryboard(name: "Summary", bundle: nil)
-                let vc = storyboard.instantiateViewController(withIdentifier: "AwardsViewController")
-                navigationController?.pushViewController(vc, animated: true)
+                if let vc = storyboard.instantiateViewController(withIdentifier: "AwardsViewController") as? AwardsViewController {
+                    navigationController?.pushViewController(vc, animated: true)
+                }
             }
         }
         // MARK: - Section 1: Exercise Tests Navigation
@@ -556,70 +582,104 @@ extension SummaryViewController {
         static let lastLaunchCompletedSeconds = "summary.dailyExercises.lastLaunchCompletedSeconds"
     }
     
-    // MARK: - Dynamic Description Generator
-    private func isTestDue() -> Bool {
-        let user = SwiftDataManager.shared.getOrCreateUser()
-        let calendar = Calendar.current
-        
-        let lastOSDI = user.osdiSessions.map { $0.date }.max() ?? .distantPast
-        let lastCTest = user.eyeTestSessions.map { $0.startingTime }.max() ?? .distantPast
-        
-        let lastTestDate = max(lastOSDI, lastCTest)
-        if lastTestDate == .distantPast { return true }
-        
-        if let days = calendar.dateComponents([.day], from: lastTestDate, to: Date()).day, days >= 14 {
-            return true
-        }
-        return false
+    // MARK: - Bi-Weekly Checkup State Machine
+    enum CheckupState {
+        case notDue
+        case OSDIDue
+        case CTestDue
     }
+
+    private func getCheckupState() -> CheckupState {
+        let user = SwiftDataManager.shared.getOrCreateUser()
+        let lastOSDI = user.osdiSessions.map { $0.date }.max()
+        let lastCTest = user.eyeTestSessions.map { $0.startingTime }.max()
+        
+        // If there are absolutely no sessions, OSDI is due first
+        if lastOSDI == nil && lastCTest == nil {
+            return .OSDIDue
+        }
+        
+        // If OSDI has been taken but C-Test hasn't
+        if let _ = lastOSDI, lastCTest == nil {
+            return .CTestDue
+        }
+        
+        // If C-Test has been taken but OSDI hasn't
+        if let _ = lastCTest, lastOSDI == nil {
+            return .OSDIDue
+        }
+        
+        // If both exist
+        if let osdiDate = lastOSDI, let ctestDate = lastCTest {
+            // If the latest OSDI is newer than the latest C-Test, it means the user is in the middle of a checkup cycle
+            if osdiDate > ctestDate {
+                return .CTestDue
+            }
+            
+            // If the latest is C-Test, check if 14 days have passed since completion to start a new checkup cycle
+            let calendar = Calendar.current
+            if let days = calendar.dateComponents([.day], from: ctestDate, to: Date()).day, days >= 14 {
+                return .OSDIDue
+            }
+            
+            return .notDue
+        }
+        
+        return .notDue
+    }
+
+    private func isTestDue() -> Bool {
+        return getCheckupState() != .notDue
+    }
+    
     
     private func getDynamicDescription(for id: String) -> String {
         let reasons: [String]
         switch id {
         case "Blink":
             reasons = [
-                "Blink fully to refresh and lubricate your eyes.",
-                "Slow, complete blinks reduce digital dryness.",
-                "A short blink break eases screen fatigue."
+                "Your eyes are basically begging for a blink break right now. Let's hydrate them! 💧",
+                "Screen time got your eyes feeling dry? Blink Training is literally a spa day for your eyeballs.",
+                "Five minutes of blinking practice and your eyes will feel SO much better. Trust me."
             ]
         case "PeripheralAwareness":
             reasons = [
-                "Relax tunnel vision by engaging your side view.",
-                "Expand your field of view to ease screen tension.",
-                "Train peripheral vision to reduce eye strain."
+                "Been staring at a screen all day? This helps your eyes chill out and notice the world around them.",
+                "Your eyes deserve a break from that laser focus. Let's open up that peripheral vision!",
+                "Think of this as stretching, but for your eyes. Feels great after a long screen session."
             ]
         case "NearFar":
             reasons = [
-                "Switch focus near and far to stay sharp.",
-                "Train quick focus shifts for clearer vision.",
-                "Prevent focus lock by changing distances."
+                "Near, far — it's like gym for your eyes but way more fun (and less sweaty).",
+                "Shifting focus near and far is one of the best things you can do after staring at a screen.",
+                "Your eye muscles need variety too! Let's give them a little stretch."
             ]
         case "SaccadicJump":
             reasons = [
-                "Practice quick gaze jumps for speed and accuracy.",
-                "Sharp saccades improve reaction and control.",
-                "Snap between targets to build precision."
+                "Think of this like eye agility training — snap, snap, snap! Super satisfying.",
+                "Quick eye movements = sharper, faster focus. This one's actually pretty fun to do.",
+                "Your eyes are athletes too. Let's train those fast-twitch reactions!"
             ]
         case "SmoothPursuit":
             reasons = [
-                "Follow smooth motion to steady your gaze.",
-                "Gentle tracking builds coordination without strain.",
-                "Keep eye movements fluid for visual comfort."
+                "Follow the dot with your eyes — smooth and steady wins the race here.",
+                "This one's actually kinda relaxing. Just let your eyes glide along the path.",
+                "Great for keeping your eye tracking smooth. Feels like meditation but for your eyes."
             ]
         case "Figure8":
             reasons = [
-                "Trace loops to keep eye muscles flexible.",
-                "Figure 8s build endurance and control.",
-                "A balanced stretch for smooth eye movement."
+                "Trace an infinity loop with your eyes — it's weirdly satisfying and really good for flexibility.",
+                "Figure eights are low-key the best stretch for your eye muscles. Sneaky effective!",
+                "A chill, loopy exercise that keeps your eyes nimble and happy."
             ]
         case "PencilPushup":
             reasons = [
-                "Train convergence for easier close-up work.",
-                "Strengthen teamwork between your eyes.",
-                "Improve near focus to reduce reading strain."
+                "Watch the target move closer — your eyes will learn to team up and focus together.",
+                "This is great for when your eyes feel a bit crossed or strained from close-up work.",
+                "Train both eyes to lock onto the same spot. It's like a sync exercise for your peepers!"
             ]
         default:
-            reasons = ["Complete this exercise to maintain your eye health and daily streak."]
+            reasons = ["Let's knock out today's eye exercise and keep that streak alive! 🔥"]
         }
         
         return reasons.randomElement() ?? reasons[0]

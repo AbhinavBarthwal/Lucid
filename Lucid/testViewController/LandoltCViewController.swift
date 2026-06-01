@@ -42,13 +42,24 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
     private var instructionPrevButton: UIButton?
     private var currentInstructionIndex = 0
 
+    private let eyeWarningLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.textColor = .systemRed
+        label.font = .systemFont(ofSize: 22, weight: .bold)
+        label.numberOfLines = 0
+        label.alpha = 0
+        return label
+    }()
+    private var lastUpdateTimestamp: TimeInterval = 0
+    private var incorrectEyeOpenDuration: TimeInterval = 0
+    private var isWarningShown = false
+
     private let exerciseInstructions: [InstructionStep] = [
-        InstructionStep(message: "3", duration: 1.0),
-        InstructionStep(message: "2", duration: 1.0),
-        InstructionStep(message: "1", duration: 1.0),
-        InstructionStep(message: "Please hold your phone at arm's length", duration: 2.5),
-        InstructionStep(message: "Look at the opening and say the matching number out loud!", duration: 2.5),
-        InstructionStep(message: "If it's hard to see, just say 'cannot see' or 'skip' to move on.", duration: 3.0)
+        InstructionStep(message: "Please hold your phone at arm's length", duration: 3.5),
+        InstructionStep(message: "Look at the opening and say the matching number out loud!", duration: 4.5),
+        InstructionStep(message: "If it's hard to see, just say 'cannot see' or 'skip' to move on.", duration: 5.5)
     ]
 
     private let directionMap: [Int: String] = [
@@ -70,6 +81,26 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         setupSpeech()
         instructionLabel.alpha = 0
         setupInstructionButtons()
+        
+        // Adjust the numbers spacing programmatically to prevent them from sticking to the edges
+        for label in numbers {
+            for constraint in view.constraints {
+                if constraint.firstItem === label {
+                    if constraint.firstAttribute == .leading {
+                        constraint.constant = 24
+                    } else if constraint.firstAttribute == .trailing {
+                        constraint.constant = -24
+                    }
+                } else if constraint.secondItem === label {
+                    if constraint.secondAttribute == .leading {
+                        constraint.constant = -24
+                    } else if constraint.secondAttribute == .trailing {
+                        constraint.constant = 24
+                    }
+                }
+            }
+        }
+        
         runInstructionSequence(index: 0)
     }
 
@@ -89,6 +120,14 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         landoltImageView.alpha = 0
         statusLabel.alpha = 0
         self.numbers.forEach { $0.alpha = 0 }
+        
+        view.addSubview(eyeWarningLabel)
+        NSLayoutConstraint.activate([
+            eyeWarningLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            eyeWarningLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -120),
+            eyeWarningLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            eyeWarningLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24)
+        ])
     }
 
     // MARK: - Countdown & Instructions
@@ -102,24 +141,18 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         
         if index < exerciseInstructions.count {
             let step = exerciseInstructions[index]
-            let isCountdown = Int(step.message) != nil
             
-            if isCountdown {
-                instructionNextButton?.isHidden = true
-                instructionPrevButton?.isHidden = true
+            if isFirstRun {
+                instructionNextButton?.isHidden = false
+                let canGoBack = index > 0
+                instructionPrevButton?.isHidden = !canGoBack
+                
+                let isLastStep = (index == exerciseInstructions.count - 1)
+                instructionNextButton?.setTitle(isLastStep ? "Start Test" : "Next", for: .normal)
             } else {
-                if isFirstRun {
-                    instructionNextButton?.isHidden = false
-                    let canGoBack = index > 0 && Int(exerciseInstructions[index - 1].message) == nil
-                    instructionPrevButton?.isHidden = !canGoBack
-                    
-                    let isLastStep = (index == exerciseInstructions.count - 1)
-                    instructionNextButton?.setTitle(isLastStep ? "Start Test" : "Next", for: .normal)
-                } else {
-                    instructionNextButton?.isHidden = false
-                    instructionPrevButton?.isHidden = true
-                    instructionNextButton?.setTitle("Skip", for: .normal)
-                }
+                instructionNextButton?.isHidden = false
+                instructionPrevButton?.isHidden = true
+                instructionNextButton?.setTitle("Skip", for: .normal)
             }
             
             UIView.animate(withDuration: 0.4, animations: {
@@ -129,7 +162,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
                 UIView.animate(withDuration: 0.4, animations: {
                     self.instructionLabel.alpha = 1
                 }) { _ in
-                    if isCountdown || !isFirstRun {
+                    if !isFirstRun {
                         DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self] in
                             guard let self = self, self.isInstructionPhase, self.currentInstructionIndex == index else { return }
                             self.runInstructionSequence(index: index + 1)
@@ -212,6 +245,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
     
     private func finishInstructionsAndStartExercise() {
         InstructionTracker.markAsCompleted(for: "CTest")
+        currentInstructionIndex = 999
         
         UIView.animate(withDuration: 0.3, animations: {
             self.instructionNextButton?.alpha = 0
@@ -221,11 +255,54 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
             self.instructionPrevButton?.removeFromSuperview()
         }
         
-        UIView.animate(withDuration: 0.5, animations: {
+        runStartCountdown { [weak self] in
+            guard let self = self, self.isInstructionPhase else { return }
+            self.startActivePhase()
+        }
+    }
+
+    private func runStartCountdown(completion: @escaping () -> Void) {
+        UIView.animate(withDuration: 0.3, animations: {
             self.instructionLabel.alpha = 0
         }) { _ in
-            guard self.isInstructionPhase else { return }
-            self.startActivePhase()
+            self.instructionLabel.text = "3"
+            UIView.animate(withDuration: 0.3, animations: {
+                self.instructionLabel.alpha = 1
+            }) { _ in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                    guard let self = self, self.isInstructionPhase else { return }
+                    UIView.animate(withDuration: 0.2, animations: {
+                        self.instructionLabel.alpha = 0
+                    }) { _ in
+                        self.instructionLabel.text = "2"
+                        UIView.animate(withDuration: 0.3, animations: {
+                            self.instructionLabel.alpha = 1
+                        }) { _ in
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                                guard let self = self, self.isInstructionPhase else { return }
+                                UIView.animate(withDuration: 0.2, animations: {
+                                    self.instructionLabel.alpha = 0
+                                }) { _ in
+                                    self.instructionLabel.text = "1"
+                                    UIView.animate(withDuration: 0.3, animations: {
+                                        self.instructionLabel.alpha = 1
+                                    }) { _ in
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                                            guard let self = self, self.isInstructionPhase else { return }
+                                            UIView.animate(withDuration: 0.3, animations: {
+                                                self.instructionLabel.alpha = 0
+                                            }) { _ in
+                                                self.instructionLabel.text = ""
+                                                completion()
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -261,11 +338,44 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
     // MARK: - ARSession Delegate
 
     func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
-        // Disabled eye check to remove blocking red warning and allow test to run smoothly
+        guard isTestActive, let faceAnchor = anchors.compactMap({ $0 as? ARFaceAnchor }).first else {
+            DispatchQueue.main.async {
+                self.hideWarningSmoothly()
+            }
+            return
+        }
+        
+        let currentTime = CACurrentMediaTime()
+        if lastUpdateTimestamp == 0 {
+            lastUpdateTimestamp = currentTime
+        }
+        let deltaTime = currentTime - lastUpdateTimestamp
+        lastUpdateTimestamp = currentTime
+        
+        let leftEyeBlink = faceAnchor.blendShapes[.eyeBlinkRight]?.floatValue ?? 0.0
+        let rightEyeBlink = faceAnchor.blendShapes[.eyeBlinkLeft]?.floatValue ?? 0.0
+        
+        // Left eye tested -> Right eye must be closed.
+        // Right eye tested -> Left eye must be closed.
+        let correctEyeClosed: Bool
+        if !isTestingRightEye {
+            correctEyeClosed = rightEyeBlink > 0.6
+        } else {
+            correctEyeClosed = leftEyeBlink > 0.6
+        }
+        
         DispatchQueue.main.async {
-            self.isEyeRequirementMet = true
-            self.statusLabel.text = ""
-            self.statusLabel.textColor = .white
+            if correctEyeClosed {
+                self.incorrectEyeOpenDuration = max(0, self.incorrectEyeOpenDuration - deltaTime * 2.0)
+                if self.incorrectEyeOpenDuration == 0 {
+                    self.hideWarningSmoothly()
+                }
+            } else {
+                self.incorrectEyeOpenDuration += deltaTime
+                if self.incorrectEyeOpenDuration >= 1.5 {
+                    self.showWarningSmoothly()
+                }
+            }
             
             // Keep the Siri listening border view state matching mic activity
             if self.isMicActive {
@@ -276,14 +386,30 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         }
     }
 
+    private func showWarningSmoothly() {
+        let expectedText = !isTestingRightEye ? "Please close your right eye" : "Please close your left eye"
+        if eyeWarningLabel.text != expectedText {
+            eyeWarningLabel.text = expectedText
+        }
+        
+        guard !isWarningShown else { return }
+        isWarningShown = true
+        UIView.animate(withDuration: 0.3) {
+            self.eyeWarningLabel.alpha = 1.0
+        }
+    }
+    
+    private func hideWarningSmoothly() {
+        guard isWarningShown else { return }
+        isWarningShown = false
+        UIView.animate(withDuration: 0.3) {
+            self.eyeWarningLabel.alpha = 0.0
+        }
+    }
+
     // MARK: - Target Generation
 
     private func generateNextTarget(isSuccess: Bool) {
-        if iterationCount >= maxIterations {
-            finishCurrentEye()
-            return
-        }
-
         DispatchQueue.main.async {
             self.stopAudio(hideBorder: false)
 
@@ -291,6 +417,11 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
                 self.notificationGen.notificationOccurred(.success)
                 if !self.isTestingRightEye { self.leftEyeScore += 1 } else { self.rightEyeScore += 1 }
                 self.currentScale /= 1.258 // LogMAR Step
+            }
+
+            if self.iterationCount >= self.maxIterations {
+                self.finishCurrentEye()
+                return
             }
 
             self.iterationCount += 1
@@ -352,11 +483,16 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
                 self.currentScale = 1.0
                 self.landoltImageView.alpha = 0
                 self.numbers.forEach { $0.alpha = 0 }
-                self.instructionLabel.text = "Now, please close your left eye"
-                self.instructionLabel.alpha = 1
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                    self.startActivePhaseFromSwitch()
+                // Show "cover your left eye" instruction, auto-dismiss after 2s
+                self.instructionLabel.text = "Cover your left eye"
+                UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 1 }
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                    UIView.animate(withDuration: 0.4) { self.instructionLabel.alpha = 0 } completion: { _ in
+                        self.instructionLabel.text = ""
+                        self.startActivePhaseFromSwitch()
+                    }
                 }
             } else {
                 self.completeTest()

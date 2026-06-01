@@ -39,16 +39,13 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
     private var currentInstructionIndex = 0
 
     private let exerciseInstructions: [InstructionStep] = [
-        InstructionStep(message: "3", duration: 1.0),
-        InstructionStep(message: "2", duration: 1.0),
-        InstructionStep(message: "1", duration: 1.0),
-        InstructionStep(message: "Keep your phone at\narm's length", duration: 3.0),
-        InstructionStep(message: "Focus on the yellow dot,\nkeeping the white dot in your vision", duration: 4.0),
-        InstructionStep(message: "Try to keep the white\ndot in check", duration: 3.0)
+        InstructionStep(message: "Keep your phone at\narm's length", duration: 3.5),
+        InstructionStep(message: "Focus on the yellow dot,\nkeeping the white dot in your vision", duration: 5.0),
+        InstructionStep(message: "Try to keep the white\ndot in check", duration: 4.0)
     ]
     
     private var currentLoopIndex = 0
-    private let totalLoops = 5
+    private let totalLoops = 1
     private var currentPath: UIBezierPath?
     private var totalFramesChecked = 0
     private var totalErrors = 0
@@ -134,27 +131,21 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         
         if index < exerciseInstructions.count {
             let step = exerciseInstructions[index]
-            let isCountdown = Int(step.message) != nil
             
-            if isCountdown {
-                instructionNextButton?.isHidden = true
-                instructionPrevButton?.isHidden = true
+            if isFirstRun {
+                instructionNextButton?.isHidden = false
+                let canGoBack = index > 0
+                instructionPrevButton?.isHidden = !canGoBack
+                
+                let isLastStep = (index == exerciseInstructions.count - 1)
+                instructionNextButton?.setTitle(isLastStep ? "Start Exercise" : "Next", for: .normal)
             } else {
-                if isFirstRun {
-                    instructionNextButton?.isHidden = false
-                    let canGoBack = index > 0 && Int(exerciseInstructions[index - 1].message) == nil
-                    instructionPrevButton?.isHidden = !canGoBack
-                    
-                    let isLastStep = (index == exerciseInstructions.count - 1)
-                    instructionNextButton?.setTitle(isLastStep ? "Start Exercise" : "Next", for: .normal)
-                } else {
-                    instructionNextButton?.isHidden = false
-                    instructionPrevButton?.isHidden = true
-                    instructionNextButton?.setTitle("Skip", for: .normal)
-                }
+                instructionNextButton?.isHidden = false
+                instructionPrevButton?.isHidden = true
+                instructionNextButton?.setTitle("Skip", for: .normal)
             }
             
-            if index < 3 {
+            if index == 0 {
                 UIView.animate(withDuration: 0.4, animations: {
                     self.centerMessageLabel.alpha = 0
                     self.instructionLabel.alpha = 0
@@ -166,25 +157,10 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
                     UIView.animate(withDuration: 0.4, animations: {
                         self.centerMessageLabel.alpha = 1
                     }) { _ in
-                        self.autoAdvanceIfRequired(index: index, duration: step.duration, isCountdown: true)
+                        self.autoAdvanceIfRequired(index: index, duration: step.duration)
                     }
                 }
-            } else if index == 3 {
-                UIView.animate(withDuration: 0.4, animations: {
-                    self.centerMessageLabel.alpha = 0
-                    self.instructionLabel.alpha = 0
-                    self.centerDotView.alpha = 0
-                    self.peripheralDotView.alpha = 0
-                }) { _ in
-                    guard self.isExerciseActive, self.currentPhase == .none else { return }
-                    self.centerMessageLabel.text = step.message
-                    UIView.animate(withDuration: 0.4, animations: {
-                        self.centerMessageLabel.alpha = 1
-                    }) { _ in
-                        self.autoAdvanceIfRequired(index: index, duration: step.duration, isCountdown: false)
-                    }
-                }
-            } else if index == 4 {
+            } else if index == 1 {
                 UIView.animate(withDuration: 0.4, animations: {
                     self.centerMessageLabel.alpha = 0
                     self.instructionLabel.alpha = 0
@@ -197,10 +173,10 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
                         self.instructionLabel.alpha = 1
                         self.centerDotView.alpha = 1
                     }) { _ in
-                        self.autoAdvanceIfRequired(index: index, duration: step.duration, isCountdown: false)
+                        self.autoAdvanceIfRequired(index: index, duration: step.duration)
                     }
                 }
-            } else if index == 5 {
+            } else if index == 2 {
                 UIView.animate(withDuration: 0.4, animations: {
                     self.instructionLabel.alpha = 0
                 }) { _ in
@@ -210,7 +186,7 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
                         self.instructionLabel.alpha = 1
                         self.peripheralDotView.alpha = 1
                     }) { _ in
-                        self.autoAdvanceIfRequired(index: index, duration: step.duration, isCountdown: false)
+                        self.autoAdvanceIfRequired(index: index, duration: step.duration)
                     }
                 }
             }
@@ -219,8 +195,8 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
         }
     }
     
-    private func autoAdvanceIfRequired(index: Int, duration: TimeInterval, isCountdown: Bool) {
-        if isCountdown || !InstructionTracker.isFirstRun(for: "PeripheralAwareness") {
+    private func autoAdvanceIfRequired(index: Int, duration: TimeInterval) {
+        if !InstructionTracker.isFirstRun(for: "PeripheralAwareness") {
             DispatchQueue.main.asyncAfter(deadline: .now() + duration) { [weak self] in
                 guard let self = self, self.isExerciseActive, self.currentPhase == .none, self.currentInstructionIndex == index else { return }
                 self.runInstructionSequence(index: index + 1)
@@ -298,6 +274,7 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
     
     private func finishInstructionsAndStartExercise() {
         InstructionTracker.markAsCompleted(for: "PeripheralAwareness")
+        currentInstructionIndex = 999
         
         UIView.animate(withDuration: 0.3, animations: {
             self.instructionNextButton?.alpha = 0
@@ -307,14 +284,62 @@ class PeripheralAwarenessViewController: UIViewController, ARSessionDelegate, CA
             self.instructionPrevButton?.removeFromSuperview()
         }
         
-        UIView.animate(withDuration: 0.5, animations: {
-            self.instructionLabel.alpha = 0
-            self.centerMessageLabel.alpha = 0
-            self.centerDotView.alpha = 1
-            self.peripheralDotView.alpha = 1
-        }) { _ in
-            guard self.isExerciseActive, self.currentPhase == .none else { return }
+        runStartCountdown { [weak self] in
+            guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
             self.startPeripheralPhase()
+        }
+    }
+
+    private func runStartCountdown(completion: @escaping () -> Void) {
+        UIView.animate(withDuration: 0.3) {
+            self.instructionLabel.alpha = 0
+            self.centerDotView.alpha = 0
+            self.peripheralDotView.alpha = 0
+        }
+        
+        UIView.animate(withDuration: 0.2, animations: {
+            self.centerMessageLabel.alpha = 0
+        }) { _ in
+            self.centerMessageLabel.text = "3"
+            UIView.animate(withDuration: 0.3, animations: {
+                self.centerMessageLabel.alpha = 1
+            }) { _ in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                    guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
+                    UIView.animate(withDuration: 0.2, animations: {
+                        self.centerMessageLabel.alpha = 0
+                    }) { _ in
+                        self.centerMessageLabel.text = "2"
+                        UIView.animate(withDuration: 0.3, animations: {
+                            self.centerMessageLabel.alpha = 1
+                        }) { _ in
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                                guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
+                                UIView.animate(withDuration: 0.2, animations: {
+                                    self.centerMessageLabel.alpha = 0
+                                }) { _ in
+                                    self.centerMessageLabel.text = "1"
+                                    UIView.animate(withDuration: 0.3, animations: {
+                                        self.centerMessageLabel.alpha = 1
+                                    }) { _ in
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                                            guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
+                                            UIView.animate(withDuration: 0.3, animations: {
+                                                self.centerMessageLabel.alpha = 0
+                                            }) { _ in
+                                                self.centerMessageLabel.text = ""
+                                                self.centerDotView.alpha = 1
+                                                self.peripheralDotView.alpha = 1
+                                                completion()
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
     

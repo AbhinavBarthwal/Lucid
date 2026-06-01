@@ -99,6 +99,7 @@ final class OSDIResultPageCollectionViewController: UICollectionViewController {
         }
 
         recommendations = recommendationItems(for: severity)
+        collectionView.setCollectionViewLayout(createLayout(), animated: false)
         collectionView.reloadData()
     }
 
@@ -142,17 +143,17 @@ final class OSDIResultPageCollectionViewController: UICollectionViewController {
             let height: NSCollectionLayoutDimension
             switch section {
             case .hero:
-                height = .absolute(272)
+                height = .estimated(350)
             case .history:
-                height = .absolute(190)
+                height = .estimated(110)
             case .recommendations:
-                height = .estimated(190)
+                height = .estimated(180)
             }
 
             let item = NSCollectionLayoutItem(
                 layoutSize: NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
-                    heightDimension: .fractionalHeight(1.0)
+                    heightDimension: .estimated(100)
                 )
             )
 
@@ -165,27 +166,44 @@ final class OSDIResultPageCollectionViewController: UICollectionViewController {
             )
 
             let layoutSection = NSCollectionLayoutSection(group: group)
-            layoutSection.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 16, trailing: 20)
+            layoutSection.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20)
             return layoutSection
         }
 
         let configuration = UICollectionViewCompositionalLayoutConfiguration()
-        configuration.interSectionSpacing = 10
+        let areEqual: Bool = {
+            guard let prev = previousScore else { return false }
+            return abs(prev - osdiScore) < 0.0001
+        }()
+        configuration.interSectionSpacing = areEqual ? 12 : 12
+        
         return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider, configuration: configuration)
     }
 
     private func insightText(for severity: String, score: Double) -> String {
+        if score == 0 {
+            return "Perfect score! Your eyes are in excellent shape with no signs of dry eye irritation. Keep doing what you're doing!"
+        }
+        
         switch severity {
         case "Normal":
-            return "Your eyes are feeling great! Keep up your wonderful daily routine to keep them happy."
+            if score <= 6 {
+                return "Awesome job! Your eyes feel happy and comfy with almost no dryness today. Keep blinking and taking little breaks!"
+            } else {
+                return "Great job! Your score is normal, and your eyes are working nicely. Remember to rest your eyes with tiny screen breaks."
+            }
         case "Mild":
-            return "A tiny bit of dryness is showing up. A few gentle habits now will keep your eyes feeling fresh!"
+            return "You have a little dryness, like sand in your eyes sometimes. Drink water, blink more, and take small screen breaks to feel better."
         case "Moderate":
-            return "Your eyes are feeling a bit tired. Some relaxing breaks and quick exercises will do wonders!"
+            return "Your eyes feel a bit rough and tired today. Try Blink Training, rest often, and be kind to your eyes so they can feel calm again."
+        case "Severe":
+            if score > 60 {
+                return "Your eyes feel very dry and sore right now. Rest them, skip long screen time, and ask a grown-up eye doctor for help if it keeps hurting."
+            } else {
+                return "Your eyes are having a hard day and need extra care. Try warm eye hugs, slow blinks, and planned breaks to help them feel better."
+            }
         default:
-            return score > 45
-                ? "Your eyes are asking for some rest today. Take a cozy break, stay hydrated, and let them recover."
-                : "Your eyes need a little extra care today. Let's give them some nice relief and check in again soon."
+            return "Your eyes feel tired and dry. Give them rest, sip water, and do easy eye exercises to make them happy again."
         }
     }
 
@@ -206,18 +224,23 @@ final class OSDIResultPageCollectionViewController: UICollectionViewController {
         switch severity {
         case "Normal":
             return [
-                OSDIRecommendationItem(title: "Smooth Pursuits", detail: "Try Smooth Pursuits to help your eyes track things easily."),
-                OSDIRecommendationItem(title: "Figure Eight", detail: "Try Figure Eight to keep your eye movements smooth and flexible.")
+                OSDIRecommendationItem(title: "Smooth Pursuits", detail: "Try Smooth Pursuits to help your eyes track moving targets with fluid coordination."),
+                OSDIRecommendationItem(title: "Figure Eight", detail: "Try Figure Eight to keep your eye muscles flexible, agile, and well-coordinated.")
             ]
-        case "Mild", "Moderate":
+        case "Mild":
             return [
-                OSDIRecommendationItem(title: "Blink Training", detail: "Try Blink Training to refresh and hydrate your eyes during screen breaks."),
-                OSDIRecommendationItem(title: "Peripheral Awareness", detail: "Try Peripheral Awareness to help relax your focus and ease tension.")
+                OSDIRecommendationItem(title: "Blink Training", detail: "Perfect for mild dryness. Boosts the tear film to naturally soothe your eyes."),
+                OSDIRecommendationItem(title: "Peripheral Awareness", detail: "Helps widen your field of view and relaxes focused eye strain.")
+            ]
+        case "Moderate":
+            return [
+                OSDIRecommendationItem(title: "Blink Training", detail: "Essential to restore moisture. Helps clear up moderate fatigue and irritation."),
+                OSDIRecommendationItem(title: "Saccadic Jumps", detail: "Improves visual agility and stimulates blinking reflexes to ease moderate strain.")
             ]
         default:
             return [
-                OSDIRecommendationItem(title: "Blink Training", detail: "Let's start with Blink Training to bring quick, soothing moisture to your eyes."),
-                OSDIRecommendationItem(title: "Digital Break", detail: "Take a cozy digital break to give your eyes the rest they deserve.")
+                OSDIRecommendationItem(title: "Blink Training", detail: "Focus on slow, full blinks to restore the soothing moisture barrier over your dry eyes."),
+                OSDIRecommendationItem(title: "Digital Break", detail: "Highly recommended: take a 20-minute screen break to rest your eye muscles.")
             ]
         }
     }
@@ -311,7 +334,6 @@ class PremiumCardCell: UICollectionViewCell {
 final class HeroScoreCell: PremiumCardCell {
     private let captionLabel = UILabel()
     private let scoreLabel = UILabel()
-    private let suffixLabel = UILabel()
     private let severityLabel = UILabel()
     private let scoreBarView = OSDIInlineSeverityBarView()
     private let insightLabel = UILabel()
@@ -360,30 +382,25 @@ final class HeroScoreCell: PremiumCardCell {
         infoButton.addTarget(self, action: #selector(infoTapped), for: .touchUpInside)
 
         scoreLabel.translatesAutoresizingMaskIntoConstraints = false
-        scoreLabel.font = .systemFont(ofSize: 74, weight: .bold)
-        scoreLabel.textColor = .white
-        scoreLabel.text = "0"
-
-        suffixLabel.translatesAutoresizingMaskIntoConstraints = false
-        suffixLabel.font = .systemFont(ofSize: 22, weight: .medium)
-        suffixLabel.textColor = UIColor.white.withAlphaComponent(0.58)
-        suffixLabel.text = "/100"
+        scoreLabel.numberOfLines = 1
+        scoreLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        scoreLabel.setContentHuggingPriority(.defaultLow, for: .vertical)
 
         severityLabel.translatesAutoresizingMaskIntoConstraints = false
         severityLabel.font = .systemFont(ofSize: 22, weight: .semibold)
+        severityLabel.textColor = .white
+        severityLabel.numberOfLines = 0
+        severityLabel.adjustsFontSizeToFitWidth = false
+        severityLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        severityLabel.setContentHuggingPriority(.required, for: .vertical)
 
         insightLabel.translatesAutoresizingMaskIntoConstraints = false
         insightLabel.font = .systemFont(ofSize: 15, weight: .regular)
         insightLabel.textColor = UIColor.white.withAlphaComponent(0.72)
-        insightLabel.numberOfLines = 2
+        insightLabel.numberOfLines = 0
+        insightLabel.setContentCompressionResistancePriority(.required, for: .vertical)
 
         scoreBarView.translatesAutoresizingMaskIntoConstraints = false
-
-        let scoreStack = UIStackView(arrangedSubviews: [scoreLabel, suffixLabel])
-        scoreStack.translatesAutoresizingMaskIntoConstraints = false
-        scoreStack.axis = .horizontal
-        scoreStack.alignment = .lastBaseline
-        scoreStack.spacing = 6
 
         let spacer = UIView()
         spacer.translatesAutoresizingMaskIntoConstraints = false
@@ -408,11 +425,15 @@ final class HeroScoreCell: PremiumCardCell {
             spacer.bottomAnchor.constraint(equalTo: headerRow.bottomAnchor)
         ])
 
-        let textStack = UIStackView(arrangedSubviews: [headerRow, scoreStack, severityLabel, scoreBarView, insightLabel])
+        let textStack = UIStackView(arrangedSubviews: [headerRow, scoreLabel, severityLabel, scoreBarView, insightLabel])
         textStack.translatesAutoresizingMaskIntoConstraints = false
         textStack.axis = .vertical
         textStack.alignment = .leading
         textStack.spacing = 8
+        
+        textStack.setCustomSpacing(10, after: scoreLabel)
+        textStack.setCustomSpacing(10, after: severityLabel)
+        textStack.setCustomSpacing(14, after: scoreBarView)
 
         contentView.addSubview(textStack)
 
@@ -421,12 +442,15 @@ final class HeroScoreCell: PremiumCardCell {
             infoButton.heightAnchor.constraint(equalToConstant: 36),
             scoreBarView.widthAnchor.constraint(equalTo: textStack.widthAnchor),
             headerRow.widthAnchor.constraint(equalTo: textStack.widthAnchor),
+            scoreLabel.widthAnchor.constraint(equalTo: textStack.widthAnchor),
+            severityLabel.widthAnchor.constraint(equalTo: textStack.widthAnchor),
+            insightLabel.widthAnchor.constraint(equalTo: textStack.widthAnchor),
             scoreBarView.heightAnchor.constraint(equalToConstant: 34),
 
             textStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
             textStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
             textStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
-            textStack.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -24)
+            textStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24)
         ])
     }
 
@@ -439,9 +463,30 @@ final class HeroScoreCell: PremiumCardCell {
         animateScore()
     }
 
+    private func updateScoreLabel(with scoreValue: Int) {
+        let scoreString = "\(scoreValue)"
+        let suffixString = "/100"
+        
+        let attributedText = NSMutableAttributedString(
+            string: scoreString,
+            attributes: [
+                .font: UIFont.systemFont(ofSize: 74, weight: .bold),
+                .foregroundColor: UIColor.white
+            ]
+        )
+        attributedText.append(NSAttributedString(
+            string: suffixString,
+            attributes: [
+                .font: UIFont.systemFont(ofSize: 22, weight: .medium),
+                .foregroundColor: UIColor.white.withAlphaComponent(0.58)
+            ]
+        ))
+        scoreLabel.attributedText = attributedText
+    }
+
     private func animateScore() {
         displayLink?.invalidate()
-        scoreLabel.text = "0"
+        updateScoreLabel(with: 0)
         animationStart = CACurrentMediaTime()
 
         let link = CADisplayLink(target: self, selector: #selector(handleDisplayLink))
@@ -453,10 +498,10 @@ final class HeroScoreCell: PremiumCardCell {
         let elapsed = CACurrentMediaTime() - animationStart
         let progress = min(1, elapsed / animationDuration)
         let eased = 1 - pow(1 - progress, 3)
-        scoreLabel.text = "\(Int((targetScore * eased).rounded()))"
+        updateScoreLabel(with: Int((targetScore * eased).rounded()))
 
         if progress >= 1 {
-            scoreLabel.text = "\(Int(targetScore.rounded()))"
+            updateScoreLabel(with: Int(targetScore.rounded()))
             displayLink?.invalidate()
             displayLink = nil
         }
@@ -611,14 +656,23 @@ final class OSDIInlineSeverityBarView: UIView {
 }
 
 final class TrendHistoryCell: PremiumCardCell {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+
     func configure(current: Double, previous: Double?) {
-        contentConfiguration = UIHostingConfiguration {
+        var config = UIHostingConfiguration {
             OSDIPerformanceView(
                 currentScore: current,
                 previousScore: previous
             )
         }
         .margins(.all, 0)
+        contentConfiguration = config
     }
 }
 
@@ -644,13 +698,13 @@ struct OSDIPerformanceView: View {
         let value = abs(Int(change.rounded()))
 
         return isImproved
-        ? "↓ \(value)% better comfort"
-        : "↑ \(value)% increase in strain"
+        ? "\(value)% better comfort"
+        : "\(value)% increase in strain"
     }
 
     private var changeColor: Color {
         guard let change = percentChange else { return .white }
-        return change < 0 ? .green : .red
+        return change <= 0 ? .green : .red
     }
 
     private var scoreDifferenceText: String? {
@@ -677,7 +731,7 @@ struct OSDIPerformanceView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 12) {
 
             Text("PERFORMANCE")
                 .font(.system(size: 13, weight: .semibold))
@@ -686,24 +740,32 @@ struct OSDIPerformanceView: View {
             Text("Lower scores mean happier, more comfortable eyes!")
                 .foregroundStyle(.green)
                 .font(.system(size: 14, weight: .semibold))
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
 
             if percentChange != nil {
                 Text(changeText)
                     .foregroundStyle(changeColor)
-                    .font(.system(size: 30, weight: .bold))
+                    .font(.system(size: 26, weight: .bold))
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             if let scoreDifferenceText {
                 Text(scoreDifferenceText)
                     .foregroundStyle(.white.opacity(0.72))
                     .font(.system(size: 14, weight: .medium))
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Text(previousScoreText)
                 .foregroundStyle(.white.opacity(0.55))
                 .font(.system(size: 13, weight: .medium))
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(22)
+        .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(uiColor: .osdiCardBackground))
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
@@ -726,25 +788,25 @@ final class RecommendationsCell: PremiumCardCell {
     private func configureSubviews() {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = "RECOMMENDATIONS"
-        titleLabel.font = .systemFont(ofSize: 12, weight: .semibold)
+        titleLabel.font = .systemFont(ofSize: 11, weight: .semibold)
         titleLabel.textColor = .osdiOrange
 
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = 14
+        stackView.spacing = 8
 
         contentView.addSubview(titleLabel)
         contentView.addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 22),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
 
-            stackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 18),
+            stackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             stackView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -22)
+            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12)
         ])
     }
 
@@ -780,13 +842,13 @@ final class RecommendationsCell: PremiumCardCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textColor = UIColor.white.withAlphaComponent(0.64)
-        label.numberOfLines = 2
+        label.numberOfLines = 0
         label.text = detail
 
         let textStack = UIStackView(arrangedSubviews: [titleLabel, label])
         textStack.translatesAutoresizingMaskIntoConstraints = false
         textStack.axis = .vertical
-        textStack.alignment = .leading
+        textStack.alignment = .fill
         textStack.spacing = 4
 
         let row = UIView()
@@ -939,29 +1001,23 @@ struct OSDIReferenceCurveView: View {
     }
 
     private var osdiReferenceChart: some View {
-        HStack(alignment: .top, spacing: 10) {
-            VStack(spacing: 4) {
-                Spacer()
-                    .frame(height: 30)
+        VStack(alignment: .leading, spacing: 8) {
+            GeometryReader { proxy in
+                let cellWidth = (proxy.size.width - 26) / CGFloat(xBuckets.count)
+                let clampedColumn = markerColumnPosition
+                let markerX = 26 + cellWidth * clampedColumn + (cellWidth / 2)
 
-                ForEach((1...12).reversed(), id: \.self) { answered in
-                    Text("\(answered)")
-                        .font(.system(size: 10, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.7))
-                        .frame(width: 16, height: 22)
-                }
+                ZStack(alignment: .topLeading) {
+                    HStack(alignment: .top, spacing: 10) {
+                        VStack(spacing: 4) {
+                            ForEach((1...12).reversed(), id: \.self) { answered in
+                                Text("\(answered)")
+                                    .font(.system(size: 10, weight: .semibold))
+                                    .foregroundStyle(.white.opacity(0.7))
+                                    .frame(width: 16, height: 22)
+                            }
+                        }
 
-                Spacer()
-                    .frame(height: 44)
-            }
-
-            VStack(alignment: .leading, spacing: 8) {
-                GeometryReader { proxy in
-                    let cellWidth = proxy.size.width / CGFloat(xBuckets.count)
-                    let clampedColumn = markerColumnPosition
-                    let markerX = cellWidth * clampedColumn + (cellWidth / 2)
-
-                    ZStack(alignment: .topLeading) {
                         VStack(spacing: 4) {
                             ForEach((1...12).reversed(), id: \.self) { answered in
                                 HStack(spacing: 4) {
@@ -972,43 +1028,45 @@ struct OSDIReferenceCurveView: View {
                                 }
                             }
                         }
-
-                        VStack(spacing: 6) {
-                            Text("Your score")
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundStyle(.white)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Capsule(style: .continuous).fill(Color.green))
-
-                            Circle()
-                                .fill(Color.green)
-                                .frame(width: 16, height: 16)
-                                .overlay(Circle().stroke(Color.white.opacity(0.85), lineWidth: 3))
-                                .shadow(color: Color.green.opacity(0.45), radius: 10)
-                        }
-                        .offset(x: markerX - 34, y: -6)
-                        .opacity(isVisible ? 1 : 0)
-                        .scaleEffect(isVisible ? 1 : 0.75, anchor: .top)
-                        .animation(.easeOut(duration: 0.55), value: isVisible)
                     }
-                }
-                .frame(height: 312)
 
-                HStack(spacing: 4) {
-                    ForEach(xBuckets, id: \.self) { bucket in
-                        Text("\(bucket)")
-                            .font(.system(size: 10, weight: .semibold))
-                            .foregroundStyle(.white.opacity(0.68))
-                            .frame(maxWidth: .infinity)
+                    VStack(spacing: 6) {
+                        Text("Your score")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Capsule(style: .continuous).fill(Color.green))
+
+                        Circle()
+                            .fill(Color.green)
+                            .frame(width: 16, height: 16)
+                            .overlay(Circle().stroke(Color.white.opacity(0.85), lineWidth: 3))
+                            .shadow(color: Color.green.opacity(0.45), radius: 10)
                     }
+                    .offset(x: markerX - 34, y: -6)
+                    .opacity(isVisible ? 1 : 0)
+                    .scaleEffect(isVisible ? 1 : 0.75, anchor: .top)
+                    .animation(.easeOut(duration: 0.55), value: isVisible)
                 }
-
-                Text("Sum of scores for all questions answered")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.8))
-                    .frame(maxWidth: .infinity, alignment: .center)
             }
+            .frame(height: 312)
+
+            HStack(spacing: 4) {
+                Spacer()
+                    .frame(width: 26)
+                ForEach(xBuckets, id: \.self) { bucket in
+                    Text("\(bucket)")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.68))
+                        .frame(maxWidth: .infinity)
+                }
+            }
+
+            Text("Sum of scores for all questions answered")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.8))
+                .frame(maxWidth: .infinity, alignment: .center)
         }
     }
 

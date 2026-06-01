@@ -13,6 +13,18 @@ class RecommendationCollectionViewCell: UICollectionViewCell {
     func configure(with exercise: ExerciseInfo, reason: String) {
         titleLabel.text = exercise.title
         reasonLabel.text = reason
-        iconImageView.image = UIImage(named: exercise.iconName)
+        if let sfImage = UIImage(systemName: exercise.iconName) {
+            iconImageView.image = sfImage.withRenderingMode(.alwaysTemplate)
+            iconImageView.tintColor = UIColor(named: "AccentColor") ?? .systemOrange
+        } else {
+            iconImageView.image = UIImage(named: exercise.iconName)
+            iconImageView.tintColor = nil
+        }
+        
+        // Dynamic styling to force beautiful system sans-serif font
+        titleLabel.font = .systemFont(ofSize: 19, weight: .bold)
+        reasonLabel.font = .systemFont(ofSize: 14, weight: .medium)
+        titleLabel.textColor = .white
+        reasonLabel.textColor = UIColor.white.withAlphaComponent(0.9)
     }
 }

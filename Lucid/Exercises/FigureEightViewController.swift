@@ -44,10 +44,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
     private var currentInstructionIndex = 0
 
     private let exerciseInstructions: [InstructionStep] = [
-        InstructionStep(message: "3", duration: 1.0),
-        InstructionStep(message: "2", duration: 1.0),
-        InstructionStep(message: "1", duration: 1.0),
-        InstructionStep(message: "Keep the phone close to your face, but where you can clearly see the screen,\nand move your eyes with the yellow dot", duration: 3.0)
+        InstructionStep(message: "Keep the phone close to your face, but where you can clearly see the screen,\nand move your eyes with the yellow dot", duration: 6.5)
     ]
 
     override var prefersStatusBarHidden: Bool { return true }
@@ -126,29 +123,23 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         
         if index < exerciseInstructions.count {
             let step = exerciseInstructions[index]
-            let isCountdown = Int(step.message) != nil
             
-            if isCountdown {
+            if isLandscape {
+                if isFirstRun {
+                    instructionNextButton?.isHidden = false
+                    let canGoBack = index > 0
+                    instructionPrevButton?.isHidden = !canGoBack
+                    
+                    let isLastStep = (index == exerciseInstructions.count - 1)
+                    instructionNextButton?.setTitle(isLastStep ? "Start Exercise" : "Next", for: .normal)
+                } else {
+                    instructionNextButton?.isHidden = false
+                    instructionPrevButton?.isHidden = true
+                    instructionNextButton?.setTitle("Skip", for: .normal)
+                }
+            } else {
                 instructionNextButton?.isHidden = true
                 instructionPrevButton?.isHidden = true
-            } else {
-                if isLandscape {
-                    if isFirstRun {
-                        instructionNextButton?.isHidden = false
-                        let canGoBack = index > 0 && Int(exerciseInstructions[index - 1].message) == nil
-                        instructionPrevButton?.isHidden = !canGoBack
-                        
-                        let isLastStep = (index == exerciseInstructions.count - 1)
-                        instructionNextButton?.setTitle(isLastStep ? "Start Exercise" : "Next", for: .normal)
-                    } else {
-                        instructionNextButton?.isHidden = false
-                        instructionPrevButton?.isHidden = true
-                        instructionNextButton?.setTitle("Skip", for: .normal)
-                    }
-                } else {
-                    instructionNextButton?.isHidden = true
-                    instructionPrevButton?.isHidden = true
-                }
             }
             
             UIView.animate(withDuration: 0.4, animations: {
@@ -161,7 +152,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
                     UIView.animate(withDuration: 0.4, animations: {
                         self.centerMessageLabel.alpha = 1
                     }) { _ in
-                        if isCountdown || !isFirstRun {
+                        if !isFirstRun {
                             DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self] in
                                 guard let self = self, self.isExerciseActive, self.currentPhase == .none, self.currentInstructionIndex == index else { return }
                                 self.runInstructionSequence(index: index + 1)
@@ -254,6 +245,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
     
     private func finishInstructionsAndStartExercise() {
         InstructionTracker.markAsCompleted(for: "Figure8")
+        currentInstructionIndex = 999
         
         UIView.animate(withDuration: 0.3, animations: {
             self.instructionNextButton?.alpha = 0
@@ -263,11 +255,54 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
             self.instructionPrevButton?.removeFromSuperview()
         }
         
-        UIView.animate(withDuration: 0.5, animations: {
+        runStartCountdown { [weak self] in
+            guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
+            self.startFigureEightPhase()
+        }
+    }
+
+    private func runStartCountdown(completion: @escaping () -> Void) {
+        UIView.animate(withDuration: 0.2, animations: {
             self.centerMessageLabel.alpha = 0
         }) { _ in
-            guard self.isExerciseActive, self.currentPhase == .none else { return }
-            self.startFigureEightPhase()
+            self.centerMessageLabel.text = "3"
+            UIView.animate(withDuration: 0.3, animations: {
+                self.centerMessageLabel.alpha = 1
+            }) { _ in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                    guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
+                    UIView.animate(withDuration: 0.2, animations: {
+                        self.centerMessageLabel.alpha = 0
+                    }) { _ in
+                        self.centerMessageLabel.text = "2"
+                        UIView.animate(withDuration: 0.3, animations: {
+                            self.centerMessageLabel.alpha = 1
+                        }) { _ in
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                                guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
+                                UIView.animate(withDuration: 0.2, animations: {
+                                    self.centerMessageLabel.alpha = 0
+                                }) { _ in
+                                    self.centerMessageLabel.text = "1"
+                                    UIView.animate(withDuration: 0.3, animations: {
+                                        self.centerMessageLabel.alpha = 1
+                                    }) { _ in
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                                            guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
+                                            UIView.animate(withDuration: 0.3, animations: {
+                                                self.centerMessageLabel.alpha = 0
+                                            }) { _ in
+                                                self.centerMessageLabel.text = ""
+                                                completion()
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
         
@@ -488,7 +523,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
     private func startFigureEightAnimation() {
         guard isExerciseActive, currentPhase == .tracking, let path = currentPath else { return }
             
-        if currentLoopIndex >= 5 {
+        if currentLoopIndex >= 1 {
             if !isSecondPart {
                 promptRotationPhase()
             } else {

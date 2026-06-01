@@ -32,10 +32,7 @@ class NearFarFocusViewController: UIViewController {
     private var currentInstructionIndex = 0
 
     private let exerciseInstructions: [InstructionStep] = [
-        InstructionStep(message: "3", duration: 1.0),
-        InstructionStep(message: "2", duration: 1.0),
-        InstructionStep(message: "1", duration: 1.0),
-        InstructionStep(message: "Alternate focusing on the screen and looking away.\nFollow the audio and visual cues.", duration: 4.0)
+        InstructionStep(message: "Alternate focusing on the screen and looking away.\nFollow the audio and visual cues.", duration: 5.5)
     ]
     
     override func viewDidLoad() {
@@ -118,24 +115,18 @@ class NearFarFocusViewController: UIViewController {
         
         if index < exerciseInstructions.count {
             let step = exerciseInstructions[index]
-            let isCountdown = Int(step.message) != nil
             
-            if isCountdown {
-                instructionNextButton?.isHidden = true
-                instructionPrevButton?.isHidden = true
+            if isFirstRun {
+                instructionNextButton?.isHidden = false
+                let canGoBack = index > 0
+                instructionPrevButton?.isHidden = !canGoBack
+                
+                let isLastStep = (index == exerciseInstructions.count - 1)
+                instructionNextButton?.setTitle(isLastStep ? "Start Exercise" : "Next", for: .normal)
             } else {
-                if isFirstRun {
-                    instructionNextButton?.isHidden = false
-                    let canGoBack = index > 0 && Int(exerciseInstructions[index - 1].message) == nil
-                    instructionPrevButton?.isHidden = !canGoBack
-                    
-                    let isLastStep = (index == exerciseInstructions.count - 1)
-                    instructionNextButton?.setTitle(isLastStep ? "Start Exercise" : "Next", for: .normal)
-                } else {
-                    instructionNextButton?.isHidden = false
-                    instructionPrevButton?.isHidden = true
-                    instructionNextButton?.setTitle("Skip", for: .normal)
-                }
+                instructionNextButton?.isHidden = false
+                instructionPrevButton?.isHidden = true
+                instructionNextButton?.setTitle("Skip", for: .normal)
             }
             
             UIView.animate(withDuration: 0.4, animations: {
@@ -151,7 +142,7 @@ class NearFarFocusViewController: UIViewController {
                     self.centerMessageLabel.alpha = 1
                     self.instructionLabel.alpha = 1.0
                 }) { _ in
-                    if isCountdown || !isFirstRun {
+                    if !isFirstRun {
                         DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self] in
                             guard let self = self, self.isExerciseActive, self.isInstructionPhase, self.currentInstructionIndex == index else { return }
                             self.runInstructionSequence(index: index + 1)
@@ -234,6 +225,7 @@ class NearFarFocusViewController: UIViewController {
     
     private func finishInstructionsAndStartExercise() {
         InstructionTracker.markAsCompleted(for: "NearFar")
+        currentInstructionIndex = 999
         
         UIView.animate(withDuration: 0.3, animations: {
             self.instructionNextButton?.alpha = 0
@@ -243,12 +235,55 @@ class NearFarFocusViewController: UIViewController {
             self.instructionPrevButton?.removeFromSuperview()
         }
         
-        fadeTransition(showCenterMessage: false, showExerciseUI: false) { [weak self] in
+        runStartCountdown { [weak self] in
             guard let self = self, self.isExerciseActive else { return }
             self.sessionStartTime = Date()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-                guard let self = self, self.isExerciseActive else { return }
-                self.startNearFocusPhase()
+            self.startNearFocusPhase()
+        }
+    }
+
+    private func runStartCountdown(completion: @escaping () -> Void) {
+        UIView.animate(withDuration: 0.2, animations: {
+            self.centerMessageLabel.alpha = 0
+            self.instructionLabel.alpha = 0
+        }) { _ in
+            self.centerMessageLabel.text = "3"
+            UIView.animate(withDuration: 0.3, animations: {
+                self.centerMessageLabel.alpha = 1
+            }) { _ in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                    guard let self = self, self.isExerciseActive else { return }
+                    UIView.animate(withDuration: 0.2, animations: {
+                        self.centerMessageLabel.alpha = 0
+                    }) { _ in
+                        self.centerMessageLabel.text = "2"
+                        UIView.animate(withDuration: 0.3, animations: {
+                            self.centerMessageLabel.alpha = 1
+                        }) { _ in
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                                guard let self = self, self.isExerciseActive else { return }
+                                UIView.animate(withDuration: 0.2, animations: {
+                                    self.centerMessageLabel.alpha = 0
+                                }) { _ in
+                                    self.centerMessageLabel.text = "1"
+                                    UIView.animate(withDuration: 0.3, animations: {
+                                        self.centerMessageLabel.alpha = 1
+                                    }) { _ in
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                                            guard let self = self, self.isExerciseActive else { return }
+                                            UIView.animate(withDuration: 0.3, animations: {
+                                                self.centerMessageLabel.alpha = 0
+                                            }) { _ in
+                                                self.centerMessageLabel.text = ""
+                                                completion()
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

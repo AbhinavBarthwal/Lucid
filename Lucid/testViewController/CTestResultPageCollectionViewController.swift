@@ -20,17 +20,33 @@ struct CTestEyeResult {
         let tintColor: UIColor
 
         switch clampedScore {
-        case 5...6:
-            statusText = "Excellent"
-            insightText = "Your eyes are doing wonderful today! Keep it up."
+        case 6:
+            statusText = "Excellent Acuity"
+            insightText = "Optimal clarity! Your eye resolved the smallest shapes easily, showing sharp and healthy vision."
             tintColor = .cTestPositive
-        case 3...4:
-            statusText = "Good"
-            insightText = "Nice and steady! You're doing great, and we can keep building on this."
+        case 5:
+            statusText = "Very Good Acuity"
+            insightText = "Strong focus! Your eye identified almost all detail. Visual acuity is very solid and healthy."
+            tintColor = .cTestPositive
+        case 4:
+            statusText = "Good Acuity"
+            insightText = "Clear functional vision. You identified most orientations, though there is minor room to sharpen."
+            tintColor = .cTestPositive
+        case 3:
+            statusText = "Moderate Acuity"
+            insightText = "Fair detail recognition. You resolved larger shapes easily, but struggled slightly with smaller ones."
             tintColor = .cTestOrange
+        case 2:
+            statusText = "Lower Detail Clarity"
+            insightText = "A bit soft on details. Larger targets were clear, but smaller orientation details were tricky."
+            tintColor = .cTestWarning
+        case 1:
+            statusText = "Reduced Acuity"
+            insightText = "Struggled with shape details today. This can occur with screen fatigue or poor lighting."
+            tintColor = .cTestWarning
         default:
-            statusText = "Room to Grow"
-            insightText = "A little tricky with the smaller shapes today. That's okay, we can practice!"
+            statusText = "Needs Care & Practice"
+            insightText = "Very tricky to identify directions. This suggests high visual fatigue. We recommend resting your eyes."
             tintColor = .cTestWarning
         }
 
@@ -153,23 +169,23 @@ final class CTestResultPageCollectionViewController: UICollectionViewController 
     }
 
     private func createLayout() -> UICollectionViewLayout {
-        UICollectionViewCompositionalLayout { sectionIndex, _ in
+        let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { sectionIndex, _ in
             guard let section = CTestResultSection(rawValue: sectionIndex) else { return nil }
 
             let sectionHeight: NSCollectionLayoutDimension
 
             switch section {
             case .hero:
-                sectionHeight = .absolute(272)
+                sectionHeight = .estimated(260)
 
             case .performance:
-                sectionHeight = .estimated(230)
+                sectionHeight = .estimated(180)
 
             case .eyes:
-                sectionHeight = .absolute(212)
+                sectionHeight = .estimated(180)
 
             case .wisdom:
-                sectionHeight = .estimated(280)
+                sectionHeight = .estimated(180)
             }
 
             if section == .eyes {
@@ -179,7 +195,7 @@ final class CTestResultPageCollectionViewController: UICollectionViewController 
                         heightDimension: .fractionalHeight(1.0)
                     )
                 )
-                item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 6, bottom: 0, trailing: 6)
+                item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 2, bottom: 0, trailing: 2)
 
                 let group = NSCollectionLayoutGroup.horizontal(
                     layoutSize: NSCollectionLayoutSize(
@@ -190,7 +206,7 @@ final class CTestResultPageCollectionViewController: UICollectionViewController 
                 )
 
                 let layoutSection = NSCollectionLayoutSection(group: group)
-                layoutSection.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
+                layoutSection.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 18, bottom: 0, trailing: 18)
                 return layoutSection
             }
 
@@ -210,101 +226,54 @@ final class CTestResultPageCollectionViewController: UICollectionViewController 
             )
 
             let layoutSection = NSCollectionLayoutSection(group: group)
-            layoutSection.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 20, bottom: 10, trailing: 20)
+            layoutSection.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20)
 
             return layoutSection
         }
+
+        let configuration = UICollectionViewCompositionalLayoutConfiguration()
+        configuration.interSectionSpacing = 8
+        
+        return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider, configuration: configuration)
     }
 
     private func recommendationItems() -> [CTestWisdomItem] {
-
         let averageScore = Double(leftEyeResult.rawScore + rightEyeResult.rawScore) / 2.0
-        let difference = abs(leftEyeResult.rawScore - rightEyeResult.rawScore)
-        let weakerEye = leftEyeResult.rawScore < rightEyeResult.rawScore ? leftEyeResult.eyeTitle : rightEyeResult.eyeTitle
 
-        let trend = computeTrend()
-        let isDeclining = (trend ?? 0) < -0.5
-
-        var items: [CTestWisdomItem] = []
-
-        // 1. Eye imbalance
-        if difference >= 2 {
-            items.append(
-                CTestWisdomItem(
-                    title: "Give \(weakerEye) some love",
-                    body: "A few focus shifts can help both eyes work perfectly together."
-                )
-            )
-        }
-
-        // 2. Based on performance level
         if averageScore <= 2.5 {
-
-            items.append(
+            return [
                 CTestWisdomItem(
                     title: "Saccadic Jumps",
-                    body: "This helps speed up your reaction time and sharpen your focus."
-                )
-            )
-
-            items.append(
+                    body: "Speeds up your eye reaction time and helps you lock on targets faster."
+                ),
                 CTestWisdomItem(
-                    title: "Focus Shift",
-                    body: "Perfect for training your eyes to adjust to different distances."
+                    title: "Near Far Focus",
+                    body: "Trains your eyes to quickly adjust between close and distant objects."
                 )
-            )
-
+            ]
         } else if averageScore <= 4.5 {
-
-            items.append(
+            return [
                 CTestWisdomItem(
                     title: "Smooth Pursuits",
-                    body: "Great for helping your eyes follow movements smoothly and comfortably."
-                )
-            )
-
-            items.append(
+                    body: "Great for helping your eyes follow movement smoothly and comfortably."
+                ),
                 CTestWisdomItem(
                     title: "Blink Training",
-                    body: "Helps refresh your eyes and keep them feeling comfortable."
+                    body: "Refreshes your eyes and keeps them feeling comfortable during focus tasks."
                 )
-            )
-
+            ]
         } else {
-
-            items.append(
+            return [
                 CTestWisdomItem(
                     title: "Figure Eight",
-                    body: "A fun way to boost eye flexibility and coordination."
-                )
-            )
-
-            items.append(
+                    body: "A fun way to boost eye flexibility and coordination while keeping performance sharp."
+                ),
                 CTestWisdomItem(
                     title: "Peripheral Awareness",
-                    body: "Helps relax your eyes and notice more around you."
+                    body: "Helps relax your eyes and widen how much you notice around you."
                 )
-            )
+            ]
         }
-
-        // 3. Trend-based logic
-        if isDeclining {
-            items.append(
-                CTestWisdomItem(
-                    title: "Digital Break",
-                    body: "Remember to take short, cozy screen breaks to let your eyes rest."
-                )
-            )
-        } else if trend != nil {
-            items.append(
-                CTestWisdomItem(
-                    title: "Stay Consistent",
-                    body: "Keep up the fantastic daily routine to keep your eyes happy!"
-                )
-            )
-        }
-
-        return items
     }
     
     private func computeTrend() -> Double? {
@@ -428,7 +397,6 @@ private class CTestBaseCardCell: UICollectionViewCell {
 private final class CTestHeroCell: CTestBaseCardCell {
     private let captionLabel = UILabel()
     private let scoreLabel = UILabel()
-    private let suffixLabel = UILabel()
     private let severityLabel = UILabel()
     private let scoreBarView = CTestInlineScoreBarView()
     private let insightLabel = UILabel()
@@ -470,13 +438,9 @@ private final class CTestHeroCell: CTestBaseCardCell {
         infoButton.addTarget(self, action: #selector(infoTapped), for: .touchUpInside)
 
         scoreLabel.translatesAutoresizingMaskIntoConstraints = false
-        scoreLabel.font = .systemFont(ofSize: 66, weight: .bold)
-        scoreLabel.textColor = .white
-
-        suffixLabel.translatesAutoresizingMaskIntoConstraints = false
-        suffixLabel.font = .systemFont(ofSize: 20, weight: .medium)
-        suffixLabel.textColor = UIColor.white.withAlphaComponent(0.58)
-        suffixLabel.text = "/6"
+        scoreLabel.numberOfLines = 1
+        scoreLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        scoreLabel.setContentHuggingPriority(.defaultLow, for: .vertical)
 
         severityLabel.translatesAutoresizingMaskIntoConstraints = false
         severityLabel.font = .systemFont(ofSize: 22, weight: .semibold)
@@ -484,15 +448,9 @@ private final class CTestHeroCell: CTestBaseCardCell {
         insightLabel.translatesAutoresizingMaskIntoConstraints = false
         insightLabel.font = .systemFont(ofSize: 15, weight: .regular)
         insightLabel.textColor = UIColor.white.withAlphaComponent(0.72)
-        insightLabel.numberOfLines = 3
+        insightLabel.numberOfLines = 0
 
         scoreBarView.translatesAutoresizingMaskIntoConstraints = false
-
-        let scoreStack = UIStackView(arrangedSubviews: [scoreLabel, suffixLabel])
-        scoreStack.translatesAutoresizingMaskIntoConstraints = false
-        scoreStack.axis = .horizontal
-        scoreStack.alignment = .lastBaseline
-        scoreStack.spacing = 6
 
         let headerRow = UIStackView(arrangedSubviews: [captionLabel, infoButton])
         headerRow.translatesAutoresizingMaskIntoConstraints = false
@@ -501,11 +459,15 @@ private final class CTestHeroCell: CTestBaseCardCell {
         headerRow.distribution = .fill
         headerRow.spacing = 16
 
-        let textStack = UIStackView(arrangedSubviews: [headerRow, scoreStack, severityLabel, scoreBarView, insightLabel])
+        let textStack = UIStackView(arrangedSubviews: [headerRow, scoreLabel, severityLabel, scoreBarView, insightLabel])
         textStack.translatesAutoresizingMaskIntoConstraints = false
         textStack.axis = .vertical
         textStack.alignment = .leading
         textStack.spacing = 8
+        
+        textStack.setCustomSpacing(10, after: scoreLabel)
+        textStack.setCustomSpacing(10, after: severityLabel)
+        textStack.setCustomSpacing(14, after: scoreBarView)
 
         contentView.addSubview(textStack)
 
@@ -513,12 +475,15 @@ private final class CTestHeroCell: CTestBaseCardCell {
             infoButton.widthAnchor.constraint(equalToConstant: 36),
             infoButton.heightAnchor.constraint(equalToConstant: 36),
             scoreBarView.widthAnchor.constraint(equalTo: textStack.widthAnchor),
+            scoreLabel.widthAnchor.constraint(equalTo: textStack.widthAnchor),
+            severityLabel.widthAnchor.constraint(equalTo: textStack.widthAnchor),
+            insightLabel.widthAnchor.constraint(equalTo: textStack.widthAnchor),
             scoreBarView.heightAnchor.constraint(equalToConstant: 34),
 
             textStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
             textStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
             textStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
-            textStack.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -24)
+            textStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24)
         ])
     }
 
@@ -526,11 +491,32 @@ private final class CTestHeroCell: CTestBaseCardCell {
         let averageScore = Double(left.rawScore + right.rawScore) / 2.0
         let severity = summaryTitle(for: averageScore)
 
-        scoreLabel.text = String(format: "%.1f", averageScore)
+        updateScoreLabel(with: averageScore)
         severityLabel.text = severity.text
         severityLabel.textColor = severity.color
         scoreBarView.configure(score: averageScore)
         insightLabel.text = heroInsight(left: left, right: right)
+    }
+
+    private func updateScoreLabel(with averageScore: Double) {
+        let scoreString = String(format: "%.1f", averageScore)
+        let suffixString = "/6"
+        
+        let attributedText = NSMutableAttributedString(
+            string: scoreString,
+            attributes: [
+                .font: UIFont.systemFont(ofSize: 66, weight: .bold),
+                .foregroundColor: UIColor.white
+            ]
+        )
+        attributedText.append(NSAttributedString(
+            string: suffixString,
+            attributes: [
+                .font: UIFont.systemFont(ofSize: 20, weight: .medium),
+                .foregroundColor: UIColor.white.withAlphaComponent(0.58)
+            ]
+        ))
+        scoreLabel.attributedText = attributedText
     }
 
     private func summaryTitle(for score: Double) -> (text: String, color: UIColor) {
@@ -545,12 +531,21 @@ private final class CTestHeroCell: CTestBaseCardCell {
     }
 
     private func heroInsight(left: CTestEyeResult, right: CTestEyeResult) -> String {
-        if left.rawScore == right.rawScore {
-            return "Both eyes did equally well today!"
+        let diff = abs(left.rawScore - right.rawScore)
+        if diff >= 2 {
+            let strongerEye = left.rawScore > right.rawScore ? "left" : "right"
+            let weakerEye = left.rawScore < right.rawScore ? "left" : "right"
+            return "There is a noticeable difference between your eyes today. Your \(strongerEye) eye was sharper than your \(weakerEye) eye. Focus exercises can help."
         }
-
-        let strongerEye = left.rawScore > right.rawScore ? left.eyeTitle : right.eyeTitle
-        return "\(strongerEye) was a bit sharper today!"
+        
+        let avg = Double(left.rawScore + right.rawScore) / 2.0
+        if avg >= 5.0 {
+            return "Superb performance! Both of your eyes are demonstrating high visual resolution today."
+        } else if avg >= 3.0 {
+            return "Good, balanced performance! Both eyes are working together smoothly and sharing the effort."
+        } else {
+            return "Both eyes are feeling a bit tired or strained. Consistent daily exercises will help boost your focus."
+        }
     }
 
     @objc private func infoTapped() {
@@ -734,21 +729,49 @@ private final class CTestComparisonCell: CTestBaseCardCell {
             stack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 22),
             stack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 22),
             stack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -22),
-            stack.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -22)
+            stack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -22)
         ])
     }
 
     func configure(previous: CTestComparison, left: CTestEyeResult, right: CTestEyeResult) {
-        let viewModel = CTestPerformanceViewModel.make(previous: previous)
-        let currentAverage = Double(left.rawScore + right.rawScore) / 2.0
-        let previousAverage = Double(previous.previousLeft + previous.previousRight) / 2.0
-        let delta = currentAverage - previousAverage
-        let direction = delta > 0 ? "higher" : delta < 0 ? "lower" : "unchanged"
-        let differenceText = delta == 0
-            ? "Your current average is unchanged from your last saved C Test."
-            : String(format: "Your current average is %.1f points %@ than your last saved C Test.", abs(delta), direction)
-        result.text = viewModel.previousText
-        subtitle.text = "Your previous score. \(differenceText)"
+        let currentAvg = Double(left.rawScore + right.rawScore) / 2.0
+        let previousAvg = Double(previous.previousLeft + previous.previousRight) / 2.0
+        let delta = currentAvg - previousAvg
+
+        let currentFormatted = String(format: "%.1f", currentAvg)
+        let previousFormatted = String(format: "%.1f", previousAvg)
+        result.text = "\(previousFormatted) → \(currentFormatted) / 6"
+
+        let tag: String
+        let comparisonLine: String
+
+        if delta == 0 {
+            tag = "Steady"
+            comparisonLine = "Same as last time, let's keep up the good work "
+        } else if delta > 0 {
+            let pts = String(format: "%.1f", delta)
+            if delta >= 2 {
+                tag = "Great!"
+                comparisonLine = "Up \(pts) points from last time, your eyes are getting sharper!"
+            } else if delta >= 1 {
+                tag = "Good"
+                comparisonLine = "Up \(pts) point from your last test. Nice steady progress!"
+            } else {
+                tag = "Decent"
+                comparisonLine = "Slightly up \(pts) pts, small improvement keep it up!"
+            }
+        } else {
+            let pts = String(format: "%.1f", abs(delta))
+            if abs(delta) >= 2 {
+                tag = "Low"
+                comparisonLine = "Down \(pts) points from last time. Eyes might be tired!"
+            } else {
+                tag = "Okay"
+                comparisonLine = "Slightly down \(pts) pts. Small swings are totally normal, no worries!"
+            }
+        }
+
+        subtitle.text = "\(tag) — \(comparisonLine)"
     }
 }
 
@@ -771,26 +794,26 @@ private final class CTestWisdomCell: CTestBaseCardCell {
     private func configureSubviews() {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = "YOUR CUSTOM RECOMMENDATIONS"
-        titleLabel.font = .systemFont(ofSize: 12, weight: .semibold)
+        titleLabel.font = .systemFont(ofSize: 11, weight: .semibold)
         titleLabel.textColor = .cTestOrange
         titleLabel.numberOfLines = 0
 
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = 14
+        stackView.spacing = 8
 
         contentView.addSubview(titleLabel)
         contentView.addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 22),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
 
-            stackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 18),
+            stackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
             stackView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -22)
+            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12)
         ])
     }
 
@@ -809,27 +832,27 @@ private final class CTestWisdomCell: CTestBaseCardCell {
         let bullet = UIView()
         bullet.translatesAutoresizingMaskIntoConstraints = false
         bullet.backgroundColor = .cTestOrange
-        bullet.layer.cornerRadius = 4
+        bullet.layer.cornerRadius = 3
 
         let title = UILabel()
         title.translatesAutoresizingMaskIntoConstraints = false
-        title.font = .systemFont(ofSize: 15, weight: .semibold)
+        title.font = .systemFont(ofSize: 14, weight: .semibold)
         title.textColor = .white
         title.text = item.title
         title.numberOfLines = 0
 
         let body = UILabel()
         body.translatesAutoresizingMaskIntoConstraints = false
-        body.font = .systemFont(ofSize: 13, weight: .medium)
-        body.textColor = UIColor.white.withAlphaComponent(0.64)
+        body.font = .systemFont(ofSize: 12, weight: .medium)
+        body.textColor = UIColor.white.withAlphaComponent(0.60)
         body.numberOfLines = 0
         body.text = item.body
 
         let textStack = UIStackView(arrangedSubviews: [title, body])
         textStack.translatesAutoresizingMaskIntoConstraints = false
         textStack.axis = .vertical
-        textStack.alignment = .leading
-        textStack.spacing = 4
+        textStack.alignment = .fill
+        textStack.spacing = 3
 
         let row = UIView()
         row.addSubview(bullet)
@@ -837,11 +860,11 @@ private final class CTestWisdomCell: CTestBaseCardCell {
 
         NSLayoutConstraint.activate([
             bullet.leadingAnchor.constraint(equalTo: row.leadingAnchor),
-            bullet.topAnchor.constraint(equalTo: row.topAnchor, constant: 8),
-            bullet.widthAnchor.constraint(equalToConstant: 8),
-            bullet.heightAnchor.constraint(equalToConstant: 8),
+            bullet.topAnchor.constraint(equalTo: row.topAnchor, constant: 6),
+            bullet.widthAnchor.constraint(equalToConstant: 6),
+            bullet.heightAnchor.constraint(equalToConstant: 6),
 
-            textStack.leadingAnchor.constraint(equalTo: bullet.trailingAnchor, constant: 12),
+            textStack.leadingAnchor.constraint(equalTo: bullet.trailingAnchor, constant: 10),
             textStack.topAnchor.constraint(equalTo: row.topAnchor),
             textStack.trailingAnchor.constraint(equalTo: row.trailingAnchor),
             textStack.bottomAnchor.constraint(equalTo: row.bottomAnchor)
@@ -880,12 +903,12 @@ private final class CTestEyeCardCell: CTestBaseCardCell {
 
         statusLabel.font = .systemFont(ofSize: 12, weight: .semibold)
         statusLabel.textAlignment = .center
-        statusLabel.numberOfLines = 2
+        statusLabel.numberOfLines = 0
 
         insightLabel.textColor = UIColor.white.withAlphaComponent(0.62)
         insightLabel.font = .systemFont(ofSize: 11, weight: .medium)
         insightLabel.textAlignment = .center
-        insightLabel.numberOfLines = 2
+        insightLabel.numberOfLines = 0
 
         let stack = UIStackView(arrangedSubviews: [eyeLabel, scoreLabel, statusLabel, insightLabel])
         stack.axis = .vertical
@@ -896,9 +919,11 @@ private final class CTestEyeCardCell: CTestBaseCardCell {
         contentView.addSubview(stack)
 
         NSLayoutConstraint.activate([
-            stack.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            stack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 14),
-            stack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -14)
+            stack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
+            stack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
+            stack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+            stack.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -16),
+            stack.centerXAnchor.constraint(equalTo: contentView.centerXAnchor)
         ])
     }
 

@@ -69,10 +69,7 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
     private var currentInstructionIndex = 0
 
     private let exerciseInstructions: [InstructionStep] = [
-        InstructionStep(message: "3", duration: 1.0),
-        InstructionStep(message: "2", duration: 1.0),
-        InstructionStep(message: "1", duration: 1.0),
-        InstructionStep(message: "Blink both eyes after the vibration", duration: 3.0)
+        InstructionStep(message: "Blink both eyes after the vibration", duration: 4.0)
     ]
     
     private var leftMaxBlinks: [Float] = []
@@ -151,24 +148,18 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         
         if index < exerciseInstructions.count {
             let step = exerciseInstructions[index]
-            let isCountdown = Int(step.message) != nil
             
-            if isCountdown {
-                instructionNextButton?.isHidden = true
-                instructionPrevButton?.isHidden = true
+            if isFirstRun {
+                instructionNextButton?.isHidden = false
+                let canGoBack = index > 0
+                instructionPrevButton?.isHidden = !canGoBack
+                
+                let isLastStep = (index == exerciseInstructions.count - 1)
+                instructionNextButton?.setTitle(isLastStep ? "Start Exercise" : "Next", for: .normal)
             } else {
-                if isFirstRun {
-                    instructionNextButton?.isHidden = false
-                    let canGoBack = index > 0 && Int(exerciseInstructions[index - 1].message) == nil
-                    instructionPrevButton?.isHidden = !canGoBack
-                    
-                    let isLastStep = (index == exerciseInstructions.count - 1)
-                    instructionNextButton?.setTitle(isLastStep ? "Start Exercise" : "Next", for: .normal)
-                } else {
-                    instructionNextButton?.isHidden = false
-                    instructionPrevButton?.isHidden = true
-                    instructionNextButton?.setTitle("Skip", for: .normal)
-                }
+                instructionNextButton?.isHidden = false
+                instructionPrevButton?.isHidden = true
+                instructionNextButton?.setTitle("Skip", for: .normal)
             }
             
             UIView.animate(withDuration: 0.4, animations: {
@@ -179,7 +170,7 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
                 UIView.animate(withDuration: 0.4, animations: {
                     self.centerMessageLAbel.alpha = 1
                 }) { _ in
-                    if isCountdown || !isFirstRun {
+                    if !isFirstRun {
                         DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self] in
                             guard let self = self, self.isExerciseActive, self.isInstructionPhase, self.currentInstructionIndex == index else { return }
                             self.runInstructionSequence(index: index + 1)
@@ -262,6 +253,7 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
     
     private func finishInstructionsAndStartExercise() {
         InstructionTracker.markAsCompleted(for: "Blink")
+        currentInstructionIndex = 999
         
         UIView.animate(withDuration: 0.3, animations: {
             self.instructionNextButton?.alpha = 0
@@ -271,11 +263,56 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
             self.instructionPrevButton?.removeFromSuperview()
         }
         
-        self.fadeTransition(showCenterMessage: false, showExerciseUI: false) { [weak self] in
+        runStartCountdown { [weak self] in
             guard let self = self, self.isExerciseActive, self.isInstructionPhase else { return }
             self.sessionStartTime = Date()
             self.currentPhase = .doubleBlink(remaining: doubleBlink)
             self.startActiveBlinkPhase()
+        }
+    }
+
+    private func runStartCountdown(completion: @escaping () -> Void) {
+        UIView.animate(withDuration: 0.2, animations: {
+            self.centerMessageLAbel.alpha = 0
+        }) { _ in
+            self.centerMessageLAbel.text = "3"
+            UIView.animate(withDuration: 0.3, animations: {
+                self.centerMessageLAbel.alpha = 1
+            }) { _ in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                    guard let self = self, self.isExerciseActive, self.isInstructionPhase else { return }
+                    UIView.animate(withDuration: 0.2, animations: {
+                        self.centerMessageLAbel.alpha = 0
+                    }) { _ in
+                        self.centerMessageLAbel.text = "2"
+                        UIView.animate(withDuration: 0.3, animations: {
+                            self.centerMessageLAbel.alpha = 1
+                        }) { _ in
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                                guard let self = self, self.isExerciseActive, self.isInstructionPhase else { return }
+                                UIView.animate(withDuration: 0.2, animations: {
+                                    self.centerMessageLAbel.alpha = 0
+                                }) { _ in
+                                    self.centerMessageLAbel.text = "1"
+                                    UIView.animate(withDuration: 0.3, animations: {
+                                        self.centerMessageLAbel.alpha = 1
+                                    }) { _ in
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                                            guard let self = self, self.isExerciseActive, self.isInstructionPhase else { return }
+                                            UIView.animate(withDuration: 0.3, animations: {
+                                                self.centerMessageLAbel.alpha = 0
+                                            }) { _ in
+                                                self.centerMessageLAbel.text = ""
+                                                completion()
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
     

@@ -12,7 +12,8 @@ class PageLinkCollectionViewCell: UICollectionViewCell {
     @IBOutlet var nameLabel: UILabel!
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+        nameLabel.font = .systemFont(ofSize: 24, weight: .bold)
+        nameLabel.textColor = .white
     }
     
     func configure( Name : String){

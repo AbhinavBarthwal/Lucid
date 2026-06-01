@@ -28,12 +28,9 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     
     private var currentSpeedLevel = 0
     private let exerciseInstructions: [InstructionStep] = [
-        InstructionStep(message: "3", duration: 1.0),
-        InstructionStep(message: "2", duration: 1.0),
-        InstructionStep(message: "1", duration: 1.0),
-        InstructionStep(message: "Follow the dot closely", duration: 2.0),
-        InstructionStep(message: "Keep your head still", duration: 1.5),
-        InstructionStep(message: "Keep your phone at 20cm", duration: 2.0)
+        InstructionStep(message: "Follow the dot closely", duration: 3.0),
+        InstructionStep(message: "Keep your head still", duration: 3.5),
+        InstructionStep(message: "Keep your phone at 20cm", duration: 3.5)
     ]
 
     private let phaseDurations: [Double] = [2.0 , 1.75 , 1.5 , 1.25 , 1.0]
@@ -93,24 +90,18 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         
         if index < exerciseInstructions.count {
             let step = exerciseInstructions[index]
-            let isCountdown = Int(step.message) != nil
             
-            if isCountdown {
-                instructionNextButton?.isHidden = true
-                instructionPrevButton?.isHidden = true
+            if isFirstRun {
+                instructionNextButton?.isHidden = false
+                let canGoBack = index > 0
+                instructionPrevButton?.isHidden = !canGoBack
+                
+                let isLastStep = (index == exerciseInstructions.count - 1)
+                instructionNextButton?.setTitle(isLastStep ? "Start Exercise" : "Next", for: .normal)
             } else {
-                if isFirstRun {
-                    instructionNextButton?.isHidden = false
-                    let canGoBack = index > 0 && Int(exerciseInstructions[index - 1].message) == nil
-                    instructionPrevButton?.isHidden = !canGoBack
-                    
-                    let isLastStep = (index == exerciseInstructions.count - 1)
-                    instructionNextButton?.setTitle(isLastStep ? "Start Exercise" : "Next", for: .normal)
-                } else {
-                    instructionNextButton?.isHidden = false
-                    instructionPrevButton?.isHidden = true
-                    instructionNextButton?.setTitle("Skip", for: .normal)
-                }
+                instructionNextButton?.isHidden = false
+                instructionPrevButton?.isHidden = true
+                instructionNextButton?.setTitle("Skip", for: .normal)
             }
             
             UIView.animate(withDuration: 0.4, animations: {
@@ -122,7 +113,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
                 UIView.animate(withDuration: 0.4, animations: {
                     self.centerMessageLabel.alpha = 1
                 }) { _ in
-                    if isCountdown || !isFirstRun {
+                    if !isFirstRun {
                         DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self] in
                             guard let self = self, self.isExerciseActive, self.currentPhase == .none, self.currentInstructionIndex == index else { return }
                             self.runInstructionSequence(index: index + 1)
@@ -205,6 +196,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     
     private func finishInstructionsAndStartExercise() {
         InstructionTracker.markAsCompleted(for: "SmoothPursuits")
+        currentInstructionIndex = 999
         
         UIView.animate(withDuration: 0.3, animations: {
             self.instructionNextButton?.alpha = 0
@@ -214,11 +206,54 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
             self.instructionPrevButton?.removeFromSuperview()
         }
         
-        UIView.animate(withDuration: 0.5, animations: {
+        runStartCountdown { [weak self] in
+            guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
+            self.startSmoothPursuitPhase()
+        }
+    }
+
+    private func runStartCountdown(completion: @escaping () -> Void) {
+        UIView.animate(withDuration: 0.2, animations: {
             self.centerMessageLabel.alpha = 0
         }) { _ in
-            guard self.isExerciseActive, self.currentPhase == .none else { return }
-            self.startSmoothPursuitPhase()
+            self.centerMessageLabel.text = "3"
+            UIView.animate(withDuration: 0.3, animations: {
+                self.centerMessageLabel.alpha = 1
+            }) { _ in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                    guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
+                    UIView.animate(withDuration: 0.2, animations: {
+                        self.centerMessageLabel.alpha = 0
+                    }) { _ in
+                        self.centerMessageLabel.text = "2"
+                        UIView.animate(withDuration: 0.3, animations: {
+                            self.centerMessageLabel.alpha = 1
+                        }) { _ in
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                                guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
+                                UIView.animate(withDuration: 0.2, animations: {
+                                    self.centerMessageLabel.alpha = 0
+                                }) { _ in
+                                    self.centerMessageLabel.text = "1"
+                                    UIView.animate(withDuration: 0.3, animations: {
+                                        self.centerMessageLabel.alpha = 1
+                                    }) { _ in
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                                            guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
+                                            UIView.animate(withDuration: 0.3, animations: {
+                                                self.centerMessageLabel.alpha = 0
+                                            }) { _ in
+                                                self.centerMessageLabel.text = ""
+                                                completion()
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -291,7 +326,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         successHapticGenerator.notificationOccurred(.success)
         successHapticGenerator.prepare()
 
-        if currentSpeedLevel > 4 {
+        if currentSpeedLevel > 0 {
             finishExercise()
         } else {
             gazeTimer?.invalidate()

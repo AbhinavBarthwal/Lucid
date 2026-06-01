@@ -3,6 +3,7 @@
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -16,84 +17,74 @@
                 <rect key="frame" x="0.0" y="0.0" width="350" height="175"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
-                    <!-- Reason / description label -->
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" numberOfLines="0" translatesAutoresizingMaskIntoConstraints="NO" id="RCC-02-rsn">
-                        <rect key="frame" x="16" y="16" width="318" height="63"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" lineBreakMode="tailTruncation" numberOfLines="0" translatesAutoresizingMaskIntoConstraints="NO" id="RCC-02-rsn">
+                        <rect key="frame" x="16" y="16" width="318" height="67"/>
                         <fontDescription key="fontDescription" name="SFPro-Semibold" family="SF Pro" pointSize="15"/>
-                        <color key="textColor" red="1" green="1" blue="1" alpha="0.92" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="textColor" red="1" green="1" blue="1" alpha="0.92000000000000004" colorSpace="custom" customColorSpace="sRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <!-- Bottom pill -->
                     <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RCC-03-pil">
                         <rect key="frame" x="8" y="95" width="334" height="72"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="RCC-04-ico">
                                 <rect key="frame" x="8" y="7" width="58" height="58"/>
+                                <color key="tintColor" name="AccentColor"/>
                             </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" numberOfLines="1" translatesAutoresizingMaskIntoConstraints="NO" id="RCC-05-ttl">
-                                <rect key="frame" x="78" y="22" width="200" height="28"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RCC-05-ttl">
+                                <rect key="frame" x="78" y="36" width="216" height="0.0"/>
                                 <fontDescription key="fontDescription" name="SFPro-Bold" family="SF Pro" pointSize="19"/>
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="chevron.right" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="RCC-06-chv">
-                                <rect key="frame" x="308" y="24" width="14" height="24"/>
+                                <rect key="frame" x="302" y="26" width="14" height="20.333333333333329"/>
                                 <color key="tintColor" red="1" green="1" blue="1" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                             </imageView>
                         </subviews>
-                        <color key="backgroundColor" red="0" green="0" blue="0" alpha="0.55" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.55000000000000004" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <!-- Icon -->
-                            <constraint firstItem="RCC-04-ico" firstAttribute="leading" secondItem="RCC-03-pil" secondAttribute="leading" constant="8" id="pi-01"/>
-                            <constraint firstItem="RCC-04-ico" firstAttribute="centerY" secondItem="RCC-03-pil" secondAttribute="centerY" id="pi-02"/>
-                            <constraint firstItem="RCC-04-ico" firstAttribute="width" constant="58" id="pi-03"/>
-                            <constraint firstItem="RCC-04-ico" firstAttribute="height" constant="58" id="pi-04"/>
-                            <!-- Title -->
-                            <constraint firstItem="RCC-05-ttl" firstAttribute="leading" secondItem="RCC-04-ico" secondAttribute="trailing" constant="12" id="pt-01"/>
-                            <constraint firstItem="RCC-05-ttl" firstAttribute="centerY" secondItem="RCC-03-pil" secondAttribute="centerY" id="pt-02"/>
-                            <constraint firstItem="RCC-05-ttl" firstAttribute="trailing" secondItem="RCC-06-chv" secondAttribute="leading" constant="-8" id="pt-03"/>
-                            <!-- Chevron -->
                             <constraint firstItem="RCC-06-chv" firstAttribute="trailing" secondItem="RCC-03-pil" secondAttribute="trailing" constant="-18" id="pc-01"/>
                             <constraint firstItem="RCC-06-chv" firstAttribute="centerY" secondItem="RCC-03-pil" secondAttribute="centerY" id="pc-02"/>
                             <constraint firstItem="RCC-06-chv" firstAttribute="width" constant="14" id="pc-03"/>
                             <constraint firstItem="RCC-06-chv" firstAttribute="height" constant="24" id="pc-04"/>
+                            <constraint firstItem="RCC-04-ico" firstAttribute="leading" secondItem="RCC-03-pil" secondAttribute="leading" constant="8" id="pi-01"/>
+                            <constraint firstItem="RCC-04-ico" firstAttribute="centerY" secondItem="RCC-03-pil" secondAttribute="centerY" id="pi-02"/>
+                            <constraint firstItem="RCC-04-ico" firstAttribute="width" constant="58" id="pi-03"/>
+                            <constraint firstItem="RCC-04-ico" firstAttribute="height" constant="58" id="pi-04"/>
+                            <constraint firstItem="RCC-05-ttl" firstAttribute="leading" secondItem="RCC-04-ico" secondAttribute="trailing" constant="12" id="pt-01"/>
+                            <constraint firstItem="RCC-05-ttl" firstAttribute="centerY" secondItem="RCC-03-pil" secondAttribute="centerY" id="pt-02"/>
+                            <constraint firstItem="RCC-05-ttl" firstAttribute="trailing" secondItem="RCC-06-chv" secondAttribute="leading" constant="-8" id="pt-03"/>
                         </constraints>
                         <userDefinedRuntimeAttributes>
                             <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
                                 <integer key="value" value="18"/>
                             </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds">
-                                <boolean key="value" value="YES"/>
-                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="NO"/>
                         </userDefinedRuntimeAttributes>
                     </view>
                 </subviews>
             </view>
             <viewLayoutGuide key="safeArea" id="RCC-00-saf"/>
-            <color key="backgroundColor" red="0.10" green="0.09" blue="0.20" alpha="0.88" colorSpace="custom" customColorSpace="sRGB"/>
+            <color key="backgroundColor" red="0.10000000000000001" green="0.089999999999999997" blue="0.20000000000000001" alpha="0.88" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
-                <!-- reasonLabel pinned to cell -->
-                <constraint firstItem="RCC-02-rsn" firstAttribute="top" secondItem="RCC-01-cel" secondAttribute="top" constant="16" id="r-top"/>
-                <constraint firstItem="RCC-02-rsn" firstAttribute="leading" secondItem="RCC-01-cel" secondAttribute="leading" constant="16" id="r-lead"/>
-                <constraint firstAttribute="trailing" secondItem="RCC-02-rsn" secondAttribute="trailing" constant="16" id="r-trail"/>
-                <!-- bottomPill below reasonLabel, pinned to cell sides/bottom -->
-                <constraint firstItem="RCC-03-pil" firstAttribute="top" secondItem="RCC-02-rsn" secondAttribute="bottom" constant="12" id="p-top"/>
-                <constraint firstItem="RCC-03-pil" firstAttribute="leading" secondItem="RCC-01-cel" secondAttribute="leading" constant="8" id="p-lead"/>
-                <constraint firstAttribute="trailing" secondItem="RCC-03-pil" secondAttribute="trailing" constant="8" id="p-trail"/>
                 <constraint firstAttribute="bottom" secondItem="RCC-03-pil" secondAttribute="bottom" constant="8" id="p-bot"/>
                 <constraint firstItem="RCC-03-pil" firstAttribute="height" constant="72" id="p-h"/>
+                <constraint firstItem="RCC-03-pil" firstAttribute="leading" secondItem="RCC-01-cel" secondAttribute="leading" constant="8" id="p-lead"/>
+                <constraint firstItem="RCC-03-pil" firstAttribute="top" secondItem="RCC-02-rsn" secondAttribute="bottom" constant="12" id="p-top"/>
+                <constraint firstAttribute="trailing" secondItem="RCC-03-pil" secondAttribute="trailing" constant="8" id="p-trail"/>
+                <constraint firstItem="RCC-02-rsn" firstAttribute="leading" secondItem="RCC-01-cel" secondAttribute="leading" constant="16" id="r-lead"/>
+                <constraint firstItem="RCC-02-rsn" firstAttribute="top" secondItem="RCC-01-cel" secondAttribute="top" constant="16" id="r-top"/>
+                <constraint firstAttribute="trailing" secondItem="RCC-02-rsn" secondAttribute="trailing" constant="16" id="r-trail"/>
             </constraints>
             <userDefinedRuntimeAttributes>
                 <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
                     <integer key="value" value="20"/>
                 </userDefinedRuntimeAttribute>
-                <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds">
-                    <boolean key="value" value="YES"/>
-                </userDefinedRuntimeAttribute>
+                <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="NO"/>
             </userDefinedRuntimeAttributes>
             <connections>
-                <outlet property="reasonLabel" destination="RCC-02-rsn" id="out-01"/>
                 <outlet property="iconImageView" destination="RCC-04-ico" id="out-02"/>
+                <outlet property="reasonLabel" destination="RCC-02-rsn" id="out-01"/>
                 <outlet property="titleLabel" destination="RCC-05-ttl" id="out-03"/>
             </connections>
             <point key="canvasLocation" x="100" y="100"/>
@@ -101,5 +92,8 @@
     </objects>
     <resources>
         <image name="chevron.right" catalog="system" width="97" height="128"/>
+        <namedColor name="AccentColor">
+            <color red="1" green="0.50199997425079346" blue="0.15700000524520874" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
     </resources>
 </document>

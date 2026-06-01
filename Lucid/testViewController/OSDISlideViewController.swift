@@ -15,7 +15,7 @@ class OSDIViewController: UIViewController {
     var shouldShowResultUI: Bool = true
 
     private var currentIndex = 0
-    private var scores: [Int] = Array(repeating: -1, count: 12)
+    private var scores: [Int] = Array(repeating: 0, count: 12)
     private var originalCenter: CGPoint = .zero
     private var FirstLoad = true
     private var didComplete = false
@@ -23,20 +23,23 @@ class OSDIViewController: UIViewController {
     private let options = ["None of the time", "Some of the time", "Half of the time", "Most of the time", "All of the time"]
     
     private let questionnaire: [(cat: String, q: String)] = [
-        ("How your eyes feel", "Do bright lights or sunlight bother your eyes?"),
-        ("How your eyes feel", "Eyes feeling like they  have dust in them?"),
-        ("How your eyes feel", "Eyes feeling sore, stinging, or burning?"),
-        ("How your eyes feel", "Vision getting hazy or out of focus?"),
+        // Section 1: How your eyes feel (non-skippable)
+        ("How your eyes feel", "Does bright light or sunlight hurt your eyes?"),
+        ("How your eyes feel", "Do your eyes feel like something is stuck or itchy inside them?"),
+        ("How your eyes feel", "Do your eyes feel sore, sting, or burn?"),
+        ("How your eyes feel", "Does your vision go blurry or out of focus sometimes?"),
         
-        ("Daily activities", "Hard to read books  or long phone messages?"),
-        ("Daily activities", "Difficulty driving at night due to headlight glare?"),
-        ("Daily activities", "Trouble using your smartphone, laptop, or an ATM?"),
-        ("Daily activities", "Eyes getting tired while watching a movie or a match?"),
+        // Section 2: Your surroundings (non-skippable)
+        ("Your surroundings", "Do your eyes feel uncomfortable when it is windy or you're on a bike?"),
+        ("Your surroundings", "Do your eyes feel very dry in the summer heat?"),
+        ("Your surroundings", "Do your eyes feel dry in AC rooms or in front of a fan?"),
+        ("Your surroundings", "Do your eyes get red or sting near dust, smoke, or heavy traffic?"),
         
-        ("Your surroundings", "Discomfort when it's windy or while riding a bike?"),
-        ("Your surroundings", "Eyes feeling 'too dry' during peak summer?"),
-        ("Your surroundings", "Dryness in AC rooms  or in front of a cooler or fan?"),
-        ("Your surroundings", "Redness or stinging when near heavy traffic, dust, or smoke?")
+        // Section 3: Daily activities (skippable, questions 8-11 = index 8-11)
+        ("Daily activities", "Is it hard to read books or long messages on your phone?"),
+        ("Daily activities", "Do your eyes struggle when driving at night because of headlights?"),
+        ("Daily activities", "Do you have trouble seeing clearly on your phone, laptop, or ATM screen?"),
+        ("Daily activities", "Do your eyes feel tired when you watch a movie or a cricket match?")
     ]
 
     // Custom UI Elements for Rating Circles (linked to Storyboard)
@@ -66,8 +69,8 @@ class OSDIViewController: UIViewController {
             $0?.alpha = 0
         }
         
-        // Make sure valueLabel is unhidden, but its alpha is 0
-        valueLabel?.isHidden = false
+        // Hide valueLabel as requested by the user
+        valueLabel?.isHidden = true
         valueLabel?.alpha = 0
         
         responseSlider?.alpha = 0
@@ -90,6 +93,8 @@ class OSDIViewController: UIViewController {
         slider.minimumTrackTintColor = UIColor(named: "AccentColor") ?? .systemOrange
         slider.maximumTrackTintColor = .darkGray
         slider.thumbTintColor = UIColor(named: "AccentColor") ?? .systemOrange
+        slider.alpha = 0 // Keep hidden during transitions
+        slider.isHidden = true
         
         view.addSubview(slider)
         self.responseSlider = slider
@@ -126,6 +131,8 @@ class OSDIViewController: UIViewController {
                 label.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40)
             ])
         }
+        valueLabel?.isHidden = true // Hide value label completely
+        valueLabel?.alpha = 0
         
         // Setup Skip Button programmatically
         let skipBtn = UIButton(type: .system)
@@ -154,12 +161,47 @@ class OSDIViewController: UIViewController {
         mostlyLabel.textColor = .lightGray
         mostlyLabel.font = .systemFont(ofSize: 22, weight: .bold)
         
-        // Setup Orange navigation button colors
-        prevNavButton.setTitleColor(orangeColor, for: .normal)
-        nextNavButton.setTitleColor(orangeColor, for: .normal)
+        // Setup navigation button styles - plain text buttons (no background) on a single line
         if #available(iOS 15.0, *) {
-            prevNavButton.configuration?.baseForegroundColor = orangeColor
-            nextNavButton.configuration?.baseForegroundColor = orangeColor
+            var prevConfig = UIButton.Configuration.plain()
+            prevConfig.baseForegroundColor = .lightGray
+            
+            var prevContainer = AttributeContainer()
+            prevContainer.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+            prevConfig.attributedTitle = AttributedString("Previous", attributes: prevContainer)
+            prevNavButton.configuration = prevConfig
+            
+            var nextConfig = UIButton.Configuration.plain()
+            nextConfig.baseForegroundColor = UIColor(named: "AccentColor") ?? .systemOrange
+            
+            var nextContainer = AttributeContainer()
+            nextContainer.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+            nextConfig.attributedTitle = AttributedString("Next", attributes: nextContainer)
+            nextNavButton.configuration = nextConfig
+        } else {
+            prevNavButton.backgroundColor = .clear
+            prevNavButton.setTitleColor(.lightGray, for: .normal)
+            prevNavButton.setTitle("Previous", for: .normal)
+            prevNavButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+            
+            nextNavButton.backgroundColor = .clear
+            nextNavButton.setTitleColor(UIColor(named: "AccentColor") ?? .systemOrange, for: .normal)
+            nextNavButton.setTitle("Next", for: .normal)
+            nextNavButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        }
+        
+        // Deactivate width constraints programmatically so titles don't wrap and display on a single line
+        for button in [prevNavButton, nextNavButton] {
+            button?.constraints.forEach { constraint in
+                if constraint.firstAttribute == .width {
+                    constraint.isActive = false
+                }
+            }
+            button?.superview?.constraints.forEach { constraint in
+                if (constraint.firstItem === button || constraint.secondItem === button) && constraint.firstAttribute == .width {
+                    constraint.isActive = false
+                }
+            }
         }
         
         // Setup Navigation Actions
@@ -168,6 +210,15 @@ class OSDIViewController: UIViewController {
         
         // Setup Submit button
         setupSubmitButton()
+        
+        // Shift slider and labels up by increasing the distance between the buttons and the slider container
+        for constraint in view.constraints {
+            if (constraint.firstItem === prevNavButton || constraint.firstItem === nextNavButton) &&
+               constraint.secondItem === circleStackView &&
+               constraint.firstAttribute == .top {
+                constraint.constant = 110
+            }
+        }
     }
 
     private func setupIntroUI() {
@@ -219,7 +270,9 @@ class OSDIViewController: UIViewController {
         // Fade out all main UI elements during category/section transition
         [questionLabel, pageControl, neverLabel, mostlyLabel, prevNavButton, nextNavButton, categoryLabel, instructionLabel, skipButton].forEach { $0?.alpha = 0 }
         responseSlider?.alpha = 0
+        responseSlider?.isHidden = true
         tickContainerView?.alpha = 0
+        tickContainerView?.isHidden = true
         valueLabel?.alpha = 0
         submitButton?.alpha = 0
         
@@ -228,11 +281,11 @@ class OSDIViewController: UIViewController {
         let sectionInstruction: String
         switch questionnaire[currentIndex].cat {
         case "How your eyes feel":
-            sectionInstruction = "Have your eyes felt any of these in the past week?"
-        case "Daily activities":
-            sectionInstruction = "Have your eyes found it tricky to do these things lately?"
+            sectionInstruction = "Have your eyes felt any of this in the past week?"
         case "Your surroundings":
-            sectionInstruction = "Have your eyes felt a bit uncomfortable in these spaces?"
+            sectionInstruction = "Have your eyes felt uncomfortable in these places recently?"
+        case "Daily activities":
+            sectionInstruction = "Have these everyday things been harder because of your eyes? (You can skip these if they don't apply to you)"
         default:
             sectionInstruction = "Have your eyes felt this way over the past week?"
         }
@@ -242,7 +295,7 @@ class OSDIViewController: UIViewController {
         UIView.animate(withDuration: 0.5, animations: {
             self.introContainerView.alpha = 1.0
         }) { _ in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) { [weak self] in
                 guard let self = self else { return }
                 UIView.animate(withDuration: 0.4, animations: {
                     self.introContainerView.alpha = 0
@@ -264,11 +317,13 @@ class OSDIViewController: UIViewController {
             self.categoryLabel.isHidden = true
             self.instructionLabel.alpha = 0 // Hide section instructions from the top during questions
             [self.questionLabel, self.neverLabel, self.mostlyLabel, self.prevNavButton, self.nextNavButton, self.pageControl].forEach { $0?.alpha = 1.0 }
+            self.responseSlider?.isHidden = false
             self.responseSlider?.alpha = 1.0
+            self.tickContainerView?.isHidden = false
             self.tickContainerView?.alpha = 1.0
-            self.valueLabel?.alpha = 1.0
+            self.valueLabel?.alpha = 0.0
             
-            let isDailyActivity = (self.currentIndex >= 4 && self.currentIndex <= 7)
+            let isDailyActivity = (self.currentIndex >= 8 && self.currentIndex <= 11)
             self.skipButton?.alpha = isDailyActivity ? 1.0 : 0.0
             
             if self.currentIndex == self.questionnaire.count - 1 {
@@ -377,6 +432,8 @@ class OSDIViewController: UIViewController {
         let tickContainer = UIView()
         tickContainer.translatesAutoresizingMaskIntoConstraints = false
         tickContainer.isUserInteractionEnabled = false
+        tickContainer.alpha = 0
+        tickContainer.isHidden = true
         view.insertSubview(tickContainer, aboveSubview: slider)
         self.tickContainerView = tickContainer
         
@@ -430,17 +487,23 @@ class OSDIViewController: UIViewController {
         let orangeColor = UIColor(named: "AccentColor") ?? .systemOrange
         btn.setTitle("Submit", for: .normal)
         btn.titleLabel?.font = .systemFont(ofSize: 24, weight: .bold)
-        btn.setTitleColor(orangeColor, for: .normal)
+        btn.setTitleColor(.white, for: .normal)
         if #available(iOS 15.0, *) {
-            var config = UIButton.Configuration.plain()
+            var config = UIButton.Configuration.filled()
             config.title = "Submit"
-            config.baseForegroundColor = orangeColor
+            config.baseBackgroundColor = orangeColor
+            config.baseForegroundColor = .white
+            config.cornerStyle = .capsule
             config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
                 var outgoing = incoming
                 outgoing.font = .systemFont(ofSize: 24, weight: .bold)
                 return outgoing
             }
             btn.configuration = config
+        } else {
+            btn.backgroundColor = orangeColor
+            btn.setTitleColor(.white, for: .normal)
+            btn.layer.cornerRadius = 14
         }
         
         view.addSubview(btn)
@@ -540,7 +603,7 @@ class OSDIViewController: UIViewController {
             valueLabel?.textColor = UIColor(named: "AccentColor") ?? .systemOrange
         }
         
-        let isDailyActivity = (currentIndex >= 4 && currentIndex <= 7)
+        let isDailyActivity = (currentIndex >= 8 && currentIndex <= 11)
         skipButton?.isHidden = !isDailyActivity
         skipButton?.alpha = isDailyActivity ? 1.0 : 0.0
         

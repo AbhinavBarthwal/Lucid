@@ -48,7 +48,13 @@ class StreakCollectionViewCell: UICollectionViewCell {
         let display = displayValue(for: currentStreak)
         
         streakCountLabel?.text = "\(display.value)"
+        
+        if streakUnitLabel == nil {
+            streakUnitLabel = contentView.subviews.compactMap { $0 as? UILabel }.first { $0.text == "Day" || $0.text == "Days" || $0.text == "Week" || $0.text == "Weeks" || $0.text == "Month" || $0.text == "Months" }
+        }
         streakUnitLabel?.text = display.unit
+        streakUnitLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        streakUnitLabel?.textColor = UIColor(red: 1.0, green: 0.63, blue: 0.11, alpha: 1.0)
         
         phraseLabel.text = getPhrase(for: currentStreak, todayCompleted: todayCompleted)
         blobImageView.image = UIImage(named: blobImages[tone]?.randomElement() ?? "StreakBlobHopeful")
@@ -67,11 +73,16 @@ class StreakCollectionViewCell: UICollectionViewCell {
         
         streakCountLabel?.font = .systemFont(ofSize: 56, weight: .heavy)
         streakCountLabel?.textColor = UIColor(red: 1.0, green: 0.48, blue: 0.02, alpha: 1.0)
-        streakUnitLabel?.font = .systemFont(ofSize: 22, weight: .semibold)
+        
+        if streakUnitLabel == nil {
+            streakUnitLabel = contentView.subviews.compactMap { $0 as? UILabel }.first { $0.text == "Day" }
+        }
+        streakUnitLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
         streakUnitLabel?.textColor = UIColor(red: 1.0, green: 0.63, blue: 0.11, alpha: 1.0)
         
         let titleLabel = contentView.subviews.compactMap { $0 as? UILabel }.first { $0.text == "Exercise Streak" }
         titleLabel?.textColor = .white
+        titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
         
         phraseLabel.translatesAutoresizingMaskIntoConstraints = false
         phraseLabel.font = .systemFont(ofSize: 13, weight: .medium)

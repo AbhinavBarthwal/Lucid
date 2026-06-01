@@ -108,6 +108,12 @@ class SwiftDataManager {
         saveInternal()
     }
     
+    func clearTestSessions() {
+        cachedDatabase?.eyeTestSessions.removeAll()
+        cachedDatabase?.osdiSessions.removeAll()
+        saveInternal()
+    }
+    
     func importOSDISessions(_ sessions: [OSDISession]) {
         guard var db = cachedDatabase else { return }
         for session in sessions {

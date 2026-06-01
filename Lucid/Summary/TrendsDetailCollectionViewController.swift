@@ -92,22 +92,32 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
         var data: [TrendData] = []
         var max: Double = 100
         var direction = 1
+        var showCustomOSDISheet = false
+        var showCustomCTestSheet = false
 
+        // Reordered index mapping:
+        // 0: OSDI Score
+        // 1: C Test Score
+        // 2: Exercise Accuracy
+        // 3: Eye Responsiveness
         switch indexPath.item {
         case 0:
-            title = "Exercise Accuracy"
-            average = self.accuracyAverage
-            data = self.accuracyTrends
-            lore = "This score tracks how good your eyes are at following moving things on the screen without getting distracted. Think of it like playing a game where you have to keep your laser focus on a moving target. If your eyes stay right on the dot, your score goes up! High accuracy means your eye muscles are getting stronger and working together super well."
+            title = "OSDI Score"
+            average = self.osdiAverage
+            data = self.osdiTrends
+            direction = 0
+            showCustomOSDISheet = true
+            lore = "OSDI (Ocular Surface Disease Index) measures dry-eye discomfort and how eye symptoms affect your daily tasks. Scores range from 0 to 100 — lower is better! Scores 0–12 are Normal, 13–22 are Mild, 23–32 are Moderate, and 33–100 are Severe. The score is calculated from how many questions you answered and the sum of your responses. If your score is high, your eyes are asking for a break. If it is low, your eyes are feeling fresh and comfortable."
             let val = Double(average) ?? 0
             let hasData = data.contains(where: { $0.value >= 0 })
-            status = !hasData ? "Try doing some exercises so we can measure how accurately your eyes can follow targets!" : (val > 90 ? "Whoa, your eyes are like a hawk! You are tracking things super well. Keep it up!" : "Your tracking is okay, but let's try to focus a bit more next time. Practice makes perfect!")
+            status = !hasData ? "Take the quick OSDI quiz to find out if your eyes are getting too tired from screens!" : (val < 13 ? "Awesome! Your eyes are feeling super fresh and relaxed. Keep up the good work!" : "Uh oh, your eyes are feeling a bit tired or dry. You should take a break from screens and blink more!")
         case 1:
             title = "C Test Score"
             average = self.eyeTestAverage
             data = self.eyeTestTrends
             max = 6
-            lore = "The C Test is like that chart with the letters at the eye doctor's office, but we use the letter 'C' pointing in different directions instead. It checks how clear and sharp your vision is from a distance. A higher score means your eyes can see smaller details easily without squinting. It's basically a score of how sharp your vision is!"
+            showCustomCTestSheet = true
+            lore = "The C Test uses a Landolt C target — like the letter C pointing in different directions — to check how sharp each eye's vision is. Each eye is scored out of 6. Higher values mean the eye correctly handled more targets. A repeated gap between the left and right eye can be more useful than a single combined score alone. Looking at both eyes separately helps surface any imbalance in visual sharpness."
             let val = Double(average) ?? 0
             let hasData = data.contains(where: { $0.value >= 0 })
             if !hasData {
@@ -117,17 +127,16 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
             } else if val >= 3.0 {
                 status = "Your vision is looking pretty good, but let's keep exercising so it stays super sharp!"
             } else {
-                status = "Your vision score is quite low. Daily focus training can help improve your clarity and eye teaming!"
+                status = "Your vision score is quite low. Daily focus training can help improve your clarity!"
             }
         case 2:
-            title = "OSDI Score"
-            average = self.osdiAverage
-            data = self.osdiTrends
-            direction = 0
-            lore = "OSDI is a fancy name for checking if your eyes are dry, itchy, or tired from looking at screens all day. For this score, lower is actually way better! If your score is high, it means your eyes are crying out for a break. If it's low, it means your eyes are feeling fresh, happy, and well-rested!"
+            title = "Exercise Accuracy"
+            average = self.accuracyAverage
+            data = self.accuracyTrends
+            lore = "This score tracks how good your eyes are at following moving things on the screen without getting distracted. Think of it like playing a game where you have to keep your laser focus on a moving target. If your eyes stay right on the dot, your score goes up! High accuracy means your eye muscles are getting stronger and working together super well."
             let val = Double(average) ?? 0
             let hasData = data.contains(where: { $0.value >= 0 })
-            status = !hasData ? "Take the quick OSDI quiz to find out if your eyes are getting too tired from screens!" : (val < 13 ? "Awesome! Your eyes are feeling super fresh and relaxed. Keep up the good work!" : "Uh oh, your eyes are feeling a bit tired or dry. You should take a break from screens and blink more!")
+            status = !hasData ? "Try doing some exercises so we can measure how accurately your eyes can follow targets!" : (val > 90 ? "Whoa, your eyes are like a hawk! You are tracking things super well. Keep it up!" : "Your tracking is okay, but let's try to focus a bit more next time. Practice makes perfect!")
         case 3:
             title = "Eye Responsiveness"
             average = self.responsivenessAverage
@@ -142,9 +151,19 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
         }
 
         cell.contentConfiguration = UIHostingConfiguration {
-            TrendCardContainer(title: title, average: average, data: data, max: max, direction: direction, lore: lore, status: status)
+            TrendCardContainer(
+                title: title,
+                average: average,
+                data: data,
+                max: max,
+                direction: direction,
+                lore: lore,
+                status: status,
+                showCustomOSDISheet: showCustomOSDISheet,
+                showCustomCTestSheet: showCustomCTestSheet
+            )
         }
-        .margins(.all, 0) // CRITICAL: This removes the hidden UIKit padding inside the cell
+        .margins(.all, 0)
         
         cell.backgroundColor = .clear
         return cell
@@ -155,6 +174,8 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
 struct TrendCardContainer: View {
     let title: String, average: String, data: [TrendData]
     let max: Double, direction: Int, lore: String, status: String
+    let showCustomOSDISheet: Bool
+    let showCustomCTestSheet: Bool
     @State private var showDetail = false
     
     var body: some View {
@@ -172,11 +193,30 @@ struct TrendCardContainer: View {
                 .font(.system(size: 12, weight: .medium, design: .rounded))
                 .foregroundColor(.white.opacity(0.6))
         }
-        .padding(12) // Space inside the card
+        .padding(12)
         .background(RoundedRectangle(cornerRadius: 16).fill(Color.black.opacity(0.4)))
         .sheet(isPresented: $showDetail) {
-            InfoSheet(title: title, content: lore)
-                .presentationDetents([.fraction(0.8)])
+            if showCustomOSDISheet {
+                NavigationStack {
+                    OSDIInfoSheetView(
+                        score: Double(average) ?? 0.0,
+                        severity: {
+                            let scoreVal = Double(average) ?? 0.0
+                            if scoreVal <= 12 { return "Normal" }
+                            else if scoreVal <= 22 { return "Mild" }
+                            else if scoreVal <= 32 { return "Moderate" }
+                            else { return "Severe" }
+                        }()
+                    )
+                }
+            } else if showCustomCTestSheet {
+                NavigationStack {
+                    CTestTrendsInfoSheetView(score: Int((Double(average) ?? 0.0).rounded()))
+                }
+            } else {
+                InfoSheet(title: title, content: lore)
+                    .presentationDetents([.fraction(0.8)])
+            }
         }
     }
 }
@@ -195,5 +235,67 @@ struct InfoSheet: View {
             .navigationTitle(title).navigationBarTitleDisplayMode(.inline)
             .toolbar { Button("Done") { dismiss() } }
         }
+    }
+}
+
+// Custom Swift UI view for C Test Info Sheet inside Trends
+struct CTestTrendsInfoSheetView: View {
+    let score: Int
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("About C Test")
+                        .font(.system(size: 30, weight: .bold))
+                        .foregroundStyle(.white)
+
+                    Text("The C test uses a Landolt C target to check how well each eye identifies the opening direction. It is a simple way to screen visual sharpness and compare left and right eye performance.")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.72))
+                }
+
+                infoRow(
+                    title: "How the score works",
+                    body: "Each eye is scored out of 6. Higher values mean that eye correctly handled more targets during the test."
+                )
+
+                infoRow(
+                    title: "Why both eyes matter",
+                    body: "Looking at both eyes separately helps surface imbalance. A repeated gap between left and right can be more useful than a single score alone."
+                )
+
+                infoRow(
+                    title: "Current result",
+                    body: "Your average vision score is \(score)/6."
+                )
+            }
+            .padding(20)
+        }
+        .background(Color.black.ignoresSafeArea())
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Done") {
+                    dismiss()
+                }
+                .foregroundStyle(.white)
+            }
+        }
+    }
+
+    private func infoRow(title: String, body: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(.white)
+            Text(body)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(.white.opacity(0.68))
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(white: 0.09))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 }

@@ -14,9 +14,9 @@ class ExerciseCollectionViewController: UICollectionViewController {
     let allExercises: [ExerciseInfo] = [
             ExerciseInfo(id: "SmoothPursuit", title: "Smooth Pursuits", description: "Improves eye tracking and visual stability.", iconName: "SmoothPursuits", segueIdentifier: "ShowSmoothPursuits", estimatedTimeSeconds: 135),
             ExerciseInfo(id: "SaccadicJump", title: "Saccadic Jumps", description: "Boosts rapid eye movement and reading speed.", iconName: "SaccadicJumps", segueIdentifier: "ShowSaccadicJump", estimatedTimeSeconds: 70),
+            ExerciseInfo(id: "Blink", title: "Blink Training", description: "Reduces dryness and refreshes eye comfort.", iconName: "BlinkTraining", segueIdentifier: "ShowBlinkTraining", estimatedTimeSeconds: 90),
             ExerciseInfo(id: "PencilPushup", title: "Pencil Push-Ups", description: "Strengthens near focus and eye teaming.", iconName: "PencilPushUps", segueIdentifier: "ShowPencilPushUps", estimatedTimeSeconds: 60),
             ExerciseInfo(id: "Figure8", title: "Figure Eight", description: "Enhances eye flexibility and coordination.", iconName: "FigureEight", segueIdentifier: "ShowFigureEight", estimatedTimeSeconds: 90),
-            ExerciseInfo(id: "Blink", title: "Blink Training", description: "Reduces dryness and refreshes eye comfort.", iconName: "BlinkTraining", segueIdentifier: "ShowBlinkTraining", estimatedTimeSeconds: 90),
             ExerciseInfo(id: "PeripheralAwareness", title: "Peripheral Awareness", description: "Expands peripheral vision and awareness.", iconName: "PeripheralAwareness", segueIdentifier: "ShowPeripheralAwareness", estimatedTimeSeconds: 75),
             ExerciseInfo(id: "NearFar", title: "Near Far Focus", description: "Improves focusing ability at different distances.", iconName: "NearFarFocus", segueIdentifier: "ShowNearFarFocus", estimatedTimeSeconds: 110)
         ]
@@ -90,8 +90,6 @@ class ExerciseCollectionViewController: UICollectionViewController {
                 alignment: .top
             )
 
-            section.boundarySupplementaryItems = [header]
-
             return section
         }
 
@@ -107,20 +105,6 @@ class ExerciseCollectionViewController: UICollectionViewController {
         return allExercises.count
     }
     
-    // Configure Header
-    override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "HeaderView", for: indexPath)
-        header.subviews.forEach { $0.removeFromSuperview() }
-        header.isHidden = false
-        
-        let label = UILabel(frame: CGRect(x: 0, y: 10, width: header.bounds.width, height: 30))
-        label.font = .systemFont(ofSize: 20, weight: .bold)
-        label.textColor = .white
-        label.text = "All Exercises"
-        
-        header.addSubview(label)
-        return header
-    }
 
     // Configure Cell
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
