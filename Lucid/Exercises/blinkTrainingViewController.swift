@@ -71,7 +71,7 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
 
     private let exerciseInstructions: [InstructionStep] = [
         InstructionStep(message: "Blink both eyes after the vibration", duration: 4.0),
-        InstructionStep(message: "If you blink incorrectly, the phone will vibrate twice to let you know.", duration: 5.5)
+        InstructionStep(message: "If you blink incorrectly, the phone will vibrate twice.", duration: 5.5)
     ]
     
     private var leftMaxBlinks: [Float] = []
@@ -459,7 +459,7 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
             let nudgeText: String
             switch self.currentPhase {
             case .doubleBlink: nudgeText = "Please, try a double blink"
-            case .singleBlink(let eye, _): nudgeText = "Please, blink your \(eye) eye"
+            case .singleBlink(let eye, _): nudgeText = "Now, blink your \(eye) eye"
             default: return
             }
             self.instructionLabel.text = nudgeText
