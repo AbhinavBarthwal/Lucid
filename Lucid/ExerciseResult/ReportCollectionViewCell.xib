@@ -21,7 +21,7 @@
                         <rect key="frame" x="-6" y="0.0" width="345" height="355"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nwn-3c-LCV">
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nwn-3c-LCV" numberOfLines="0">
                         <rect key="frame" x="127.33333333333334" y="159" width="78.333333333333343" height="37.333333333333343"/>
                         <fontDescription key="fontDescription" name="SFPro-ExpandedMedium" family="SF Pro" pointSize="32"/>
                         <nil key="textColor"/>

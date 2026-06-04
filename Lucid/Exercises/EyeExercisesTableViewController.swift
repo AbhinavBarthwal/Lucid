@@ -55,7 +55,7 @@ class ExerciseCollectionViewController: UICollectionViewController {
         collectionView.backgroundColor = .clear
     }
     
-    // MARK: - Layout Configuration
+    
     private func createLayout() -> UICollectionViewLayout {
         let layout = UICollectionViewCompositionalLayout { (sectionIndex, environment) -> NSCollectionLayoutSection? in
             // Item

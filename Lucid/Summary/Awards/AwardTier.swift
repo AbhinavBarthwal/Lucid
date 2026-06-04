@@ -156,7 +156,7 @@ enum AwardCatalog {
         AwardDefinition(
             id: "exercise_100",
             title: "Century Vision",
-            detail: "100 exercises! A true centenary of commitment. Your eyes are in exceptional shape.",
+            detail: "100 exercises! You have built a strong eye care habit.",
             sfSymbol: "medal.fill",
             tier: .gold,
             category: .exerciseMilestone,
@@ -186,7 +186,7 @@ enum AwardCatalog {
         AwardDefinition(
             id: "exercise_1000",
             title: "Grand Vision Master",
-            detail: "1000 exercises! You have reached the pinnacle. Your eyes, and your discipline, are unmatched.",
+            detail: "1000 exercises! You have shown amazing care for your eyes.",
             sfSymbol: "sparkles",
             tier: .diamond,
             category: .exerciseMilestone,
@@ -250,7 +250,7 @@ enum AwardCatalog {
         AwardDefinition(
             id: "test_100",
             title: "Master Diagnostician",
-            detail: "100 eye tests! You are in rarefied company. Your visual history is a gold standard.",
+            detail: "100 eye tests! You have a strong record of checking your eyes.",
             sfSymbol: "medal.fill",
             tier: .platinum,
             category: .testMilestone,
@@ -308,7 +308,7 @@ enum AwardCatalog {
         AwardDefinition(
             id: "testscore_3",
             title: "Vision Awakened",
-            detail: "You scored 3+ points on the Landolt C-Test. Your visual acuity is developing and improving.",
+            detail: "You scored 3+ points on the C Test. Your clear vision is improving.",
             sfSymbol: "eye.circle",
             tier: .bronze,
             category: .testScore,
@@ -318,7 +318,7 @@ enum AwardCatalog {
         AwardDefinition(
             id: "testscore_4",
             title: "Clear Sight",
-            detail: "Score of 4+ on the C-Test! You have solid visual acuity and sharp letter recognition.",
+            detail: "Score of 4+ on the C Test! Your eyes are seeing the targets well.",
             sfSymbol: "eye.square",
             tier: .silver,
             category: .testScore,
@@ -338,7 +338,7 @@ enum AwardCatalog {
         AwardDefinition(
             id: "testscore_6",
             title: "Flawless Vision",
-            detail: "Perfect 6/6 on the C-Test! Your visual acuity is flawless — equivalent to 20/20 vision. A truly elite achievement.",
+            detail: "Perfect 6/6 on the C Test! Your eyes saw every target clearly.",
             sfSymbol: "star.circle.fill",
             tier: .diamond,
             category: .testScore,

@@ -886,7 +886,7 @@ struct OSDIInfoSheetView: View {
                         .font(.system(size: 30, weight: .bold))
                         .foregroundStyle(.white)
 
-                    Text("OSDI measures ocular discomfort and how dry-eye symptoms affect daily visual tasks. Scores range from 0 to 100, and lower scores are better.")
+                    Text("OSDI checks how dry, tired, or sore your eyes feel during daily tasks. Scores range from 0 to 100, and lower scores are better.")
                         .font(.system(size: 15, weight: .medium))
                         .foregroundStyle(.white.opacity(0.72))
                 }
@@ -894,7 +894,7 @@ struct OSDIInfoSheetView: View {
                 OSDIReferenceCurveView(score: score, severity: severity)
 
                 VStack(alignment: .leading, spacing: 10) {
-                    infoRow(title: "How the score is mapped", body: "The chart uses the number of answered questions and the sum of all response scores to derive the final OSDI result.")
+                    infoRow(title: "How the score is made", body: "The chart uses the questions you answered and your response scores to make the final OSDI result.")
                     infoRow(title: "Severity mapping", body: "0–12 is Normal, 13–22 is Mild, 23–32 is Moderate, and 33–100 is Severe.")
                     infoRow(title: "Current result", body: "Your current score is \(Int(score.rounded())), which falls in the \(severity) range.")
                 }
@@ -960,7 +960,7 @@ struct OSDIReferenceCurveView: View {
                     .font(.system(size: 26, weight: .bold))
                     .foregroundStyle(.white)
 
-                Text("Your score is positioned on the OSDI severity scale. Lower scores indicate healthier ocular comfort.")
+                Text("Your score is shown on the OSDI scale. Lower scores mean your eyes feel more comfortable.")
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(.white.opacity(0.62))
             }

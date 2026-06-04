@@ -11,11 +11,13 @@ class NotificationsViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // Request authorization on view load
-        NotificationManager.shared.requestAuthorization()
-        
+
         loadSwitchStates()
+
+        NotificationManager.shared.requestAuthorization { granted in
+            guard granted else { return }
+            NotificationManager.shared.refreshScheduledNotificationsFromDefaults()
+        }
     }
 
     @IBAction func digitalTimeChanged(_ sender: UISwitch) {
@@ -62,15 +64,7 @@ class NotificationsViewController: UITableViewController {
     }
 
     func loadSwitchStates() {
-        // Register default states as true (enabled)
-        UserDefaults.standard.register(defaults: [
-            "digitalTime": true,
-            "reminder": true,
-            "eyeTrend": true,
-            "exerciseReminder": true,
-            "badge": true,
-            "suggestion": true
-        ])
+        NotificationManager.shared.registerDefaultSettings()
         
         digitalTimeSwitch?.isOn = UserDefaults.standard.bool(forKey: "digitalTime")
         reminderSwitch?.isOn = UserDefaults.standard.bool(forKey: "reminder")

@@ -107,7 +107,7 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
             data = self.osdiTrends
             direction = 0
             showCustomOSDISheet = true
-            lore = "OSDI (Ocular Surface Disease Index) measures dry-eye discomfort and how eye symptoms affect your daily tasks. Scores range from 0 to 100 — lower is better! Scores 0–12 are Normal, 13–22 are Mild, 23–32 are Moderate, and 33–100 are Severe. The score is calculated from how many questions you answered and the sum of your responses. If your score is high, your eyes are asking for a break. If it is low, your eyes are feeling fresh and comfortable."
+            lore = "OSDI checks how dry, tired, or sore your eyes feel and how much that affects daily tasks. Scores range from 0 to 100. Lower is better. 0-12 is Normal, 13-22 is Mild, 23-32 is Moderate, and 33-100 is Severe. Your score comes from the questions you answered."
             let val = Double(average) ?? 0
             let hasData = data.contains(where: { $0.value >= 0 })
             status = !hasData ? "Take the quick OSDI quiz to find out if your eyes are getting too tired from screens!" : (val < 13 ? "Awesome! Your eyes are feeling super fresh and relaxed. Keep up the good work!" : "Uh oh, your eyes are feeling a bit tired or dry. You should take a break from screens and blink more!")
@@ -117,7 +117,7 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
             data = self.eyeTestTrends
             max = 6
             showCustomCTestSheet = true
-            lore = "The C Test uses a Landolt C target — like the letter C pointing in different directions — to check how sharp each eye's vision is. Each eye is scored out of 6. Higher values mean the eye correctly handled more targets. A repeated gap between the left and right eye can be more useful than a single combined score alone. Looking at both eyes separately helps surface any imbalance in visual sharpness."
+            lore = "The C Test shows a C shape facing different directions. It checks how clearly each eye can see. Each eye is scored out of 6. Higher scores mean that eye got more targets right. Comparing left and right eye scores can show if one eye needs more care."
             let val = Double(average) ?? 0
             let hasData = data.contains(where: { $0.value >= 0 })
             if !hasData {
@@ -133,7 +133,7 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
             title = "Exercise Accuracy"
             average = self.accuracyAverage
             data = self.accuracyTrends
-            lore = "This score tracks how good your eyes are at following moving things on the screen without getting distracted. Think of it like playing a game where you have to keep your laser focus on a moving target. If your eyes stay right on the dot, your score goes up! High accuracy means your eye muscles are getting stronger and working together super well."
+            lore = "This score shows how well your eyes follow moving things on the screen. If your eyes stay on the dot, your score goes up. A high score means your eyes are tracking well."
             let val = Double(average) ?? 0
             let hasData = data.contains(where: { $0.value >= 0 })
             status = !hasData ? "Try doing some exercises so we can measure how accurately your eyes can follow targets!" : (val > 90 ? "Whoa, your eyes are like a hawk! You are tracking things super well. Keep it up!" : "Your tracking is okay, but let's try to focus a bit more next time. Practice makes perfect!")
@@ -143,7 +143,7 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
             data = self.responsivenessTrends
             direction = 0
             max = 3
-            lore = "This measures how fast your eyes react when something changes on the screen, measured in seconds. A lower number means your eyes and brain are communicating super fast! Think of it like a reflex test for your eyes. The quicker you react, the sharper your visual reflexes are."
+            lore = "This shows how fast your eyes react when something changes on the screen. It is measured in seconds. A lower number means a faster reaction."
             let val = Double(average) ?? 0
             let hasData = data.contains(where: { $0.value >= 0 })
             status = !hasData ? "Do a Blink Training or Saccadic Jumps session to measure your eye reflex speed!" : (val < 0.8 ? "Lightning fast! Your eye reflexes are incredibly sharp." : "Your eye reflexes are working well! Keep training to get even faster.")

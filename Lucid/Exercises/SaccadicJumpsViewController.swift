@@ -41,9 +41,9 @@ class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
     private let speedTiers: [Double] = [2.5 , 2.2 , 2.0 , 1.8]
     
     private let exerciseInstructions: [InstructionStep] = [
-        InstructionStep(message: "Move your eyes in the\ndirection announced", duration: 4.0),
+        InstructionStep(message: "Move your eyes in the direction you hear.", duration: 4.0),
         InstructionStep(message: "Keep your head still", duration: 3.5),
-        InstructionStep(message: "You'll feel vibration when you look correctly, and a double if you miss.", duration: 6.0)
+        InstructionStep(message: "You will feel one vibration for a correct move and two vibrations for a wrong move.", duration: 6.0)
     ]
 
     private var sessionStartTime: Date?

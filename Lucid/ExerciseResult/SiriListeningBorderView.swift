@@ -1,26 +1,20 @@
 import UIKit
 import AVFoundation
 
-/// Single heavy liquid-style border that pulses around the full screen edges.
-/// Driven by real microphone RMS — glows and breathes with your voice.
-///
-/// Usage:
-///   SiriListeningBorderView.shared.startListening(audioEngine: yourAVAudioEngine)
-///   SiriListeningBorderView.shared.stopListening()
+
 class SiriListeningBorderView: UIView {
 
-    // MARK: - Singleton
+
     static let shared = SiriListeningBorderView()
 
-    // MARK: - Config
     private let edgePadding:        CGFloat = 10      // inset from screen edge
     private let screenCornerRadius: CGFloat = 44
-    private let baseStrokeWidth:    CGFloat = 10.0     // heavy single border
-    private let maxStrokeWidth:     CGFloat = 14.0    // expands when loud
+    private let baseStrokeWidth:    CGFloat = 30.0     // heavy single border
+    private let maxStrokeWidth:     CGFloat = 35.0    // expands when loud
     private let baseOpacity:        Float   = 0.55    // always visible at rest
     private let maxOpacity:         Float   = 1.0
 
-    // MARK: - Border State
+
     enum BorderState {
         case listening
         case correct
@@ -77,7 +71,7 @@ class SiriListeningBorderView: UIView {
         }
     }
 
-    // MARK: - Layers
+
     private var borderLayer:   CAShapeLayer!   // main heavy stroke
     private var glowLayer:     CAShapeLayer!   // thick soft glow behind it
     private var shimmerLayer:  CAGradientLayer! // rotating colour shimmer
@@ -131,7 +125,7 @@ class SiriListeningBorderView: UIView {
     }
     
     func hide() {
-        UIView.animate(withDuration: 0.3) {
+        UIView.animate(withDuration: 0.6) {
             self.alpha = 0
         }
     }
@@ -189,19 +183,22 @@ class SiriListeningBorderView: UIView {
     // MARK: - Mount on window
 
     private func mountOnWindow() {
-        let window: UIWindow?
+        var window: UIWindow? = nil
         if #available(iOS 15.0, *) {
-            window = UIApplication.shared.connectedScenes
-                .compactMap { $0 as? UIWindowScene }
-                .flatMap { $0.windows }
-                .last { $0.isKeyWindow }
-        } else {
-            window = UIApplication.shared.windows.last { $0.isKeyWindow }
+            let scenes = UIApplication.shared.connectedScenes
+            let windowScene = scenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene
+                ?? scenes.first as? UIWindowScene
+            window = windowScene?.keyWindow ?? windowScene?.windows.first
+        }
+        if window == nil {
+            window = UIApplication.shared.windows.first(where: { $0.isKeyWindow })
+                ?? UIApplication.shared.windows.first
         }
         guard let w = window else { return }
         frame = w.bounds
         autoresizingMask = [.flexibleWidth, .flexibleHeight]
         w.addSubview(self)
+        w.bringSubviewToFront(self)
     }
 
     // MARK: - Layer building
@@ -221,7 +218,7 @@ class SiriListeningBorderView: UIView {
         glowLayer              = CAShapeLayer()
         glowLayer.path         = path
         glowLayer.fillColor    = UIColor.clear.cgColor
-        glowLayer.strokeColor  = UIColor.white.withAlphaComponent(0.25).cgColor
+        glowLayer.strokeColor  = UIColor.white.withAlphaComponent(0.45).cgColor
         glowLayer.lineWidth    = maxStrokeWidth * 3.5   // wide blur-like band
         glowLayer.opacity      = 0
         glowLayer.lineCap      = .round

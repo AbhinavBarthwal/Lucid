@@ -658,7 +658,7 @@ extension SummaryViewController {
             reasons = [
                 "Think of this like eye agility training — snap, snap, snap! Super satisfying.",
                 "Quick eye movements = sharper, faster focus. This one's actually pretty fun to do.",
-                "Your eyes are athletes too. Let's train those fast-twitch reactions!"
+                "Let's train your eyes to react faster."
             ]
         case "SmoothPursuit":
             reasons = [
@@ -676,7 +676,7 @@ extension SummaryViewController {
             reasons = [
                 "Watch the target move closer — your eyes will learn to team up and focus together.",
                 "This is great for when your eyes feel a bit crossed or strained from close-up work.",
-                "Train both eyes to lock onto the same spot. It's like a sync exercise for your peepers!"
+                "Train both eyes to focus on the same spot."
             ]
         default:
             reasons = ["Let's knock out today's eye exercise and keep that streak alive! 🔥"]

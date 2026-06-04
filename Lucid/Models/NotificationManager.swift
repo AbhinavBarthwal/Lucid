@@ -7,14 +7,51 @@ public class NotificationManager {
     
     private init() {}
     
-    public func requestAuthorization() {
+    public func requestAuthorization(completion: ((Bool) -> Void)? = nil) {
+        registerDefaultSettings()
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if granted {
                 print("Lucid: Notification permission granted")
             } else if let error = error {
                 print("Lucid: Notification permission error: \(error)")
             }
+            Task { @MainActor in
+                completion?(granted)
+            }
         }
+    }
+
+    public func refreshScheduledNotificationsFromDefaults() {
+        registerDefaultSettings()
+
+        if UserDefaults.standard.bool(forKey: "reminder") {
+            scheduleBiWeeklyReminder()
+        } else {
+            cancelBiWeeklyReminder()
+        }
+
+        if UserDefaults.standard.bool(forKey: "eyeTrend") {
+            scheduleWeeklyTrendsReminder()
+        } else {
+            cancelWeeklyTrendsReminder()
+        }
+
+        if UserDefaults.standard.bool(forKey: "exerciseReminder") {
+            scheduleExerciseReminders()
+        } else {
+            cancelExerciseReminders()
+        }
+    }
+
+    public func registerDefaultSettings() {
+        UserDefaults.standard.register(defaults: [
+            "digitalTime": true,
+            "reminder": true,
+            "eyeTrend": true,
+            "exerciseReminder": true,
+            "badge": true,
+            "suggestion": true
+        ])
     }
     
     // MARK: - Bi-weekly Test Reminder (14 days)

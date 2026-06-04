@@ -44,7 +44,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         InstructionStep(message: "Keep your phone at arm's length", duration: 3.5),
         InstructionStep(message: "Focus on the green dot at the top of the display", duration: 4.5),
         InstructionStep(message: "Bring the phone closer slowly", duration: 3.5),
-        InstructionStep(message: "The phone will vibrate if you look away, complete a rep, or return to the starting position.", duration: 6.0)
+        InstructionStep(message: "You will feel one vibration when you complete a rep. If you look away, you will feel two vibrations.", duration: 6.0)
     ]
 
     override func viewDidLoad() {

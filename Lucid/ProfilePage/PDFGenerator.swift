@@ -49,14 +49,6 @@ class PDFGenerator {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
-        let ageDobValue: String
-        if let dob = user.dateOfBirth {
-            let dobStr = formatter.string(from: dob)
-            ageDobValue = "\(user.age) years (\(dobStr))"
-        } else {
-            ageDobValue = "\(user.age) years"
-        }
-        let genderStr = user.gender ?? "Not set"
         let conditionsStr = user.previousConditions.isEmpty ? "None" : user.previousConditions.joined(separator: ", ")
         
         let sortedOSDI = user.osdiSessions.sorted(by: { $0.date > $1.date }).prefix(5)
@@ -218,20 +210,6 @@ class PDFGenerator {
                             <div class="card">
                                 <div class="card-title">Full Name</div>
                                 <div class="card-value">\(user.name)</div>
-                            </div>
-                        </div>
-                        <div style="display: table-cell; width: 50%;">
-                            <div class="card">
-                                <div class="card-title">Age / Date of Birth</div>
-                                <div class="card-value">\(ageDobValue)</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="display: table-row;">
-                        <div style="display: table-cell; width: 50%;">
-                            <div class="card">
-                                <div class="card-title">Gender</div>
-                                <div class="card-value">\(genderStr)</div>
                             </div>
                         </div>
                         <div style="display: table-cell; width: 50%;">

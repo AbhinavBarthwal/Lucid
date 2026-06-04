@@ -26,7 +26,7 @@ struct CTestEyeResult {
             tintColor = .cTestPositive
         case 5:
             statusText = "Very Good Acuity"
-            insightText = "Strong focus! Your eye identified almost all detail. Visual acuity is very solid and healthy."
+            insightText = "Strong focus! This eye saw almost all details clearly."
             tintColor = .cTestPositive
         case 4:
             statusText = "Good Acuity"
@@ -955,7 +955,7 @@ private struct CTestInfoSheetView: View {
                         .font(.system(size: 30, weight: .bold))
                         .foregroundStyle(.white)
 
-                    Text("The C test uses a Landolt C target to check how well each eye identifies the opening direction. It is a simple way to screen visual sharpness and compare left and right eye performance.")
+                    Text("The C Test shows a C shape facing different directions. It checks how clearly each eye can see and compares your left and right eye.")
                         .font(.system(size: 15, weight: .medium))
                         .foregroundStyle(.white.opacity(0.72))
                 }

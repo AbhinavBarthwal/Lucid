@@ -2,9 +2,6 @@ import SwiftUI
 
 struct MedicalProfileView: View {
     @ObservedObject var model: MedicalProfileDataModel
-    
-
-    private let genderOptions = ["Female", "Male", "Non-binary", "Prefer not to say"]
     private let eyeConditions = [
         "Digital Eye Strain",
         "Dry Eyes",
@@ -26,10 +23,6 @@ struct MedicalProfileView: View {
         "Autoimmune Disease",
         "Neurological Issues"
     ]
-    
-    private var tenYearsAgo: Date {
-        Calendar.current.date(byAdding: .year, value: -10, to: Date()) ?? Date()
-    }
     
     var body: some View {
         ZStack {
@@ -60,64 +53,6 @@ struct MedicalProfileView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
                     
-                    // DOB Field
-                    VStack(alignment: .leading, spacing: 8) {
-                        fieldTitle("Date of Birth")
-                        
-                        HStack {
-                            Image(systemName: "calendar")
-                                .foregroundStyle(Color.white.opacity(0.4))
-                            
-                            DatePicker(
-                                "",
-                                selection: $model.dateOfBirth,
-                                in: ...tenYearsAgo,
-                                displayedComponents: .date
-                            )
-                            .datePickerStyle(.compact)
-                            .labelsHidden()
-                            .tint(.accentColor)
-                            
-                            Spacer()
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        .background(Color.white.opacity(0.05))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(Color.white.opacity(0.10), lineWidth: 1)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
-                    }
-                    
-                    // Gender Selector
-                    VStack(alignment: .leading, spacing: 10) {
-                        fieldTitle("Gender")
-                        
-                        FlowLayout(tags: genderOptions) { option in
-                            let isSelected = (model.gender == option)
-                            let bgColor = isSelected ? Color.accentColor : Color.white.opacity(0.08)
-                            let strokeColor = isSelected ? Color.white.opacity(0.3) : Color.clear
-                            
-                            return Text(option)
-                                .font(.system(size: 14, weight: .medium))
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 10)
-                                .background(bgColor)
-                                .foregroundColor(.white)
-                                .clipShape(Capsule())
-                                .overlay(
-                                    Capsule()
-                                        .stroke(strokeColor, lineWidth: 1)
-                                )
-                                .onTapGesture {
-                                    withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
-                                        model.gender = option
-                                    }
-                                }
-                        }
-                    }
-                    
                     // Eye Power Card Section
                     VStack(alignment: .leading, spacing: 14) {
                         fieldTitle("Eye Power Settings")
@@ -135,7 +70,7 @@ struct MedicalProfileView: View {
                                 Image(systemName: (model.leftPower == 0.0 && model.rightPower == 0.0) ? "checkmark.circle.fill" : "circle")
                                     .font(.system(size: 20))
                                     .foregroundStyle((model.leftPower == 0.0 && model.rightPower == 0.0) ? Color.accentColor : Color.white.opacity(0.4))
-                                Text("I don't know my / have eye power")
+                                Text("I do not know my eye power")
                                     .font(.system(size: 15, weight: .medium))
                                     .foregroundStyle(Color.white.opacity(0.8))
                             }

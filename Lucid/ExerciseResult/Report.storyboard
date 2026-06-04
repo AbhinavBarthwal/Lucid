@@ -9,7 +9,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Performace Report-->
+        <!--Performance Report-->
         <scene sceneID="VSb-9E-vqU">
             <objects>
                 <viewController storyboardIdentifier="ReportViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="3NL-Xh-UbS" customClass="ReportViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
@@ -49,7 +49,7 @@
                             <constraint firstItem="Ezi-Kn-HBv" firstAttribute="trailing" secondItem="Z2b-mt-Asl" secondAttribute="trailing" id="gGA-pS-7NK"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Performace Report" largeTitleDisplayMode="never" id="lWB-1c-P0p">
+                    <navigationItem key="navigationItem" title="Performance Report" largeTitleDisplayMode="never" id="lWB-1c-P0p">
                         <barButtonItem key="rightBarButtonItem" style="done" systemItem="done" id="qfV-IC-aUz">
                             <connections>
                                 <action selector="backButtonTapped:" destination="3NL-Xh-UbS" id="XXi-1Q-N8S"/>

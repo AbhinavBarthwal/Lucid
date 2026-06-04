@@ -22,10 +22,10 @@ class OSDIViewController: UIViewController {
     private var instructionPrevButton: UIButton?
     
     private let osdiInstructions: [InstructionStep] = [
-        InstructionStep(message: "This test will check for Dry Eye Symptoms & Digital Strain.", duration: 4.5),
-        InstructionStep(message: "We'll ask simple questions about your eye comfort over the past week.", duration: 4.5),
-        InstructionStep(message: "Use the slider to rate how often you feel irritation, from Never to Mostly.", duration: 5.5),
-        InstructionStep(message: "If a daily activity doesn't apply to you, you can tap Skip.", duration: 5.5)
+        InstructionStep(message: "This test asks simple questions about dry, tired, or sore eyes.", duration: 4.5),
+        InstructionStep(message: "Answer based on how your eyes felt in the last week.", duration: 4.5),
+        InstructionStep(message: "Use the slider: Never means it did not happen. Mostly means it happened a lot.", duration: 5.5),
+        InstructionStep(message: "If a daily activity does not apply to you, tap Skip. Your score is saved for future reports.", duration: 5.5)
     ]
 
     private var currentIndex = 0
@@ -286,10 +286,14 @@ class OSDIViewController: UIViewController {
             
             UIView.animate(withDuration: 0.4, animations: {
                 self.onboardingInstructionLabel.alpha = 0
+                self.instructionNextButton?.alpha = 0
+                self.instructionPrevButton?.alpha = 0
             }) { _ in
                 self.onboardingInstructionLabel.text = step.message
                 UIView.animate(withDuration: 0.4, animations: {
                     self.onboardingInstructionLabel.alpha = 1
+                    self.instructionNextButton?.alpha = 1
+                    self.instructionPrevButton?.alpha = isFirstRun && (index > 0) ? 1.0 : 0.0
                 }) { _ in
                     if !isFirstRun {
                         DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self] in
@@ -313,6 +317,7 @@ class OSDIViewController: UIViewController {
         nextBtn.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
         nextBtn.setTitleColor(.white, for: .normal)
         nextBtn.backgroundColor = UIColor(named: "AccentColor") ?? .systemOrange
+        nextBtn.alpha = 0
         view.addSubview(nextBtn)
         self.instructionNextButton = nextBtn
         nextBtn.addTarget(self, action: #selector(instructionNextTapped), for: .touchUpInside)
@@ -329,6 +334,7 @@ class OSDIViewController: UIViewController {
             prevBtn.layer.borderWidth = 1
             prevBtn.layer.borderColor = UIColor.white.withAlphaComponent(0.3).cgColor
             prevBtn.setTitle("Previous", for: .normal)
+            prevBtn.alpha = 0
             view.addSubview(prevBtn)
             self.instructionPrevButton = prevBtn
             prevBtn.addTarget(self, action: #selector(instructionPrevTapped), for: .touchUpInside)
@@ -405,13 +411,13 @@ class OSDIViewController: UIViewController {
         let sectionInstruction: String
         switch questionnaire[currentIndex].cat {
         case "How your eyes feel":
-            sectionInstruction = "Have your eyes felt any of this in the past week?"
+            sectionInstruction = "Think about the last week. How often did this happen?"
         case "Your surroundings":
-            sectionInstruction = "Have your eyes felt uncomfortable in these places recently?"
+            sectionInstruction = "Think about these places. How often did your eyes feel bad there?"
         case "Daily activities":
-            sectionInstruction = "Have these everyday things been harder because of your eyes? (You can skip these if they don't apply to you)"
+            sectionInstruction = "Did your eyes make these tasks harder? Tap Skip if the task does not apply."
         default:
-            sectionInstruction = "Have your eyes felt this way over the past week?"
+            sectionInstruction = "Think about the last week. How often did this happen?"
         }
         introInstructionLabel.text = sectionInstruction
         

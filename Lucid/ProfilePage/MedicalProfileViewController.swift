@@ -4,8 +4,6 @@ internal import Combine
 
 class MedicalProfileDataModel: ObservableObject {
     @Published var name: String = ""
-    @Published var dateOfBirth: Date = Date()
-    @Published var gender: String = "Prefer not to say"
     @Published var leftPower: Double = 0.0
     @Published var rightPower: Double = 0.0
     @Published var selectedConditions: Set<String> = []
@@ -42,8 +40,6 @@ class MedicalProfileViewController: UITableViewController {
         
         // Populate model from DB
         dataModel.name = currentUser.name
-        dataModel.dateOfBirth = currentUser.dateOfBirth ?? Calendar.current.date(byAdding: .year, value: -18, to: Date()) ?? Date()
-        dataModel.gender = currentUser.gender ?? "Prefer not to say"
         dataModel.leftPower = currentUser.leftEyePower
         dataModel.rightPower = currentUser.rightEyePower
         dataModel.selectedConditions = Set(currentUser.previousConditions)
@@ -102,8 +98,6 @@ class MedicalProfileViewController: UITableViewController {
     @objc private func saveTapped() {
         saveData(
             name: dataModel.name,
-            dob: dataModel.dateOfBirth,
-            gender: dataModel.gender,
             left: dataModel.leftPower,
             right: dataModel.rightPower,
             conditions: Array(dataModel.selectedConditions)
@@ -135,25 +129,10 @@ class MedicalProfileViewController: UITableViewController {
         return 0
     }
     
-    private func saveData(name: String, dob: Date, gender: String, left: Double, right: Double, conditions: [String]) {
+    private func saveData(name: String, left: Double, right: Double, conditions: [String]) {
         guard let user = user else { return }
         
-        let tenYearsAgo = Calendar.current.date(byAdding: .year, value: -10, to: Date()) ?? Date()
-        if dob > tenYearsAgo {
-            let alert = UIAlertController(
-                title: "Just a heads up",
-                message: "Lucid is designed for ages 10 and older. We look forward to welcoming you soon!",
-                preferredStyle: .alert
-            )
-            alert.addAction(UIAlertAction(title: "Got it!", style: .default))
-            present(alert, animated: true)
-            return
-        }
-        
         user.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        user.dateOfBirth = dob
-        user.age = Self.computeAge(from: dob)
-        user.gender = gender
         user.leftEyePower = left
         user.rightEyePower = right
         user.previousConditions = conditions
@@ -179,11 +158,5 @@ class MedicalProfileViewController: UITableViewController {
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert, animated: true)
         }
-    }
-    
-    private static func computeAge(from dateOfBirth: Date) -> Int {
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.year], from: dateOfBirth, to: Date())
-        return max(0, components.year ?? 0)
     }
 }

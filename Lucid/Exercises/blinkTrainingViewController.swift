@@ -70,8 +70,8 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
     private var currentInstructionIndex = 0
 
     private let exerciseInstructions: [InstructionStep] = [
-        InstructionStep(message: "Blink both eyes after the vibration", duration: 4.0),
-        InstructionStep(message: "If you blink incorrectly, the phone will vibrate twice to let you know.", duration: 5.5)
+        InstructionStep(message: "Blink both eyes after you feel one vibration.", duration: 4.0),
+        InstructionStep(message: "You will feel one vibration for the cue and two vibrations when your blink is wrong.", duration: 5.5)
     ]
     
     private var leftMaxBlinks: [Float] = []
@@ -720,14 +720,18 @@ struct Vibrator {
         AudioServicesPlaySystemSound(1520)
     }
     
-    /// Plays an error vibration sequence (e.g. double tap/vibration).
+    /// Plays a double vibration for a wrong response.
     static func playError() {
         let generator = UINotificationFeedbackGenerator()
         generator.prepare()
         generator.notificationOccurred(.error)
-        
-        // Play error system sound (1521 is a rapid triple vibration)
-        AudioServicesPlaySystemSound(1521)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            let secondGenerator = UIImpactFeedbackGenerator(style: .heavy)
+            secondGenerator.prepare()
+            secondGenerator.impactOccurred()
+            AudioServicesPlaySystemSound(1520)
+        }
     }
     
     /// Plays a standard single vibration.

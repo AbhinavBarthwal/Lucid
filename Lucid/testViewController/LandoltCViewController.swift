@@ -37,6 +37,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
     private var didComplete          = false
     private var isMicActive          = false   // tracks whether mic is genuinely open
     private var isInstructionPhase   = true
+    private var pendingSpeechCandidate: (value: String, isSkip: Bool, count: Int)?
 
     // Navigation/Skip buttons for instructions
     private var instructionNextButton: UIButton?
@@ -58,15 +59,15 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
     private var isWarningShown = false
 
     private let exerciseInstructions: [InstructionStep] = [
-        InstructionStep(message: "In this test, you must speak the matching numbers out loud!", duration: 4.5),
-        InstructionStep(message: "Please hold your phone at arm's length", duration: 3.5),
-        InstructionStep(message: "Look at the opening and say the matching number out loud!", duration: 4.5),
-        InstructionStep(message: "If it's hard to see, just say 'cannot see' or 'skip' to move on.", duration: 5.5),
-        InstructionStep(message: "You will see the flashes around the edges for your response.", duration: 6.0)
+        InstructionStep(message: "This test checks how clearly each eye can see.", duration: 4.5),
+        InstructionStep(message: "Hold your phone at arm's length and close the eye as instructed", duration: 5.0),
+        InstructionStep(message: "Look at the open side of the C and say the matching number out loud.", duration: 5.0),
+        InstructionStep(message: "If you cannot see it, say 'cannot see' or 'skip' to move on.", duration: 5.5),
+        InstructionStep(message: "Green light means correct. Red light means wrong. You will feel one vibration for correct and two vibrations for wrong.", duration: 6.0)
     ]
 
     private let directionMap: [Int: String] = [
-        0: "4", 45: "5", 90: "6", 135: "7", 180: "8", 225: "1", 270: "2", 315: "3"
+        0: "2", 90: "3", 180: "4", 270: "1"
     ]
 
     // MARK: - Lifecycle
@@ -136,8 +137,6 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
             eyeWarningLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24)
         ])
     }
-
-    // MARK: - Countdown & Instructions
 
     // MARK: - Countdown & Instructions
 
@@ -362,36 +361,35 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         let deltaTime = currentTime - lastUpdateTimestamp
         lastUpdateTimestamp = currentTime
         
-        let leftEyeBlink = faceAnchor.blendShapes[.eyeBlinkRight]?.floatValue ?? 0.0
-        let rightEyeBlink = faceAnchor.blendShapes[.eyeBlinkLeft]?.floatValue ?? 0.0
+        let leftEyeBlink = faceAnchor.blendShapes[.eyeBlinkLeft]?.floatValue ?? 0.0
+        let rightEyeBlink = faceAnchor.blendShapes[.eyeBlinkRight]?.floatValue ?? 0.0
         
         // Left eye tested -> Right eye must be closed.
         // Right eye tested -> Left eye must be closed.
         let correctEyeClosed: Bool
         if !isTestingRightEye {
-            correctEyeClosed = rightEyeBlink > 0.6
+            correctEyeClosed = rightEyeBlink > 0.3
         } else {
-            correctEyeClosed = leftEyeBlink > 0.6
+            correctEyeClosed = leftEyeBlink > 0.3
         }
         
         DispatchQueue.main.async {
             if correctEyeClosed {
-                self.incorrectEyeOpenDuration = max(0, self.incorrectEyeOpenDuration - deltaTime * 2.0)
-                if self.incorrectEyeOpenDuration == 0 {
-                    self.hideWarningSmoothly()
-                }
+                self.hideWarningSmoothly()
             } else {
-                self.incorrectEyeOpenDuration += deltaTime
-                if self.incorrectEyeOpenDuration >= 1.5 {
-                    self.showWarningSmoothly()
-                }
+                self.showWarningSmoothly()
             }
             
             // Keep the Siri listening border view state matching mic activity
             if self.isMicActive {
-                SiriListeningBorderView.shared.show()
+                if !self.isProcessing {
+                    SiriListeningBorderView.shared.show()
+                    SiriListeningBorderView.shared.setBorderState(.listening)
+                }
             } else {
-                SiriListeningBorderView.shared.hide()
+                if !self.isProcessing {
+                    SiriListeningBorderView.shared.hide()
+                }
             }
         }
     }
@@ -401,30 +399,21 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         if eyeWarningLabel.text != expectedText {
             eyeWarningLabel.text = expectedText
         }
-        
-        guard !isWarningShown else { return }
-        isWarningShown = true
-        UIView.animate(withDuration: 0.3) {
-            self.eyeWarningLabel.alpha = 1.0
-        }
+        eyeWarningLabel.layer.removeAllAnimations()
+        eyeWarningLabel.alpha = 1.0
     }
     
     private func hideWarningSmoothly() {
-        guard isWarningShown else { return }
-        isWarningShown = false
-        UIView.animate(withDuration: 0.3) {
-            self.eyeWarningLabel.alpha = 0.0
-        }
+        eyeWarningLabel.layer.removeAllAnimations()
+        eyeWarningLabel.alpha = 0.0
     }
 
     // MARK: - Target Generation
 
     private func generateNextTarget(isSuccess: Bool) {
         DispatchQueue.main.async {
-            self.stopAudio(hideBorder: false)
-
             if isSuccess {
-                Vibrator.playSuccess()
+                Vibrator.playSingle()
                 if !self.isTestingRightEye { self.leftEyeScore += 1 } else { self.rightEyeScore += 1 }
                 self.currentScale /= 1.258 // LogMAR Step
             }
@@ -447,7 +436,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
                 )
                 UIView.animate(withDuration: 0.15) { self.landoltImageView.alpha = 1 }
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
                     if self.isTestActive { self.startRecording() }
                 }
             }
@@ -578,11 +567,12 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         }
 
         isProcessing = false
+        pendingSpeechCandidate = nil
 
-        let audioSession = AVAudioSession.sharedInstance()
-        try? audioSession.setCategory(.playAndRecord, mode: .measurement,
-                                      options: [.duckOthers, .defaultToSpeaker])
-        try? audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        recognitionTask?.cancel()
+        recognitionTask = nil
+        recognitionRequest?.endAudio()
+        recognitionRequest = nil
 
         recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
         recognitionRequest?.shouldReportPartialResults = true
@@ -594,29 +584,21 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
             print("--- DEBUG SPEECH: \(spoken) ---")
 
             if !self.isProcessing {
-                let isMatch = spoken.contains(self.currentCorrectNumber)
-                           || spoken.contains(self.numToText(self.currentCorrectNumber))
-                           || (self.currentCorrectNumber == "6" && (spoken.contains("six") || spoken.contains("sex")))
+                guard let candidate = self.speechCandidate(from: result) else { return }
+                guard self.isReadyToProcess(candidate: candidate, isFinal: result.isFinal) else { return }
 
-                let isSkip = spoken.contains("cannot see")
-                          || spoken.contains("can't see")
-                          || spoken.contains("skip")
-
-                if isMatch {
+                if candidate.isSkip {
+                    self.isProcessing = true
+                    self.handleUserSkip()
+                } else if candidate.value == self.currentCorrectNumber {
                     self.isProcessing = true
                     SiriListeningBorderView.shared.setBorderState(.correct)
                     self.generateNextTarget(isSuccess: true)
-                } else if isSkip {
-                    self.isProcessing = true
-                    self.handleUserSkip()
                 } else {
-                    let words = spoken.components(separatedBy: " ")
-                    if let lastWord = words.last, self.isNumber(lastWord) {
-                        self.isProcessing = true
-                        SiriListeningBorderView.shared.setBorderState(.incorrect)
-                        Vibrator.playError()
-                        self.generateNextTarget(isSuccess: false)
-                    }
+                    self.isProcessing = true
+                    SiriListeningBorderView.shared.setBorderState(.incorrect)
+                    Vibrator.playDouble()
+                    self.generateNextTarget(isSuccess: false)
                 }
             }
         }
@@ -630,6 +612,18 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
             SiriListeningBorderView.feedBuffer(buffer)  // feed RMS to border
         }
 
+        if audioEngine.isRunning {
+            isMicActive = true
+            SiriListeningBorderView.shared.setBorderState(.listening)
+            SiriListeningBorderView.shared.show()
+            let generator = UISelectionFeedbackGenerator()
+            generator.selectionChanged()
+        }
+
+        let audioSession = AVAudioSession.sharedInstance()
+        try? audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
+        try? audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+
         audioEngine.prepare()
         try? audioEngine.start()
 
@@ -638,6 +632,8 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         SiriListeningBorderView.shared.setBorderState(.listening)
         SiriListeningBorderView.shared.startListening(audioEngine: audioEngine)
         SiriListeningBorderView.shared.show()
+        let generator = UISelectionFeedbackGenerator()
+        generator.selectionChanged()
     }
 
     private func stopAudio(hideBorder: Bool = true) {
@@ -674,16 +670,58 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
 
     // MARK: - Helpers
 
-    private func isNumber(_ word: String) -> Bool {
-        let numberWords = ["one", "two", "three", "four", "five", "six", "seven", "eight"]
-        let digits      = ["1", "2", "3", "4", "5", "6", "7", "8"]
-        return numberWords.contains(word) || digits.contains(word)
+    private func speechCandidate(from result: SFSpeechRecognitionResult) -> (value: String, isSkip: Bool, confidence: Float)? {
+        let transcription = result.bestTranscription
+        let spoken = transcription.formattedString.lowercased()
+        let normalized = spoken
+            .replacingOccurrences(of: "can't see", with: "cannot see")
+            .replacingOccurrences(of: "cant see", with: "cannot see")
+
+        if normalized.contains("cannot see") || normalized.contains("skip") {
+            return (value: "skip", isSkip: true, confidence: 1.0)
+        }
+
+        guard let lastSegment = transcription.segments.last else { return nil }
+        let token = cleanSpeechToken(lastSegment.substring)
+        guard let value = numberValue(for: token) else { return nil }
+
+        return (value: value, isSkip: false, confidence: lastSegment.confidence)
     }
 
-    private func numToText(_ num: String) -> String {
-        let dict = ["1": "one", "2": "two",   "3": "three", "4": "four",
-                    "5": "five", "6": "six",  "7": "seven", "8": "eight"]
-        return dict[num] ?? ""
+    private func isReadyToProcess(candidate: (value: String, isSkip: Bool, confidence: Float), isFinal: Bool) -> Bool {
+        if candidate.isSkip || candidate.confidence >= 0.55 || isFinal {
+            pendingSpeechCandidate = nil
+            return true
+        }
+
+        if let pendingSpeechCandidate,
+           pendingSpeechCandidate.value == candidate.value,
+           pendingSpeechCandidate.isSkip == candidate.isSkip {
+            let updatedCount = pendingSpeechCandidate.count + 1
+            self.pendingSpeechCandidate = (value: candidate.value, isSkip: candidate.isSkip, count: updatedCount)
+            if updatedCount >= 2 {
+                self.pendingSpeechCandidate = nil
+                return true
+            }
+        } else {
+            pendingSpeechCandidate = (value: candidate.value, isSkip: candidate.isSkip, count: 1)
+        }
+
+        return false
+    }
+
+    private func cleanSpeechToken(_ token: String) -> String {
+        token.lowercased().filter { $0.isLetter || $0.isNumber }
+    }
+
+    private func numberValue(for token: String) -> String? {
+        let dict = [
+            "1": "1", "one": "1",
+            "2": "2", "two": "2", "to": "2", "too": "2", "do": "2", "t": "2", "tu": "2", "true": "2", "who": "2", "you": "2",
+            "3": "3", "three": "3",
+            "4": "4", "four": "4", "for": "4", "far": "4", "or": "4", "core": "4", "door": "4", "more": "4", "pour": "4", "poor": "4", "our": "4"
+               ]
+        return dict[token]
     }
 
 

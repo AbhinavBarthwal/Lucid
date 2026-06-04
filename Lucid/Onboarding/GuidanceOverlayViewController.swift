@@ -8,7 +8,7 @@ final class GuidanceOverlayViewController: UIViewController {
     private enum Target {
         case checkupTest
         case exerciseRecommendation
-        case exerciseStreak
+        case exercise
         case awards
     }
 
@@ -65,42 +65,43 @@ final class GuidanceOverlayViewController: UIViewController {
     private func configureSteps() {
         var stepsList: [Step] = []
         
-        // Find SummaryViewController to check if checkup test is due
-        if let summary = Self.findVisibleSummary(in: presentingViewController ?? view.window?.rootViewController), summary.isTestDue() {
-            let state = summary.getCheckupState()
-            let testName = state == .OSDIDue ? "OSDI Test" : "C Test"
-            stepsList.append(Step(
-                callout: Callout(
-                    title: "Checkup Test Reminder",
-                    body: "Complete your pending \(testName) here when you are ready."
-                ),
-                target: .checkupTest
-            ))
-        }
+        // 1. Test Reminder (always included in the flow now)
+        let state = (Self.findVisibleSummary(in: presentingViewController ?? view.window?.rootViewController))?.getCheckupState() ?? .OSDIDue
+        let testName = state == .OSDIDue ? "OSDI Test" : "C Test"
+        stepsList.append(Step(
+            callout: Callout(
+                title: "Biweekly Test Reminder",
+                body: "Complete your pending OSDI and C Test here when you are ready."
+            ),
+            target: .checkupTest
+        ))
         
-        stepsList.append(contentsOf: [
-            Step(
-                callout: Callout(
-                    title: "Daily Recommendation",
-                    body: "See your personalized daily eye exercise recommendation right here."
-                ),
-                target: .exerciseRecommendation
+        // 2. Recommended Exercise
+        stepsList.append(Step(
+            callout: Callout(
+                title: "Daily Recommendation",
+                body: "See the daily eye exercise picked for you right here."
             ),
-            Step(
-                callout: Callout(
-                    title: "Exercise Streak",
-                    body: "Track your consistency. Complete exercises daily to keep Luc happy and healthy!"
-                ),
-                target: .exerciseStreak
+            target: .exerciseRecommendation
+        ))
+        
+        // 3. Exercise
+        stepsList.append(Step(
+            callout: Callout(
+                title: "All Exercises",
+                body: "Explore our full catalog of eye exercises to train different visual skills."
             ),
-            Step(
-                callout: Callout(
-                    title: "Awards & Milestones",
-                    body: "Check out the custom awards, badges, and streaks you've unlocked along the way."
-                ),
-                target: .awards
-            )
-        ])
+            target: .exercise
+        ))
+        
+        // 4. Awards
+        stepsList.append(Step(
+            callout: Callout(
+                title: "Awards & Milestones",
+                body: "Check out the custom awards, badges, and streaks you've unlocked along the way."
+            ),
+            target: .awards
+        ))
         
         self.steps = stepsList
     }
@@ -342,10 +343,8 @@ final class GuidanceOverlayViewController: UIViewController {
 
         let candidates: [CGRect]
         switch target {
-        case .checkupTest, .exerciseRecommendation:
+        case .checkupTest, .exerciseRecommendation, .exercise:
             candidates = [below, above, right, left]
-        case .exerciseStreak:
-            candidates = [below, above, left, right]
         case .awards:
             candidates = [above, below, right, left]
         }
@@ -412,15 +411,15 @@ final class GuidanceOverlayViewController: UIViewController {
                 }
             }
             return nil
-        case .exerciseStreak:
-            let count = collectionView.numberOfItems(inSection: 0)
-            for item in 0..<count {
-                let indexPath = IndexPath(item: item, section: 0)
-                if let cell = visibleCell(at: indexPath, in: collectionView) as? StreakCollectionViewCell {
-                    return rectForTargetView(cell.contentView)
-                }
+        case .exercise:
+            return rectForCell(
+                at: IndexPath(item: 0, section: 1),
+                in: collectionView
+            ) { cell in
+                cell as? PageLinkCollectionViewCell
+            } targetView: { (cell: PageLinkCollectionViewCell) in
+                cell.contentView
             }
-            return nil
         case .awards:
             return rectForCell(
                 at: IndexPath(item: 1, section: 2),
@@ -517,10 +516,8 @@ final class GuidanceOverlayViewController: UIViewController {
 
     private func arrowEndPoint(for target: Target, spotlightRect: CGRect, fallback: CGPoint) -> CGPoint {
         switch target {
-        case .checkupTest, .exerciseRecommendation:
+        case .checkupTest, .exerciseRecommendation, .exercise:
             return CGPoint(x: spotlightRect.midX, y: spotlightRect.minY + 4)
-        case .exerciseStreak:
-            return fallback
         case .awards:
             return CGPoint(x: spotlightRect.midX, y: spotlightRect.minY + 6)
         }

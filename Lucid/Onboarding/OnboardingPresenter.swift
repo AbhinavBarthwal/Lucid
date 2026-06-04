@@ -101,16 +101,7 @@ final class OnboardingPresenter {
         let hasCompletedDetails = !(user.email ?? "").isEmpty
         
         if hasCompletedDetails {
-            presentMandatoryTestsAlert(on: topVC, window: window) {
-                requestAllPermissions {
-                    let coordinator = MandatoryTestsCoordinator(presenter: topVC)
-                    activeTestsCoordinator = coordinator
-                    coordinator.start {
-                        activeTestsCoordinator = nil
-                        showSettingUpAndFinish(window: window, presenter: topVC)
-                    }
-                }
-            }
+            showSettingUpAndFinish(window: window, presenter: topVC)
         } else {
             let hosting = UIHostingController(rootView: AnyView(EmptyView()))
             hosting.restorationIdentifier = hostingIdentifier
@@ -133,26 +124,7 @@ final class OnboardingPresenter {
     
     private static func handleOnboardingSubmitted(draft: OnboardingDraft, window: UIWindow, presenter: UIViewController) async {
         await saveDraft(draft)
-        
-        let user = SwiftDataManager.shared.getOrCreateUser()
-        let hasOSDI = !user.osdiSessions.isEmpty
-        let hasCTest = !user.eyeTestSessions.isEmpty
-        
-        if hasOSDI && hasCTest {
-            print("🚀 Recurring user detected with full test history. Bypassing mandatory tests.")
-            showSettingUpAndFinish(window: window, presenter: presenter)
-        } else {
-            presentMandatoryTestsAlert(on: presenter, window: window) {
-                requestAllPermissions {
-                    let coordinator = MandatoryTestsCoordinator(presenter: presenter)
-                    activeTestsCoordinator = coordinator
-                    coordinator.start {
-                        activeTestsCoordinator = nil
-                        showSettingUpAndFinish(window: window, presenter: presenter)
-                    }
-                }
-            }
-        }
+        showSettingUpAndFinish(window: window, presenter: presenter)
     }
     
     private static func requestAllPermissions(completion: @escaping () -> Void) {
@@ -160,11 +132,14 @@ final class OnboardingPresenter {
             if #available(iOS 17.0, *) {
                 AVAudioApplication.requestRecordPermission { _ in
                     SFSpeechRecognizer.requestAuthorization { _ in
-                        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, error in
+                        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
                             if let error {
                                 print("Lucid: Notification permission error: \(error)")
                             }
-                            DispatchQueue.main.async {
+                            Task { @MainActor in
+                                if granted {
+                                    NotificationManager.shared.refreshScheduledNotificationsFromDefaults()
+                                }
                                 completion()
                             }
                         }
@@ -173,11 +148,14 @@ final class OnboardingPresenter {
             } else {
                 AVAudioSession.sharedInstance().requestRecordPermission { _ in
                     SFSpeechRecognizer.requestAuthorization { _ in
-                        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, error in
+                        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
                             if let error {
                                 print("Lucid: Notification permission error: \(error)")
                             }
-                            DispatchQueue.main.async {
+                            Task { @MainActor in
+                                if granted {
+                                    NotificationManager.shared.refreshScheduledNotificationsFromDefaults()
+                                }
                                 completion()
                             }
                         }
@@ -199,9 +177,9 @@ final class OnboardingPresenter {
         // If draft has name, it's a new signup or the user went through details, overwrite with draft
         if !draft.trimmedName.isEmpty {
             user.name = draft.trimmedName
-            user.dateOfBirth = draft.dateOfBirth
-            user.age = computeAge(from: draft.dateOfBirth)
-            user.gender = draft.gender.isEmpty ? "Prefer not to say" : draft.gender
+//            user.dateOfBirth = draft.dateOfBirth
+//            user.age = computeAge(from: draft.dateOfBirth)
+//            user.gender = draft.gender.isEmpty ? "Prefer not to say" : draft.gender
             user.leftEyePower = Double(draft.leftEyePower.trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
             user.rightEyePower = Double(draft.rightEyePower.trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
             user.previousConditions = draft.cleanedConditions
@@ -225,16 +203,16 @@ final class OnboardingPresenter {
     
     private static func presentMandatoryTestsAlert(on presenter: UIViewController, window: UIWindow, start: @escaping () -> Void) {
         let alert = UIAlertController(
-            title: "Let's check your vision!",
-            message: "We'll start with a couple of quick, easy tests to customize Lucid for your eyes. Note: The C Test will require you to speak the numbers out loud.",
+            title: "Take your eye check now?",
+            message: "To help us better understand your vision and eye health, we’d like you to complete two short tests:\n\nOSDI (Ocular Surface Disease Index)\nA brief questionnaire about symptoms such as eye dryness, discomfort, sensitivity to light, and how these may affect your daily activities.\n\nC Test (Landolt C Test)\nA simple visual acuity test that measures how clearly you can see by identifying the direction of a small opening in a ring-shaped symbol.\n\nThese assessments take about 2 minutes to complete.\nIf you'd prefer, you can skip them for now and complete them later.",
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: "Let's Start!", style: .default) { _ in
+        alert.addAction(UIAlertAction(title: "Take Test Now", style: .default) { _ in
             DispatchQueue.main.async {
                 start()
             }
         })
-        alert.addAction(UIAlertAction(title: "Skip for Now", style: .cancel) { _ in
+        alert.addAction(UIAlertAction(title: "Do It Later", style: .cancel) { _ in
             DispatchQueue.main.async {
                 showSettingUpAndFinish(window: window, presenter: presenter)
             }
@@ -456,7 +434,7 @@ final class TestTransitionViewController: UIViewController {
         title.translatesAutoresizingMaskIntoConstraints = false
 
         let subtitle = UILabel()
-        subtitle.text = "OSDI done!\nNow let's check how sharp your eyes are with a quick C Test.\n\nYou will need to say the matching numbers out loud!"
+        subtitle.text = "OSDI done!\nNow let's check how sharp your eyes are with a quick C Test.\n"
         subtitle.font = .systemFont(ofSize: 17, weight: .medium)
         subtitle.textColor = UIColor.white.withAlphaComponent(0.7)
         subtitle.textAlignment = .center
@@ -481,3 +459,4 @@ final class TestTransitionViewController: UIViewController {
         UIView.animate(withDuration: 0.5) { stack.alpha = 1 }
     }
 }
+

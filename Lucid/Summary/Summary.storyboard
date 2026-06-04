@@ -54,7 +54,7 @@
                                                     <constraint firstAttribute="height" constant="72" id="symH"/>
                                                 </constraints>
                                             </imageView>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Badge Title" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="titleLabel">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Badge Title" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="titleLabel">
                                                 <rect key="frame" x="20" y="120" width="280" height="26.333333333333343"/>
                                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="22"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -66,7 +66,7 @@
                                                 <color key="textColor" white="1" alpha="0.84999999999999998" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Earned date" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dateLabel">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Earned date" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dateLabel" numberOfLines="0">
                                                 <rect key="frame" x="20" y="183.33333333333334" width="280" height="14.333333333333343"/>
                                                 <fontDescription key="fontDescription" type="system" weight="medium" pointSize="12"/>
                                                 <color key="textColor" white="1" alpha="0.65000000000000002" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -91,7 +91,7 @@
                                                     <constraint firstItem="progressFill" firstAttribute="bottom" secondItem="progressTrack" secondAttribute="bottom" id="fillB"/>
                                                 </constraints>
                                             </view>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1/2" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="progressLabel">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1/2" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="progressLabel" numberOfLines="0">
                                                 <rect key="frame" x="20" y="310" width="280" height="13.333333333333343"/>
                                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="11"/>
                                                 <color key="textColor" white="1" alpha="0.80000000000000004" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -227,7 +227,7 @@
             </objects>
             <point key="canvasLocation" x="5913.740458015267" y="-2.1126760563380285"/>
         </scene>
-        <!--Performace Report-->
+        <!--Performance Report-->
         <scene sceneID="WEE-Rk-Wcs">
             <objects>
                 <viewController storyboardIdentifier="ReportViewController" id="lGT-Pd-HSE" customClass="ReportViewController" customModule="Lucid" customModuleProvider="target" sceneMemberID="viewController">
@@ -267,7 +267,7 @@
                             <constraint firstAttribute="bottom" secondItem="oD3-Op-rfA" secondAttribute="bottom" id="xxr-7P-Xpu"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Performace Report" id="fcm-kz-ulH">
+                    <navigationItem key="navigationItem" title="Performance Report" id="fcm-kz-ulH">
                         <barButtonItem key="leftBarButtonItem" image="chevron.left" catalog="system" style="done" id="aL3-Ne-l0W">
                             <connections>
                                 <action selector="backButtonTapped:" destination="lGT-Pd-HSE" id="XMv-76-tA6"/>

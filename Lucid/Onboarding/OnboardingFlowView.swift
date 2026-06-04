@@ -7,8 +7,8 @@ struct OnboardingDraft: Equatable {
     var password: String = ""
     var confirmPassword: String = ""
     var name: String = ""
-    var dateOfBirth: Date = Date()
-    var gender: String = ""
+    //var dateOfBirth: Date = Date()
+    //var gender: String = ""
     var leftEyePower: String = ""
     var rightEyePower: String = ""
     var previousConditions: Set<String> = []
@@ -138,9 +138,7 @@ struct OnboardingFlowView: View {
                         )
                     case .personal:
                         PersonalDetailsStep(
-                            name: $draft.name,
-                            dateOfBirth: $draft.dateOfBirth,
-                            gender: $draft.gender
+                            name: $draft.name
                         )
                     case .eyePower:
                         EyePowerStep(
@@ -385,20 +383,20 @@ struct OnboardingFlowView: View {
         draft.leftEyePower = String(format: "%.2f", leftPower)
         draft.rightEyePower = String(format: "%.2f", rightPower)
 
-        if step == .personal {
-            if Calendar.current.isDateInToday(draft.dateOfBirth) {
-                var components = DateComponents()
-                components.year = 1950
-                components.month = 1
-                components.day = 1
-                if let fallbackDate = Calendar.current.date(from: components) {
-                    draft.dateOfBirth = fallbackDate
-                }
-            }
-            if draft.gender.isEmpty {
-                draft.gender = "Prefer not to say"
-            }
-        }
+//        if step == .personal {
+//            if Calendar.current.isDateInToday(draft.dateOfBirth) {
+//                var components = DateComponents()
+//                components.year = 1950
+//                components.month = 1
+//                components.day = 1
+//                if let fallbackDate = Calendar.current.date(from: components) {
+//                    draft.dateOfBirth = fallbackDate
+//                }
+//            }
+//            if draft.gender.isEmpty {
+//                draft.gender = "Prefer not to say"
+            //}
+        //}
 
         if step == .conditions {
             withAnimation { didSubmit = true }
@@ -421,9 +419,9 @@ struct OnboardingFlowView: View {
                 return "We'd love to know your name! Please enter it to continue."
             }
             let tenYearsAgo = Calendar.current.date(byAdding: .year, value: -10, to: Date()) ?? Date()
-            if draft.dateOfBirth > tenYearsAgo {
-                return "Lucid is designed for ages 10 and up. We look forward to welcoming you soon!"
-            }
+//            if draft.dateOfBirth > tenYearsAgo {
+//                return "Lucid is designed for ages 10 and up. We look forward to welcoming you soon!"
+//            }
         case .eyePower:
             return nil
         case .conditions:
@@ -509,12 +507,12 @@ struct OnboardingLoadingOverlay: View {
     @State private var statusIndex = 0
     
     let statuses = [
-        "Verifying your details...",
-        "Connecting to our secure database...",
-        "Getting your personalized setup ready...",
-        "Looking at your dry-eye history...",
-        "Creating custom goals just for you...",
-        "Putting on the finishing touches..."
+        "Checking your details...",
+        "Saving your profile...",
+        "Getting your setup ready...",
+        "Checking your eye test history...",
+        "Making your goals...",
+        "Almost done..."
     ]
     
     let timer = Timer.publish(every: 1.5, on: .main, in: .common).autoconnect()
@@ -621,7 +619,7 @@ private struct LandingStep: View {
                         .foregroundStyle(.white)
                         .tracking(4)
                     
-                    Text("Fixing digital eye strain")
+                    Text("Helping your eyes feel better")
                         .font(.subheadline)
                         .foregroundStyle(Color.white.opacity(0.70))
                         .multilineTextAlignment(.center)
@@ -836,22 +834,22 @@ private struct EmailLoginStep: View {
     private var instructionText: String {
         switch emailStatus {
         case .unchecked:
-            return "Let's start with your email! We'll check if you have an account or help you make a new one."
+            return "Start with your email. We save it so you can find your profile later."
         case .checking:
             return "Checking for your account..."
         case .present:
             return "Welcome back! Please enter your password to sign in."
         case .notPresent:
-            return "Create a safe password to set up your new account!"
+            return "Create a password to set up your new account."
         }
     }
 
     private var helperCopy: String {
         switch emailStatus {
         case .notPresent:
-            return "Your passwords are safe, stored locally, and securely synced."
+            return "Your password is saved so you can sign in again."
         case .present:
-            return "Enter your details to load your previous test history."
+            return "Sign in to load your saved test history."
         default:
             return ""
         }
@@ -881,13 +879,15 @@ private struct AccountModeBadge: View {
 // MARK: - PersonalDetailsStep
 private struct PersonalDetailsStep: View {
     @Binding var name: String
-    @Binding var dateOfBirth: Date
-    @Binding var gender: String
 
-    private let genderOptions = ["Female", "Male", "Non-binary", "Prefer not to say"]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
+            Text("We save your name for future reports. This helps Lucid compare results more correctly over time.")
+                .font(.subheadline)
+                .foregroundStyle(Color.white.opacity(0.60))
+                .fixedSize(horizontal: false, vertical: true)
+
             // Name Field
             VStack(alignment: .leading, spacing: 8) {
                 fieldTitle("Name")
@@ -908,60 +908,6 @@ private struct PersonalDetailsStep: View {
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 14))
             }
-
-            // DOB Field
-            VStack(alignment: .leading, spacing: 8) {
-                fieldTitle("Date of Birth")
-                
-                HStack {
-                    Image(systemName: "calendar")
-                        .foregroundStyle(Color.white.opacity(0.4))
-                    
-                    DatePicker(
-                        "",
-                        selection: $dateOfBirth,
-                        in: ...(Calendar.current.date(byAdding: .year, value: -10, to: Date()) ?? Date()),
-                        displayedComponents: .date
-                    )
-                    .datePickerStyle(.compact)
-                    .labelsHidden()
-                    .tint(.accentColor)
-                    
-                    Spacer()
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
-                .background(Color.white.opacity(0.05))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14)
-                        .stroke(Color.white.opacity(0.10), lineWidth: 1)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-            }
-
-            // Gender Selector
-            VStack(alignment: .leading, spacing: 10) {
-                fieldTitle("Gender   ( optional )")
-                
-                FlowLayout(tags: genderOptions) { option in
-                    Text(option)
-                        .font(.system(size: 14, weight: .medium))
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        .background(gender == option ? Color.accentColor : Color.white.opacity(0.08))
-                        .foregroundColor(.white)
-                        .clipShape(Capsule())
-                        .overlay(
-                            Capsule()
-                                .stroke(gender == option ? Color.white.opacity(0.3) : Color.clear, lineWidth: 1)
-                        )
-                        .onTapGesture {
-                            withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
-                                gender = option
-                            }
-                        }
-                }
-            }
         }
         .padding(.top, 10)
     }
@@ -980,7 +926,7 @@ private struct EyePowerStep: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Adjust your eye power settings, or tell us if you're not sure.")
+            Text("Add your eye power if you know it. We save it to make future reports more correct.")
                 .font(.subheadline)
                 .foregroundStyle(Color.white.opacity(0.60))
 
@@ -997,7 +943,7 @@ private struct EyePowerStep: View {
                     Image(systemName: (left == 0.0 && right == 0.0) ? "checkmark.circle.fill" : "circle")
                         .font(.system(size: 20))
                         .foregroundStyle((left == 0.0 && right == 0.0) ? Color.accentColor : Color.white.opacity(0.4))
-                    Text("I don't know my / have eye power")
+                    Text("I do not know my eye power")
                         .font(.system(size: 15, weight: .medium))
                         .foregroundStyle(Color.white.opacity(0.8))
                 }
@@ -1070,9 +1016,10 @@ private struct ConditionsStep: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Select any conditions that apply to you so we can customize your care.")
+                Text("Pick any health details that apply. We save these for future reference and better report results.")
                     .font(.subheadline)
                     .foregroundStyle(Color.white.opacity(0.60))
+                    .fixedSize(horizontal: false, vertical: true)
 
                 section(title: "Eye Conditions", conditions: eyeConditions)
                 section(title: "General Health", conditions: bodyConditions)
@@ -1237,4 +1184,3 @@ private struct SecondaryPillButtonStyle: ButtonStyle {
             .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
     }
 }
-

@@ -33,7 +33,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         InstructionStep(message: "Follow the dot closely", duration: 3.0),
         InstructionStep(message: "Keep your head still", duration: 3.5),
         InstructionStep(message: "Keep your phone at 20cm", duration: 3.5),
-        InstructionStep(message: "The phone will vibrate if you look away from the screen, and also when you finish a round.", duration: 6.0)
+        InstructionStep(message: "You will feel one vibration when you finish a round. If you look away, you will feel two vibrations.", duration: 6.0)
     ]
 
     private let phaseDurations: [Double] = [2.0 , 1.75 , 1.5 , 1.25 , 1.0]
@@ -119,6 +119,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
             
             UIView.animate(withDuration: 0.4, animations: {
                 self.centerMessageLabel.alpha = 0
+                self.circleView.alpha = 0
             }) { _ in
                 guard self.isExerciseActive, self.currentPhase == .none else { return }
                 self.centerMessageLabel.text = step.message
@@ -228,6 +229,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     private func runStartCountdown(completion: @escaping () -> Void) {
         UIView.animate(withDuration: 0.2, animations: {
             self.centerMessageLabel.alpha = 0
+            self.circleView.alpha = 0
         }) { _ in
             self.centerMessageLabel.text = "3"
             UIView.animate(withDuration: 0.3, animations: {
@@ -356,6 +358,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         
         UIView.animate(withDuration: 0.4, animations: {
             self.centerMessageLabel.alpha = 0
+            self.circleView.alpha = 0
         }) { _ in
             guard self.isExerciseActive else { return }
             self.centerMessageLabel.text = message
