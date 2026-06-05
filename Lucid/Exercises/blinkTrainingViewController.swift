@@ -70,7 +70,7 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
     private var currentInstructionIndex = 0
 
     private let exerciseInstructions: [InstructionStep] = [
-        InstructionStep(message: "Blink both eyes after you feel one vibration.", duration: 4.0),
+        InstructionStep(message: "Blink both eyes after you feel the vibration", duration: 4.5),
         InstructionStep(message: "You will feel one vibration for the cue and two vibrations when your blink is wrong.", duration: 5.5)
     ]
     
@@ -141,8 +141,16 @@ class BlinkTrainingViewController: UIViewController, ARSCNViewDelegate {
         sceneView.delegate = self
         sceneView.alpha = 0
         
+        instructionLabel.font = .systemFont(ofSize: 20, weight: .semibold)
+        instructionLabel.textColor = .lightGray
+        instructionLabel.textAlignment = .center
         instructionLabel.numberOfLines = 0
+        
+        centerMessageLAbel.font = .systemFont(ofSize: 32, weight: .bold)
+        centerMessageLAbel.textColor = .white
+        centerMessageLAbel.textAlignment = .center
         centerMessageLAbel.numberOfLines = 0
+        
         largeCountLabel.numberOfLines = 0
     }
     

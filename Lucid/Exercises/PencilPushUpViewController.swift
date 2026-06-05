@@ -41,7 +41,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
     private var currentInstructionIndex = 0
 
     private let exerciseInstructions: [InstructionStep] = [
-        InstructionStep(message: "Keep your phone at arm's length", duration: 3.5),
+        InstructionStep(message: "Let's keep the phone at arms length.", duration: 4.5),
         InstructionStep(message: "Focus on the green dot at the top of the display", duration: 4.5),
         InstructionStep(message: "Bring the phone closer slowly", duration: 3.5),
         InstructionStep(message: "You will feel one vibration when you complete a rep. If you look away, you will feel two vibrations.", duration: 6.0)
@@ -270,7 +270,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         guard isExerciseActive else { return }
         currentPhase = .bringingCloser
         self.instructionLabel.textColor = .lightGray
-        self.instructionLabel.text = "Bring phone closer"
+        self.instructionLabel.text = "Bring the phone closer slowly"
         self.circleView.transform = .identity
         
         UIView.animate(withDuration: 0.3, animations: {
@@ -408,8 +408,16 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         circleView.isHidden = true
         centerMessageLabel.alpha = 0
         
+        instructionLabel.font = .systemFont(ofSize: 20, weight: .semibold)
+        instructionLabel.textColor = .lightGray
+        instructionLabel.textAlignment = .center
         instructionLabel.numberOfLines = 0
+        
+        centerMessageLabel.font = .systemFont(ofSize: 32, weight: .bold)
+        centerMessageLabel.textColor = .white
+        centerMessageLabel.textAlignment = .center
         centerMessageLabel.numberOfLines = 0
+        
         distanceLabel.numberOfLines = 0
     }
 
@@ -432,14 +440,14 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
                 guard self.isExerciseActive, self.currentPhase == .bringingCloser else { return }
                 self.totalFramesChecked += 1
                 if self.isLookingAtScreen {
-                    if self.instructionLabel.text != "Bring phone closer" {
+                    if self.instructionLabel.text != "Bring the phone closer slowly" {
                         UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 0 }
                     }
                 } else {
                     self.totalErrors += 1
                     Vibrator.playError()
                     self.instructionLabel.textColor = .systemRed
-                    self.instructionLabel.text = "⚠️ Please look at the green dot at the top of the display!"
+                    self.instructionLabel.text = "Please look at the green dot at the top of the display"
                     self.instructionLabel.alpha = 1
                 }
             }

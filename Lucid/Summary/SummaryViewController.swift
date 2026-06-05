@@ -7,12 +7,11 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
     
     private let dailyExercisesCount = 4
     private var allExercises: [ExerciseInfo] = [
-        ExerciseInfo(id: "SmoothPursuit", title: "Smooth Pursuits", description: "Slowly follow a moving object with your eyes to keep your vision steady and focused.", iconName: "SmoothPursuits", segueIdentifier: "ShowSmoothPursuits", estimatedTimeSeconds: 135),
-        ExerciseInfo(id: "SaccadicJump", title: "Saccadic Jumps", description: "Practice jumping your gaze quickly between two spots to build speed and accuracy.", iconName: "SaccadicJumps", segueIdentifier: "ShowSaccadicJump", estimatedTimeSeconds: 70),
+        ExerciseInfo(id: "SmoothPursuit", title: "Smooth Pursuits", description: "Slowly follow a moving ball with your eyes to keep your vision steady.", iconName: "SmoothPursuits", segueIdentifier: "ShowSmoothPursuits", estimatedTimeSeconds: 135),
+        ExerciseInfo(id: "SaccadicJump", title: "Saccadic Jumps", description: "Practice switching between directions with ease", iconName: "SaccadicJumps", segueIdentifier: "ShowSaccadicJump", estimatedTimeSeconds: 70),
         ExerciseInfo(id: "PencilPushup", title: "Pencil Push-Ups", description: "Train your eyes to work together as a team so you can see close-up things without strain.", iconName: "PencilPushUps", segueIdentifier: "ShowPencilPushUps", estimatedTimeSeconds: 60),
         ExerciseInfo(id: "Figure8", title: "Figure Eight", description: "Trace a loopy path with your eyes to boost flexibility and make focusing feel easier.", iconName: "FigureEight", segueIdentifier: "ShowFigureEight", estimatedTimeSeconds: 90),
         ExerciseInfo(id: "Blink", title: "Blink Training", description: "Take a moment for full, slow blinks to refresh your eyes and keep them from getting dry.", iconName: "BlinkTraining", segueIdentifier: "ShowBlinkTraining", estimatedTimeSeconds: 90),
-        ExerciseInfo(id: "PeripheralAwareness", title: "Peripheral Awareness", description: "Learn to notice what is happening around you without having to turn your head.", iconName: "PeripheralAwareness", segueIdentifier: "ShowPeripheralAwareness", estimatedTimeSeconds: 75),
         ExerciseInfo(id: "NearFar", title: "Near Far Focus", description: "Switch focus between close and distant objects to help your eyes adjust faster.", iconName: "NearFarFocus", segueIdentifier: "ShowNearFarFocus", estimatedTimeSeconds: 110)
     ]
     
@@ -130,6 +129,11 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
         let osdiResult = TrendDataManager.shared.getOSDITrends()
         self.osdiAverage = osdiResult.average
         self.osdiTrends = osdiResult.data
+    }
+
+    private func trendSubtitle(average: String, suffix: String, data: [TrendData], emptyPrompt: String) -> String {
+        guard data.hasRecordedTrendData else { return emptyPrompt }
+        return "\(average)\(suffix)"
     }
     
     private func setupBackground() {
@@ -483,13 +487,57 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
             // Map the data into the 4 grid items
             switch indexPath.item {
             case 0:
-                cell.configure(title: "Accuracy", subtitle: "\(accuracyAverage)% avg", color: .accent, iconName: "target")
+                cell.configure(
+                    title: "Accuracy",
+                    subtitle: trendSubtitle(
+                        average: accuracyAverage,
+                        suffix: "% avg",
+                        data: accuracyTrends,
+                        emptyPrompt: "Complete exercise to get data"
+                    ),
+                    color: .accent,
+                    iconName: "target",
+                    isEmptyState: !accuracyTrends.hasRecordedTrendData
+                )
             case 1:
-                cell.configure(title: "Responsiveness", subtitle: "\(responsivenessAverage)s avg", color: .accent, iconName: "bolt.fill")
+                cell.configure(
+                    title: "Responsiveness",
+                    subtitle: trendSubtitle(
+                        average: responsivenessAverage,
+                        suffix: "s avg",
+                        data: responsivenessTrends,
+                        emptyPrompt: "Complete exercise to get data"
+                    ),
+                    color: .accent,
+                    iconName: "bolt.fill",
+                    isEmptyState: !responsivenessTrends.hasRecordedTrendData
+                )
             case 2:
-                cell.configure(title: "C Test Score", subtitle: "\(eyeTestAverage) score", color: .accent, iconName: "eye.fill")
+                cell.configure(
+                    title: "C Test Score",
+                    subtitle: trendSubtitle(
+                        average: eyeTestAverage,
+                        suffix: " score",
+                        data: eyeTestTrends,
+                        emptyPrompt: "Complete C Test to get data"
+                    ),
+                    color: .accent,
+                    iconName: "eye.fill",
+                    isEmptyState: !eyeTestTrends.hasRecordedTrendData
+                )
             case 3:
-                cell.configure(title: "OSDI Score", subtitle: "\(osdiAverage) score", color: .accent, iconName: "doc.text.fill")
+                cell.configure(
+                    title: "OSDI Score",
+                    subtitle: trendSubtitle(
+                        average: osdiAverage,
+                        suffix: " score",
+                        data: osdiTrends,
+                        emptyPrompt: "Complete OSDI to get data"
+                    ),
+                    color: .accent,
+                    iconName: "doc.text.fill",
+                    isEmptyState: !osdiTrends.hasRecordedTrendData
+                )
             default:
                 break
             }
@@ -642,12 +690,6 @@ extension SummaryViewController {
                 "Screen time got your eyes feeling dry? Blink Training is literally a spa day for your eyeballs.",
                 "Five minutes of blinking practice and your eyes will feel SO much better. Trust me."
             ]
-        case "PeripheralAwareness":
-            reasons = [
-                "Been staring at a screen all day? This helps your eyes chill out and notice the world around them.",
-                "Your eyes deserve a break from that laser focus. Let's open up that peripheral vision!",
-                "Think of this as stretching, but for your eyes. Feels great after a long screen session."
-            ]
         case "NearFar":
             reasons = [
                 "Near, far — it's like gym for your eyes but way more fun (and less sweaty).",
@@ -798,8 +840,6 @@ extension SummaryViewController {
             return UIStoryboard(name: "PencilPushUp", bundle: nil).instantiateViewController(withIdentifier: "PencilPushUpVC")
         case "Figure8":
             return UIStoryboard(name: "FigureEight", bundle: nil).instantiateViewController(withIdentifier: "FigureEightVC")
-        case "PeripheralAwareness":
-            return UIStoryboard(name: "PeripheralAwareness", bundle: nil).instantiateViewController(withIdentifier: "PeripheralVC")
         case "NearFar":
             return UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "NearFarFocusVC")
         case "Blink":

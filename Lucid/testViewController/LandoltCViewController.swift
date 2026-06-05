@@ -63,7 +63,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         InstructionStep(message: "Hold your phone at arm's length and close the eye as instructed", duration: 5.0),
         InstructionStep(message: "Look at the open side of the C and say the matching number out loud.", duration: 5.0),
         InstructionStep(message: "If you cannot see it, say 'cannot see' or 'skip' to move on.", duration: 5.5),
-        InstructionStep(message: "Green light means correct. Red light means wrong. You will feel one vibration for correct and two vibrations for wrong.", duration: 6.0)
+        InstructionStep(message: "Green light means correct. Red light means wrong.", duration: 3.0)
     ]
 
     private let directionMap: [Int: String] = [
@@ -110,10 +110,21 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+
+        // Stop the audio engine, cancel recognition, and hide the border
         stopAudio(hideBorder: true)
-        // Assuming SiriListeningBorderView is implemented elsewhere in your project
+
+        // Fully shut down SiriListeningBorderView
         SiriListeningBorderView.shared.stopListening()
+        SiriListeningBorderView.shared.hide()
+        SiriListeningBorderView._latestRMS = 0
+
+        // Pause AR session
         sceneView?.session.pause()
+
+        // Mark test inactive so no pending dispatches can restart the mic
+        isTestActive = false
+        isProcessing = false
     }
 
     // MARK: - UI Setup
@@ -127,6 +138,9 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         
         statusLabel.numberOfLines = 0
         instructionLabel.numberOfLines = 0
+        instructionLabel.font = .systemFont(ofSize: 32, weight: .bold)
+        instructionLabel.textColor = .white
+        instructionLabel.textAlignment = .center
         
         view.addSubview(eyeWarningLabel)
         eyeWarningLabel.numberOfLines = 0
@@ -317,16 +331,32 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
     private func startActivePhase() {
         isInstructionPhase = false
 
-        UIView.animate(withDuration: 0.8) {
-            self.instructionLabel.alpha = 0
-            self.landoltImageView.alpha = 1
-            self.statusLabel.alpha = 1
-            self.numbers.forEach { $0.alpha = 1 }
-        } completion: { _ in
-            self.isTestActive = true
-            self.currentScale = 1.0
-            self.iterationCount = 0
-            self.generateNextTarget(isSuccess: false)
+        // Always show "Cover your right eye" before the left-eye test —
+        // mandatory and cannot be skipped even if the instructions were skipped.
+        // ↓ Change the value below to adjust how long this message stays on screen.
+        let eyeInstructionDuration: TimeInterval = 2.0  // ← seconds the message is visible
+
+        self.instructionLabel.text = "Cover your right eye"
+        UIView.animate(withDuration: 0.3) {
+            self.instructionLabel.alpha = 1
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + eyeInstructionDuration) {
+            UIView.animate(withDuration: 0.4, animations: {
+                self.instructionLabel.alpha = 0
+            }) { _ in
+                self.instructionLabel.text = ""
+                UIView.animate(withDuration: 0.8) {
+                    self.landoltImageView.alpha = 1
+                    self.statusLabel.alpha = 1
+                    self.numbers.forEach { $0.alpha = 1 }
+                } completion: { _ in
+                    self.isTestActive = true
+                    self.currentScale = 1.0
+                    self.iterationCount = 0
+                    self.generateNextTarget(isSuccess: false)
+                }
+            }
         }
     }
 
@@ -410,6 +440,40 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
 
     // MARK: - Target Generation
 
+    /// Full response feedback sequence for a correct or incorrect answer:
+    ///
+    ///   1. Green/red border is already on (set by caller before this runs).
+    ///   2. C fades out over `cFadeOutDuration`.            ← change here
+    ///   3. Border + C hold (border on, C hidden) for `holdDuration`. ← change here
+    ///   4. Border fades away over `borderFadeOutDuration`. ← change here
+    ///   5. Next C fades in + mic restarts simultaneously.
+    ///
+    /// `completion` fires at step 5 with the C still hidden — generateNextTarget
+    /// sets the new rotation and fades it back in for exactly one clean blink.
+    private func blinkC(completion: @escaping () -> Void) {
+        let cFadeOutDuration:      TimeInterval = 0.25  // ← how long the C takes to fade out
+        let holdDuration:          TimeInterval = 0.50  // ← how long the border+hidden-C are held
+        let borderFadeOutDuration: TimeInterval = 0.25  // ← how long the border takes to fade out
+
+        // Always run on main thread — this may be called from a recognition callback
+        DispatchQueue.main.async {
+            // Step 2: fade the C out
+            UIView.animate(withDuration: cFadeOutDuration, animations: {
+                self.landoltImageView.alpha = 0
+            }) { _ in
+                // Step 3: hold
+                DispatchQueue.main.asyncAfter(deadline: .now() + holdDuration) {
+                    // Step 4: fade the border away
+                    SiriListeningBorderView.shared.hide()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + borderFadeOutDuration) {
+                        // Step 5: next target fades in and mic restarts at the same moment
+                        completion()
+                    }
+                }
+            }
+        }
+    }
+
     private func generateNextTarget(isSuccess: Bool) {
         DispatchQueue.main.async {
             if isSuccess {
@@ -427,19 +491,22 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
             let randomAngle = self.directionMap.keys.randomElement()!
             self.currentCorrectNumber = self.directionMap[randomAngle]!
 
-            UIView.animate(withDuration: 0.15, animations: {
-                self.landoltImageView.alpha = 0
-            }) { _ in
-                let rotation = CGAffineTransform(rotationAngle: CGFloat(randomAngle) * .pi / 180)
-                self.landoltImageView.transform = rotation.concatenating(
-                    CGAffineTransform(scaleX: self.currentScale, y: self.currentScale)
-                )
-                UIView.animate(withDuration: 0.15) { self.landoltImageView.alpha = 1 }
+            // C is already hidden (blinkC left it at alpha 0).
+            // Set the new rotation, start the mic, then fade in simultaneously.
+            // ↓ Change the value below to adjust how long the next C takes to fade in.
+            let fadeInDuration: TimeInterval = 0.15  // ← next C fade-in duration
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
-                    if self.isTestActive { self.startRecording() }
-                }
-            }
+            let rotation = CGAffineTransform(rotationAngle: CGFloat(randomAngle) * .pi / 180)
+            self.landoltImageView.transform = rotation.concatenating(
+                CGAffineTransform(scaleX: self.currentScale, y: self.currentScale)
+            )
+
+            // Restart the mic now — it warms up during the fade-in so it's fully
+            // ready by the time the C is visible. isProcessing is reset inside startRecording().
+            self.startRecording()
+
+            // Fade the new C in.
+            UIView.animate(withDuration: fadeInDuration) { self.landoltImageView.alpha = 1 }
         }
     }
 
@@ -483,11 +550,14 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
                 self.landoltImageView.alpha = 0
                 self.numbers.forEach { $0.alpha = 0 }
 
-                // Show "cover your left eye" instruction, auto-dismiss after 2s
+                // Always show "Cover your left eye" before the right-eye test —
+                // mandatory, mirrors the right-eye instruction in startActivePhase().
+                // ↓ Change the value below to adjust how long this message stays on screen.
+                let eyeInstructionDuration: TimeInterval = 2.0  // ← seconds the message is visible
                 self.instructionLabel.text = "Cover your left eye"
                 UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 1 }
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + eyeInstructionDuration) {
                     UIView.animate(withDuration: 0.4) { self.instructionLabel.alpha = 0 } completion: { _ in
                         self.instructionLabel.text = ""
                         self.startActivePhaseFromSwitch()
@@ -574,6 +644,14 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         recognitionRequest?.endAudio()
         recognitionRequest = nil
 
+        // STEP 1: Configure AVAudioSession BEFORE reading any format or installing tap.
+        // Reading inputNode.outputFormat(forBus:) before the session is active returns an
+        // invalid sample rate (0 Hz), which causes AVAudioEngine to abort with:
+        // "required condition is false: IsFormatSampleRateAndChannelCountValid(format)"
+        let audioSession = AVAudioSession.sharedInstance()
+        try? audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
+        try? audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+
         recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
         recognitionRequest?.shouldReportPartialResults = true
 
@@ -592,42 +670,39 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
                     self.handleUserSkip()
                 } else if candidate.value == self.currentCorrectNumber {
                     self.isProcessing = true
-                    SiriListeningBorderView.shared.setBorderState(.correct)
-                    self.generateNextTarget(isSuccess: true)
+                    self.stopAudio(hideBorder: false)        // close mic immediately on recognition
+                    SiriListeningBorderView.shared.setBorderState(.correct)   // green light on
+                    self.blinkC {
+                        self.generateNextTarget(isSuccess: true)
+                    }
                 } else {
                     self.isProcessing = true
-                    SiriListeningBorderView.shared.setBorderState(.incorrect)
+                    self.stopAudio(hideBorder: false)        // close mic immediately on recognition
+                    SiriListeningBorderView.shared.setBorderState(.incorrect) // red light on
                     Vibrator.playDouble()
-                    self.generateNextTarget(isSuccess: false)
+                    self.blinkC {
+                        self.generateNextTarget(isSuccess: false)
+                    }
                 }
             }
         }
 
+        // STEP 2: Read format AFTER the session is active — sample rate is now valid.
         let inputNode = audioEngine.inputNode
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
         inputNode.removeTap(onBus: 0)
+        let recordingFormat = inputNode.outputFormat(forBus: 0)
 
+        // STEP 3: Install tap with the now-valid format.
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
             self?.recognitionRequest?.append(buffer)
             SiriListeningBorderView.feedBuffer(buffer)  // feed RMS to border
         }
 
-        if audioEngine.isRunning {
-            isMicActive = true
-            SiriListeningBorderView.shared.setBorderState(.listening)
-            SiriListeningBorderView.shared.show()
-            let generator = UISelectionFeedbackGenerator()
-            generator.selectionChanged()
-        }
-
-        let audioSession = AVAudioSession.sharedInstance()
-        try? audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
-        try? audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-
+        // STEP 4: Start the engine.
         audioEngine.prepare()
         try? audioEngine.start()
 
-        // Mark mic as open, then smoothly show the border
+        // STEP 5: Update UI state once the engine is running.
         isMicActive = true
         SiriListeningBorderView.shared.setBorderState(.listening)
         SiriListeningBorderView.shared.startListening(audioEngine: audioEngine)

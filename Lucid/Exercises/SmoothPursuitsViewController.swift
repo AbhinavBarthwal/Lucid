@@ -31,9 +31,9 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
     private var currentSpeedLevel = 0
     private let exerciseInstructions: [InstructionStep] = [
         InstructionStep(message: "Follow the dot closely", duration: 3.0),
-        InstructionStep(message: "Keep your head still", duration: 3.5),
-        InstructionStep(message: "Keep your phone at 20cm", duration: 3.5),
-        InstructionStep(message: "You will feel one vibration when you finish a round. If you look away, you will feel two vibrations.", duration: 6.0)
+        InstructionStep(message: "Keep your head still there are 5 reps in the exercise", duration: 5.5),
+        InstructionStep(message: "Keep your phone at half arm distance", duration: 4.0),
+        InstructionStep(message: "Follow the ball as it moves around the screen", duration: 4.0)
     ]
 
     private let phaseDurations: [Double] = [2.0 , 1.75 , 1.5 , 1.25 , 1.0]
@@ -402,7 +402,14 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
         circleView.isHidden = false
         centerMessageLabel.isHidden = false
         
+        instructionLabel.font = .systemFont(ofSize: 20, weight: .semibold)
+        instructionLabel.textColor = .lightGray
+        instructionLabel.textAlignment = .center
         instructionLabel.numberOfLines = 0
+        
+        centerMessageLabel.font = .systemFont(ofSize: 32, weight: .bold)
+        centerMessageLabel.textColor = .white
+        centerMessageLabel.textAlignment = .center
         centerMessageLabel.numberOfLines = 0
     }
 
@@ -429,7 +436,7 @@ class SmoothPursuitsViewController: UIViewController, ARSessionDelegate {
                     self.directionFails[currentDirection, default: 0] += 1
                     Vibrator.playError()
                     self.instructionLabel.textColor = .systemRed
-                    self.instructionLabel.text = "⚠️ Please keep your eyes on the screen!"
+                    self.instructionLabel.text = "Please keep your eyes on the screen!"
                     self.instructionLabel.alpha = 1
                 }
             }

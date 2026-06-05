@@ -434,7 +434,7 @@ final class TestTransitionViewController: UIViewController {
         title.translatesAutoresizingMaskIntoConstraints = false
 
         let subtitle = UILabel()
-        subtitle.text = "OSDI done!\nNow let's check how sharp your eyes are with a quick C Test.\n"
+        subtitle.text = "Great job with OSDI! Now, let’s see how sharp your eyes are with a quick C Test."
         subtitle.font = .systemFont(ofSize: 17, weight: .medium)
         subtitle.textColor = UIColor.white.withAlphaComponent(0.7)
         subtitle.textAlignment = .center

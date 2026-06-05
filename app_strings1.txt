@@ -1,0 +1,1095 @@
+Lucid/AppDelegate.swift
+1 .  Default Configuration
+
+Lucid/ExerciseResult/BlinkSmooth/BlinkIntensityData.swift
+1 .  Blink
+2 .  Ratio
+3 .  Threshold
+4 .  Optimal
+5 .  \(intValue)
+
+Lucid/ExerciseResult/ReportCollectionViewCell.swift
+1 .  \(score)%
+2 .  RESPONSE SCORE
+3 .  EXERCISE SCORE
+4 .  Excellent tracking today. No missed gaze checks recorded.  ->  you did very well today and touched every point
+5 .  \(errors) missed gaze checks. Higher score means smoother tracking. ->  there were \(errors) missed points, but we will improve upon them for sure 
+6 .  Clean directional responses across the session.  -> your response as per the direction announced were on point, Welldone!
+7 .  \(errors) missed responses. Higher score means faster directional accuracy. -> while there were \(errors) errors, we will get it better next time.
+8 .  Clean blink set. No missed blink checks recorded. -> Lets goooo! Wonderfull session
+9 .  \(errors) errors recorded. Higher score means stronger blink completion. -> while there were \(errors) errors, we will get it better next time.
+10 .  Done
+11 .  RESPONSIVENESS
+12 .  Average time taken to respond. Lower is faster and more responsive. -> lower that 0.5s is good and if it is higher than that there is a room for improvement. 
+
+Lucid/ExerciseResult/ReportViewController.swift
+1 .  Blink
+2 .  Performance Report
+3 .  Done
+4 .  Left
+5 .  Right
+6 .  Completion
+7 .  Exercise Complete
+8 .  \(accuracy)%
+9 .  Left Eye
+10 .  \(self.leftEyeStrength)%
+11 .  Right Eye
+12 .  \(self.rightEyeStrength)%
+13 .  Errors
+14 .  \(self.totalErrors)
+15 .  Blink Performance
+16 .  Directional Response
+17 .  Tracking Accuracy
+18 .  We check your left and right eyes separately to give you a complete picture.
+19 .  See how quickly and accurately your eyes jumped in each direction!
+20 .  See how smoothly your eyes followed the path in each direction!
+21 .  Top
+22 .  Top Right
+23 .  Bottom Right
+24 .  Bottom
+25 .  Bottom Left
+26 .  Top Left
+27 .  Taller bars show where your focus was strongest!
+28 .  Taller bars show where your focus was strongest! Your eyes had a little more work to do on the \(displayName(for: weakest)) side today—let's give that side some extra love next time.
+29 .  Nicely done! Your eyes got the gentle reset they deserved.   ->  Nicely done! You did very well.
+30 .  Session complete! Every little check-in helps build happy, healthy eyes.  ->  Session complete! Every little exercise helps build happy, healthy eyes.
+31 .  Great job! You took a wonderful step for your eye health today.
+32 .  All done and logged! Your eyes are definitely thanking you.
+33 .  Exercise complete! Fantastic job taking care of your eyes today.
+
+Lucid/Exercises/ExerciseCollectionViewCell.swift
+1 .  \(seconds) sec
+2 .  \(Int(minutes)) min
+3 .  \(mins)m \(secs)s
+
+Lucid/Exercises/EyeExercisesTableViewController.swift
+1 .  Smooth Pursuits
+2 .  Improves eye tracking and visual stability. -> It helps you track things better .
+3 .  Saccadic Jumps
+4 .  Boosts rapid eye movement and reading speed. -> It boosts your eye's responsiveness.
+5 .  Blink
+6 .  Blink Training
+7 .  Reduces dryness and refreshes eye comfort.  ->  It helps in keeping eyes moist and fresh.
+8 .  Pencil Push-Ups
+9 .  Strengthens near focus and eye teaming. -> It strengthens your eye muscles.
+10 .  Figure8
+11 .  Figure Eight
+12 .  Enhances eye flexibility and coordination. -> It increases flexibility of eyes.
+13 .  Peripheral Awareness
+14 .  Expands peripheral vision and awareness.
+15 .  Near Far Focus
+16 .  Improves focusing ability at different distances. -> It allows for better focus shift
+
+Lucid/Exercises/FigureEightViewController.swift
+1 .  Keep the phone close to your face -> Try to keep your phone as close as possible
+2 .  Figure8
+3 .  Start Exercise
+4 .  Next
+5 .  Skip
+6 .  Rotate phone to Landscape
+7 .  Previous
+8 .  Halfway there!\nRotate phone to Portrait
+9 .  position
+10 .  figureEightAnimation_\(currentLoopIndex)
+11 .  ❌ Figure Eight Save failed: \(error)
+12 .  Well done!
+13 .  Fantastic job!
+14 .  Great work!
+15 .  Awesome focus!
+16 .  Excellent effort!
+17 .  Superb session!
+18 .  Nicely done!
+19 .  Brilliant job!
+
+Lucid/Exercises/PencilPushUpViewController.swift
+1 .  Keep your phone at arm's length. -> let's keep the phone at arms length.
+2 .  Focus on the green dot at the top of the display
+3 .  Bring the phone closer slowly
+4 .  The phone will vibrate if you look away, complete a rep, or return to the starting position.
+5 .  Audio Session error: \(error)
+6 .  Start Exercise
+7 .  Next
+8 .  Skip
+9 .  Previous
+10 .  Bring phone closer -> bring the phone closer slowly
+11 .  Get back to the initial position 
+12 .  ❌ Pencil Push-Ups Save failed: \(error)
+13 .  Fantastic job!
+14 .  Great work!
+15 .  Awesome focus!
+16 .  Excellent effort!
+17 .  Superb session!
+18 .  Nicely done!
+19 .  Brilliant job!
+20 .  Exercise Complete!
+21 .  \(distanceInCM) cm
+22 .  ⚠️ Please look at the green dot at the top of the display! -> Please look at the green dot at the top of the display
+
+Lucid/Exercises/PeripheralAwarenessViewController.swift
+1 .  Keep your phone at\narm's length 
+2 .  Focus on the yellow dot,\nkeeping the white dot in your vision
+3 .  Try to keep the white\ndot in check
+4 .  Start Exercise
+5 .  Next
+6 .  Skip
+7 .  Previous
+8 .  position
+9 .  orbitAnimation_\(currentLoopIndex)
+10 .  ⚠️ Keep your eyes strictly on the yellow dot!
+11 .  ❌ Peripheral Awareness Save failed: \(error)
+12 .  Fantastic job!
+13 .  Great work!
+14 .  Awesome focus!
+15 .  Excellent effort!
+16 .  Superb session!
+17 .  Nicely done!
+18 .  Brilliant job!
+19 .  Nicely done !
+
+Lucid/Exercises/SaccadicJumpsViewController.swift
+1 .  Top
+2 .  Bottom
+3 .  Left
+4 .  Right
+5 .  Move your eyes in the\ndirection announced  -> move your eyes fully in the direction announced
+6 .  Keep your head still
+7 .  You'll feel vibration when you look correctly, and a double if you miss.  -> You’ll feel a vibration when you look correctly, and a double if you miss.
+8 .  Audio Session error: \(error)
+9 .  Start Exercise
+10 .  Next
+11 .  Skip
+12 .  Previous
+13 .  ❌ Saccadic Jumps Save failed: \(error)
+
+Lucid/Exercises/SmoothPursuitsViewController.swift
+1 .  Follow the dot closely
+2 .  Keep your head still -> Keep your head still there are 5 reps in the exercise
+3 .  Keep your phone at 20cm  ->  Keep your phone at half arm distance
+4 .  The phone will vibrate if you look away from the screen, and when you finish a round.
+5 .  Audio Session error: \(error)
+6 .  Start Exercise
+7 .  Next
+8 .  Skip
+9 .  Previous
+10 .  Keep your head still and follow the dot
+11 .  Final round! Maximum speed
+12 .  Good, Let's ramp up the speed
+13 .  ⚠️ Please keep your eyes on the screen! -> Please keep your eyes on the screen!
+14 .  center
+15 .  Error: \(error)
+
+Lucid/Exercises/blinkTrainingViewController.swift
+1 .  Blink both eyes after the vibration -> Blink both eyes after you feel the vibration
+2 .  If you blink incorrectly, the phone will vibrate twice.
+3 .  Audio Session error: \(error)
+4 .  Blink
+5 .  Start Exercise
+6 .  Next
+7 .  Skip
+8 .  Previous
+9 .  Nicely Done!
+10 .  \(currentPhase.remaining)
+11 .  Time's Up!
+12 .  Please, try a double blink
+13 .  Now, blink your \(eye) eye
+14 .  \(self.currentPhase.remaining)
+15 .  Let's go to the next step
+16 .  Blink left eye only after the vibration
+17 .  Blink right eye only after the vibration
+18 .  \n BLINK DATA SAVED & LINKED TO: \(activeUser.name)
+19 .  \n SAVE FAILED: \(error) \n
+20 .  Left
+21 .  Right
+22 .  mp4
+
+Lucid/Exercises/nearFarFocusViewController.swift
+1 .  Alternate focusing on the screen and looking away -> you will be asked to look at the screen and look away please follow.
+2 .  Audio Session error: \(error)
+3 .  Start Exercise
+4 .  Next
+5 .  Skip
+6 .  Previous
+7 .  en-US
+8 .  \(secondsRemaining)
+9 .  Look at the screen\n\(currentRound)/\(totalRounds)
+10 .  Look at the screen
+11 .  Look away from the screen\n\(currentRound)/\(totalRounds) -> look away from the screen
+12 .  Look away
+13 .  \(self.secondsRemaining)
+14 .  ❌ Near Far Focus Save failed: \(error)
+15 .  Fantastic job!
+16 .  Great work!
+17 .  Awesome focus!
+18 .  Excellent effort!
+19 .  Superb session!
+20 .  Nicely done!
+21 .  Brilliant job!
+22 .  Nicely Done!
+23 .  Look at the screen\n\(self.currentRound)/\(self.totalRounds)
+24 .  ⚠️ Please look at the screen!
+25 .  Look away from the screen\n\(self.currentRound)/\(self.totalRounds)
+26 .  ⚠️ Please look away from the screen!
+
+Lucid/Info.plist
+1 .  Default Configuration
+2 .  $(PRODUCT_MODULE_NAME).SceneDelegate
+
+Lucid/Info.plist (Project Settings)
+1 .  We need your camera to see how close you are to the screen and track your eye movements during exercises!
+2 .  We need your microphone to hear your voice when you read out letters during the eye tests!
+3 .  We need speech recognition to understand the letters you say during your eye tests!
+4 .  UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait
+5 .  UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown
+
+Lucid/Models/DataManager.swift
+1 .  ❌ Failed to load local JSON database: \(error)
+2 .  💾 Database saved to \(fileURL.lastPathComponent)
+3 .  ❌ Failed to save local JSON database: \(error)
+
+Lucid/Models/ExerciseDataManager.swift
+1 .  General
+2 .  ✅ Saved \(seconds)s locally for \(user.name)
+3 .  ❌ Save failed: \(error)
+4 .  ✅ Daily goal updated to \(newGoalInSeconds) seconds
+5 .  ❌ Failed to update daily goal: \(error)
+
+Lucid/Models/EyeTestDataManager.swift
+1 .  ❌ Eye Test Save failed: \(error)
+
+Lucid/Models/InstructionTracker.swift
+1 .  Figure8
+2 .  Blink
+3 .  InstructionFirstRun_\(key)
+4 .  InstructionFirstRun_\(exerciseKey)
+
+Lucid/Models/Model.swift
+1 .  Figure8
+2 .  Blink
+3 .  Left
+4 .  Right
+5 .  Both
+6 .  Normal
+7 .  Mild
+8 .  Moderate
+9 .  Severe
+
+Lucid/Models/NotificationManager.swift
+1 .  Lucid: Notification permission granted
+2 .  Lucid: Notification permission error: \(error)
+3 .  Time for a quick vision check!
+4 .  It's time for your biweekly eye check-up! Let's see how your eyes are feeling today.
+5 .  Lucid: Error scheduling bi-weekly reminder: \(error)
+6 .  Lucid: Bi-weekly reminder scheduled successfully.
+7 .  Lucid: Bi-weekly reminder cancelled.
+8 .  Your weekly eye health trends are ready!
+9 .  Take a peek at your eye health summary from this past week!
+10 .  Lucid: Error scheduling weekly trends reminder: \(error)
+11 .  Lucid: Weekly trends reminder scheduled successfully.
+12 .  Lucid: Weekly trends reminder cancelled.
+13 .  badge
+14 .  New Badge Unlocked! 🏅
+15 .  Hooray! You've earned the '\(badgeTitle)' badge. Keep up the wonderful work!
+16 .  badge_unlocked_\(UUID().uuidString)
+17 .  Lucid: Error sending badge notification: \(error)
+18 .  Time to refresh your eyes!
+19 .  Let's take a quick screen break to refresh and stretch your eyes.
+20 .  exercise_reminder_\(dayOffset)_\(hour)
+21 .  Lucid: Error scheduling exercise reminder \(identifier): \(error)
+22 .  Lucid: Exercise reminders scheduled for the next 7 days.
+23 .  exercise_reminder_
+24 .  Lucid: Cancelled \(idsToCancel.count) pending exercise reminders.
+
+Lucid/Models/OSDIDataManager.swift
+1 .  ❌ OSDI Save failed: \(error)
+
+Lucid/Models/RecommendationEngine.swift
+1 .  Figure8
+2 .  Blink
+3 .  ✅ Locally saved recommendations: \(user.recommendedExercises)
+4 .  ❌ Failed to save: \(error)
+
+Lucid/Models/SupabaseManager.swift
+1 .  name
+2 .  age
+3 .  Not Specified
+4 .  left_eye_power
+5 .  right_eye_power
+6 .  previous_conditions
+7 .  users
+8 .  ☁️ Profile Synced to Supabase
+9 .  ❌ Profile Sync Error: \(error)
+10 .  checkUserExists error: \(error)
+11 .  checkUserExists by id error: \(error)
+12 .  ☁️ Apple Sign-In successful. User ID: \(session.user.id)
+13 .  ❌ Apple Sign-In error: \(error)
+14 .  osdi_history
+15 .  score
+16 .  detail
+17 .  ctest_history
+18 .  ☁️ Fetched existing profile and history from Supabase
+19 .  ☁️ No existing profile found or fetch error: \(error)
+20 .  ☁️ Fetched existing profile and history from Supabase by ID
+21 .  ☁️ No existing profile found or fetch error by ID: \(error)
+22 .  user_id
+23 .  new_entry
+24 .  append_osdi_history
+25 .  ☁️ OSDI History Updated
+26 .  ❌ OSDI History Error: \(error)
+27 .  append_ctest_history
+28 .  ☁️ C-Test History Updated
+29 .  ❌ C-Test History Error: \(error)
+
+Lucid/Models/TrendDataManager.swift
+1 .  Jan
+2 .  Feb
+
+Lucid/Onboarding/GuidanceOverlayViewController.swift
+1 .  OSDI Test
+2 .  C Test
+3 .  Checkup Test Reminder
+4 .  Complete your pending \(testName) here, when you are ready. ->  Complete your pending \(testName) here, when you are ready.
+5 .  Daily Recommendation
+6 .  See your personalized daily eye exercise recommendation right here. -> see your personalised exercise recommendation here
+7 .  Exercise Streak
+8 .  Track your consistency. Complete exercises daily to keep Luc happy and healthy!
+9 .  Awards & Milestones
+10 .  Check out the custom awards, badges, and streaks you've unlocked along the way.
+11 .  Tap anywhere to continue
+
+Lucid/Onboarding/OnboardingFlowView.swift
+1 .  Digital Eye Strain
+2 .  Dry Eyes
+3 .  Blurry Vision
+4 .  Eye Fatigue
+5 .  Convergence Issues
+6 .  Lazy Eye
+7 .  Astigmatism
+8 .  Presbyopia
+9 .  Crossed Eyes
+10 .  Light Sensitivity
+11 .  Other
+12 .  Diabetes
+13 .  High Blood Pressure
+14 .  Thyroid Issues
+15 .  Migraine
+16 .  Autoimmune Disease
+17 .  Neurological Issues
+18 .  Back
+19 .  Welcome Back
+20 .  Create Account
+21 .  Get Started
+22 .  Personal Details
+23 .  Eye Power
+24 .  Health Profile
+25 .  Continue
+26 .  Check Email
+27 .  Next
+28 .  Finish
+29 .  Please enter a valid email address.
+30 .  Please enter your password to continue.
+31 .  Oops! That email or password doesn't match our records. Could you try again?
+32 .  Let's make sure your password is at least 8 characters long to keep your account secure.
+33 .  Please confirm your password to continue.
+34 .  Oops! The passwords you typed don't match. Could you check them again?
+35 .  Prefer not to say
+36 .  We'd love to know your name! Please enter it to continue.
+37 .  Lucid is designed for ages 10 and up. We look forward to welcoming you soon!
+38 .  ^[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}$
+39 .  We couldn't get your email from Apple. No worries, let's try signing up manually!
+40 .  Verifying your details...
+41 .  Connecting to our secure database...
+42 .  Getting your personalized setup ready...
+43 .  Looking at your dry-eye history...
+44 .  Creating custom goals just for you...
+45 .  Putting on the finishing touches...
+46 .  Luc
+47 .  L U C I D
+48 .  Fixing digital eye strain
+49 .  Apple Sign In failed: \(error.localizedDescription)
+50 .  Continue with Email
+51 .  By continuing, you're agreeing to Lucid's Terms & Privacy Policy
+52 .  Email Address
+53 .  envelope
+54 .  Password
+55 .  Create Password
+56 .  Enter your password
+57 .  At least 8 characters
+58 .  Confirm Password
+59 .  Re-enter password
+60 .  Let's start with your email! We'll check if you have an account or help you make a new one.
+61 .  Checking for your account...
+62 .  Welcome back! Please enter your password to sign in.
+63 .  Create a safe password to set up your new account!
+64 .  Your passwords are safe, stored locally, and securely synced.
+65 .  Enter your details to load your previous test history.
+66 .  Existing Account
+67 .  New Account
+68 .  Female
+69 .  Male
+70 .  Non-binary
+71 .  Name
+72 .  person
+73 .  Your name
+74 .  Date of Birth
+75 .  calendar
+76 .  Gender   ( optional )
+77 .  Adjust your eye power settings, or tell us if you're not sure.
+78 .  Left Eye
+79 .  Right Eye
+80 .  circle
+81 .  I don't know my / have eye power
+82 .  minus
+83 .  plus
+84 .  Select any conditions that apply to you so we can customize your care.
+85 .  Eye Conditions
+86 .  General Health
+
+Lucid/Onboarding/OnboardingPresenter.swift
+1 .  🚀 Recurring user detected with full test history. Bypassing mandatory tests.
+2 .  Lucid: Notification permission error: \(error)
+3 .  Prefer not to say
+4 .  Onboarding password save failed for \(email)
+5 .  Onboarding save failed: \(error)
+6 .  Let's check your vision!
+7 .  We'll start with a couple of quick, easy tests to customize Lucid for your eyes. Note: The C Test will require you to speak the numbers out loud.
+8 .  Let's Start!
+9 .  Skip for Now
+10 .  OSDIViewController
+11 .  OSDIViewController storyboardIdentifier is missing or mismatched.
+12 .  LandoltCViewController storyboardIdentifier is missing or mismatched.
+13 .  Setting things up for you
+14 .  Configuring workspace...
+15 .  Nice work!
+16 .  OSDI done!\nNow let's check how sharp your eyes are with a quick C Test.\n\nYou will need to say the matching numbers out loud! ->  Great job with OSDI! Now, let’s see how sharp your eyes are with a quick C Test.
+
+Lucid/ProfilePage/MedicalProfileView.swift
+1 .  Female
+2 .  Male
+3 .  Non-binary
+4 .  Prefer not to say
+5 .  Digital Eye Strain
+6 .  Dry Eyes
+7 .  Blurry Vision
+8 .  Eye Fatigue
+9 .  Convergence Issues
+10 .  Lazy Eye
+11 .  Astigmatism
+12 .  Presbyopia
+13 .  Crossed Eyes
+14 .  Light Sensitivity
+15 .  Other
+16 .  Diabetes
+17 .  High Blood Pressure
+18 .  Thyroid Issues
+19 .  Migraine
+20 .  Autoimmune Disease
+21 .  Neurological Issues
+22 .  Name
+23 .  person
+24 .  Your name
+25 .  Date of Birth
+26 .  calendar
+27 .  Gender
+28 .  Eye Power Settings
+29 .  Left Eye
+30 .  Right Eye
+31 .  circle
+32 .  I don't know my / have eye power
+33 .  Previous Conditions
+34 .  Eye Conditions
+35 .  General Health
+36 .  minus
+37 .  plus
+
+Lucid/ProfilePage/MedicalProfileViewController.swift
+1 .  Prefer not to say
+2 .  Save
+3 .  Just a heads up
+4 .  Lucid is designed for ages 10 and older. We look forward to welcoming you soon!
+5 .  Got it!
+6 .  All saved!
+7 .  Couldn't save changes
+8 .  We ran into a little trouble saving your changes. Let's try again in a bit.
+9 .  OK
+
+Lucid/ProfilePage/NotificationsTableViewController.swift
+1 .  reminder
+2 .  suggestion
+3 .  badge
+
+Lucid/ProfilePage/PDFGenerator.swift
+1 .  Error saving PDF: \(error)
+2 .  \(user.age) years (\(dobStr))
+3 .  \(user.age) years
+4 .  Not set
+5 .  None
+6 .  <tr><td colspan='3' class='no-data'>No data found</td></tr>
+7 .  <tr><td>\(dateStr)</td><td>\(String(format:
+8 .  , session.score))</td><td>\(session.severity)</td></tr>
+9 .  <tr><td colspan='3' class='no-data'>No data found for the last 30 days</td></tr>
+10 .  <tr><td>\(dateStr)</td><td>\(session.eyeTested)</td><td>\(String(format:
+11 .  , session.score))</td></tr>
+12 .  <tr><td colspan='2' class='no-data'>No streak data found for the last 30 days</td></tr>
+13 .  <span class='badge completed'>Completed</span>
+14 .  <span class='badge incomplete'>Not Completed</span>
+15 .  <tr><td>\(dateStr)</td><td>\(status)</td></tr>
+
+Lucid/ProfilePage/PasswordTableViewController.swift
+1 .  Please fill in all the password fields to continue!
+2 .  Let's make sure your new password is at least 8 characters long for safety.
+3 .  Oops, the passwords you typed don't match. Could you check them again?
+4 .  The old password you entered doesn't seem to match our records. Please try again!
+5 .  All done! Your password has been successfully updated.
+6 .  We ran into a little trouble updating your password. Please try again in a moment!
+7 .  Just a heads up
+8 .  Got it!
+
+Lucid/ProfilePage/PreviousConditionsViewController.swift
+1 .  Digital Eye Strain
+2 .  Dry Eyes
+3 .  Blurry Vision
+4 .  Eye Fatigue
+5 .  Convergence Issues
+6 .  Lazy Eye
+7 .  Astigmatism
+8 .  Presbyopia
+9 .  Crossed Eyes
+10 .  Light Sensitivity
+11 .  Other
+12 .  Diabetes
+13 .  High Blood Pressure
+14 .  Thyroid Issues
+15 .  Migraine
+16 .  Autoimmune Disease
+17 .  Neurological Issues
+18 .  DONE PRESSED
+
+Lucid/ProfilePage/ProfilePageTableViewController.swift
+1 .  About Lucid
+2 .  Welcome to Lucid, your cozy companion for happy, healthy eyes in our digital world!\n\n        • What we do together:\n        We help you soothe and protect your eyes from digital strain using fun, scientifically-designed exercises and check-ups.\n\n        • How we support you:\n        Through simple, relaxing exercises like Near Far Focus, Saccadic Jumps, and Blink Training, we'll work on building focus, keeping your eyes refreshed, and improving how your eyes work together. With easy check-ups like the OSDI survey and Landolt C tests, you can watch your eye wellness bloom!   ->    
+Welcome to Lucid, your friendly guide to keeping your eyes happy and healthy in our digital age!
+\n\n
+• What we do together:\n
+We’re here to help you relax and shield your eyes from the effects of screens with fun, scientifically-backed exercises and regular check-ups.
+\n\n
+• How we support you:\n
+We’ll guide you through simple, relaxing exercises like Near Far Focus, Saccadic Jumps, Blink Training and others, which will help you sharpen your focus, keep your eyes refreshed, and enhance how your eyes work as a team. Plus, with easy check-ups like the OSDI survey and Landolt C tests, you can see your eye health flourish!
+
+3 .  Awesome!
+4 .  Support & Help
+5 .  Got questions, ideas, or just want to say hi? We'd love to hear from you!\n\n        Feel free to reach out to us anytime:\n        • abhinavbarthwal212@gmail.com\n        • mekanishkaBansal@gmail.com
+6 .  Copy Abhinav's Email
+7 .  abhinavbarthwal212@gmail.com
+8 .  Copied!
+9 .  We've copied that email address for you! Ready to paste.
+10 .  Got it!
+11 .  Copy Kanishka's Email
+12 .  mekanishkaBansal@gmail.com
+13 .  Close
+14 .  Creating your personalized report... almost ready!
+15 .  Oops!
+16 .  We couldn't generate your report PDF just now. Let's try again in a moment!
+17 .  OK
+
+Lucid/ProfilePage/SetGoalViewController.swift
+1 .  \(minutes)
+2 .  Goal Updated!
+3 .  Your daily goal is now set to \(minutes) minutes. Let's do this!
+4 .  Perfect!
+
+Lucid/Summary/Awards/AwardTier.swift
+1 .  exercise_1
+2 .  First Mover
+3 .  You completed your very first exercise. Every journey begins with one step — this is yours.
+4 .  eye
+5 .  exercise_5
+6 .  Getting Warmed Up
+7 .  Five exercises done! Your eyes are starting to thank you. Keep building that healthy habit.
+8 .  exercise_10
+9 .  Eye Enthusiast
+10 .  10 exercises completed. You are officially an eye-care enthusiast. The results are showing.
+11 .  exercise_20
+12 .  Vision Builder
+13 .  20 sessions! You have built a real routine. Your consistency is your superpower.
+14 .  exercise_50
+15 .  Focus Master
+16 .  50 exercises — you are halfway to triple digits. Your dedication to eye health is remarkable.
+17 .  exercise_100
+18 .  Century Vision
+19 .  100 exercises! A true centenary of commitment. Your eyes are in exceptional shape.
+20 .  exercise_200
+21 .  Elite Trainer
+22 .  200 sessions — you have surpassed what most people will ever achieve. Elite status unlocked.
+23 .  exercise_500
+24 .  Legendary Eyes
+25 .  500 exercises. You are a legend in the world of eye wellness. Truly extraordinary.
+26 .  exercise_1000
+27 .  Grand Vision Master
+28 .  1000 exercises! You have reached the pinnacle. Your eyes, and your discipline, are unmatched.
+29 .  sparkles
+30 .  test_1
+31 .  First Scan
+32 .  Your first Landolt C-Test is complete. You have taken the first step toward understanding your vision.
+33 .  test_5
+34 .  Regular Checker
+35 .  5 eye tests done! Monitoring your vision regularly is one of the best things you can do for your health.
+36 .  test_10
+37 .  Vision Vigilant
+38 .  10 eye tests completed. You take your visual health seriously — and it shows.
+39 .  test_20
+40 .  Sight Guardian
+41 .  20 tests in. Your eyes are in the hands of someone who truly cares. That someone is you.
+42 .  test_50
+43 .  Optometry Pro
+44 .  50 eye tests — you practically have a doctorate in eye-checking. Incredible commitment.
+45 .  rosette
+46 .  test_100
+47 .  Master Diagnostician
+48 .  100 eye tests! You are in rarefied company. Your visual history is a gold standard.
+49 .  exscore_70
+50 .  Sharp Starter
+51 .  You averaged 70% or more accuracy across your exercises. A solid foundation for better vision.
+52 .  exscore_80
+53 .  Precision Seeker
+54 .  80%+ accuracy maintained! Your eye-hand coordination is genuinely impressive.
+55 .  exscore_90
+56 .  Eagle-Eyed
+57 .  90%+ average accuracy — your eyes are performing like an eagle's. Remarkable precision.
+58 .  crown
+59 .  exscore_95
+60 .  Perfect Focus
+61 .  95%+ accuracy! You have achieved near-perfect eye control. An extraordinary feat.
+62 .  testscore_3
+63 .  Vision Awakened
+64 .  You scored 3+ points on the Landolt C-Test. Your visual acuity is developing and improving.
+65 .  testscore_4
+66 .  Clear Sight
+67 .  Score of 4+ on the C-Test! You have solid visual acuity and sharp letter recognition.
+68 .  testscore_5
+69 .  Crystal Vision
+70 .  5+ C-Test score — your vision is crystal clear. You are performing at a top-tier level.
+71 .  star
+72 .  testscore_6
+73 .  Flawless Vision
+74 .  Perfect 6/6 on the C-Test! Your visual acuity is flawless — equivalent to 20/20 vision. A truly elite achievement.
+75 .  streak_3
+76 .  3-Day Streak
+77 .  Three days in a row! Consistency is the key to long-term eye health. Great start.
+78 .  streak_7
+79 .  Week Warrior
+80 .  Seven consecutive days! A full week of eye-care dedication. You are building a life habit.
+81 .  streak_14
+82 .  Fortnight Focus
+83 .  Two weeks strong! Your eyes are adapting and your routine is cementing itself beautifully.
+84 .  streak_30
+85 .  Monthly Maven
+86 .  30 days in a row — a full month! You have made eye health a true part of your life.
+87 .  streak_60
+88 .  Unstoppable
+89 .  60-day streak! Your commitment is unstoppable. You are an inspiration to eye health.
+90 .  trophy
+91 .  📊 Awards eval — exercises: \(exerciseCount), tests: \(testCount), avgAcc: \(avgAccuracy)%, bestTest: \(bestTest), streak: \(streakCount)
+92 .  dd/MM/yyyy
+93 .  🏅 Unlocked: \(def.title)
+94 .  Session logged. Streak maintained.
+95 .  Streak increased to \(currentStreak)!
+96 .  Streak reset to 1.
+
+Lucid/Summary/Awards/AwardsViewController.swift
+1 .  Exercise Milestones
+2 .  Test Milestones
+3 .  Exercise Accuracy
+4 .  Vision Test Score
+5 .  Daily Streaks
+6 .  Earned on \(badge.dateEarned ??
+7 .  Completed!
+8 .  Still working on it!
+9 .  \(badge.progressValue) / \(badge.targetValue)
+10 .  exercise
+11 .  exercises
+12 .  Complete \(definition.targetValue) \(plural) to earn this badge!
+13 .  test
+14 .  tests
+15 .  Complete \(definition.targetValue) eye \(plural) to earn this badge!
+16 .  Reach an average exercise accuracy of \(definition.targetValue)% or higher to earn this badge!
+17 .  Score \(definition.targetValue) or higher on the Landolt C-Test to earn this badge!
+18 .  Keep your daily exercise streak going for \(definition.targetValue) days to earn this badge!
+
+Lucid/Summary/Awards/BadgesCollectionViewCell.swift
+1 .  \(badge.progressValue)/\(badge.targetValue)
+
+Lucid/Summary/Cells/DailyExerciseCollectionViewCell.swift
+1 .  \(currentMins)m
+2 .  \(goalMins)m
+
+Lucid/Summary/Cells/StreakCollectionViewCell.swift
+1 .  \(display.value)
+2 .  Day
+3 .  Days
+4 .  Week
+5 .  Weeks
+6 .  Month
+7 .  Months
+8 .  Exercise Streak
+9 .  \(display.value) \(display.unit.lowercased())
+10 .  Yay, you completed today's goal! Luc is super proud of you!
+11 .  Let's make Luc happy by starting your daily streak!
+12 .  Luc is excited to help you start your daily streak today!
+13 .  Keep Luc smiling! A quick session will start your streak.
+14 .  Let's do a quick exercise to make Luc proud!
+15 .  Let's do some exercises!
+16 .  Keep your \(streakText) streak going! Luc is waiting for you.
+17 .  Luc is rooting for you! A quick session will keep your \(streakText) streak going strong.
+18 .  Keep Luc smiling! Complete an exercise to protect your \(streakText) streak.
+19 .  A quick session is all it takes to keep your \(streakText) streak alive.
+20 .  Maintain your streak!
+
+Lucid/Summary/Cells/TrendsAllCollectionViewCell.swift
+1 .  minus
+
+Lucid/Summary/SummaryViewController.swift
+1 .  Smooth Pursuits
+2 .  Slowly follow a moving object with your eyes to keep your vision steady and focused.
+3 .  Saccadic Jumps
+4 .  Practice jumping your gaze quickly between two spots to build speed and accuracy.
+5 .  Pencil Push-Ups
+6 .  Train your eyes to work together as a team so you can see close-up things without strain.
+7 .  Figure8
+8 .  Figure Eight
+9 .  Trace a loopy path with your eyes to boost flexibility and make focusing feel easier.
+10 .  Blink
+11 .  Blink Training
+12 .  Take a moment for full, slow blinks to refresh your eyes and keep them from getting dry.
+13 .  Peripheral Awareness
+14 .  Learn to notice what is happening around you without having to turn your head.
+15 .  Near Far Focus
+16 .  Switch focus between close and distant objects to help your eyes adjust faster.
+17 .  Trends
+18 .  test
+19 .  rec
+20 .  streak
+21 .  Hey check-in time. Let's see how your eyes have been feeling
+22 .  C Test
+23 .  Nice work on the OSDI! One more let's check how sharp your focus is today
+24 .  fallback
+25 .  Today's Exercise
+26 .  Take a gentle moment to refresh your eyes and nurture your daily visual wellness streak.
+27 .  Exercises
+28 .  Awards
+29 .  Accuracy
+30 .  \(accuracyAverage)% avg
+31 .  target
+32 .  Responsiveness
+33 .  \(responsivenessAverage)s avg
+34 .  C Test Score
+35 .  \(eyeTestAverage) score
+36 .  OSDI Score
+37 .  \(osdiAverage) score
+38 .  OSDIViewController
+39 .  Goal Completed!
+40 .  Yay, you did it! Your daily goal is complete. Your eyes thank you!
+41 .  Hooray!
+42 .  Your eyes are basically begging for a blink break right now. Let's hydrate them! 💧
+43 .  Screen time got your eyes feeling dry? Blink Training is literally a spa day for your eyeballs.
+44 .  Five minutes of blinking practice and your eyes will feel SO much better. Trust me.
+45 .  Been staring at a screen all day? This helps your eyes chill out and notice the world around them.
+46 .  Your eyes deserve a break from that laser focus. Let's open up that peripheral vision!
+47 .  Think of this as stretching, but for your eyes. Feels great after a long screen session.
+48 .  Near, far — it's like gym for your eyes but way more fun (and less sweaty).
+49 .  Shifting focus near and far is one of the best things you can do after staring at a screen.
+50 .  Your eye muscles need variety too! Let's give them a little stretch.
+51 .  Think of this like eye agility training — snap, snap, snap! Super satisfying.
+52 .  Quick eye movements = sharper, faster focus. This one's actually pretty fun to do.
+53 .  Your eyes are athletes too. Let's train those fast-twitch reactions!
+54 .  Follow the dot with your eyes — smooth and steady wins the race here.
+55 .  This one's actually kinda relaxing. Just let your eyes glide along the path.
+56 .  Great for keeping your eye tracking smooth. Feels like meditation but for your eyes.
+57 .  Trace an infinity loop with your eyes — it's weirdly satisfying and really good for flexibility.
+58 .  Figure eights are low-key the best stretch for your eye muscles. Sneaky effective!
+59 .  A chill, loopy exercise that keeps your eyes nimble and happy.
+60 .  Watch the target move closer — your eyes will learn to team up and focus together.
+61 .  This is great for when your eyes feel a bit crossed or strained from close-up work.
+62 .  Train both eyes to lock onto the same spot. It's like a sync exercise for your peepers!
+63 .  Let's knock out today's eye exercise and keep that streak alive! 🔥
+64 .  \(comps.yearForWeekOfYear ?? 0)-W\(comps.weekOfYear ?? 0)
+65 .  init(coder:) has not been implemented
+
+Lucid/Summary/TrendCardView.swift
+1 .  Exercise Accuracy
+2 .  C Test Score
+3 .  OSDI Score
+4 .  Eye Responsiveness
+5 .  Average Score
+6 .  Higher is better
+7 .  Lower is better
+8 .  Month
+9 .  Value
+10 .  \(yAxisMax)
+11 .  No data found
+
+Lucid/Summary/TrendsDetailCollectionViewController.swift
+1 .  Trends
+2 .  OSDI Score
+3 .  OSDI (Ocular Surface Disease Index) measures dry-eye discomfort and how eye symptoms affect your daily tasks. Scores range from 0 to 100 — lower is better! Scores 0–12 are Normal, 13–22 are Mild, 23–32 are Moderate, and 33–100 are Severe. The score is calculated from how many questions you answered and the sum of your responses. If your score is high, your eyes are asking for a break. If it is low, your eyes are feeling fresh and comfortable.
+4 .  Take the quick OSDI quiz to find out if your eyes are getting too tired from screens!
+5 .  Awesome! Your eyes are feeling super fresh and relaxed. Keep up the good work!
+6 .  Uh oh, your eyes are feeling a bit tired or dry. You should take a break from screens and blink more!
+7 .  C Test Score
+8 .  The C Test uses a Landolt C target — like the letter C pointing in different directions — to check how sharp each eye's vision is. Each eye is scored out of 6. Higher values mean the eye correctly handled more targets. A repeated gap between the left and right eye can be more useful than a single combined score alone. Looking at both eyes separately helps surface any imbalance in visual sharpness.
+9 .  Take a C Test to find out how sharp your eyes can see today!
+10 .  Whoa, super sharp! Your vision is looking excellent. Keep up the exercises to maintain it!
+11 .  Your vision is looking pretty good, but let's keep exercising so it stays super sharp!
+12 .  Your vision score is quite low. Daily focus training can help improve your clarity!
+13 .  Exercise Accuracy
+14 .  This score tracks how good your eyes are at following moving things on the screen without getting distracted. Think of it like playing a game where you have to keep your laser focus on a moving target. If your eyes stay right on the dot, your score goes up! High accuracy means your eye muscles are getting stronger and working together super well.
+15 .  Try doing some exercises so we can measure how accurately your eyes can follow targets!
+16 .  Whoa, your eyes are like a hawk! You are tracking things super well. Keep it up!
+17 .  Your tracking is okay, but let's try to focus a bit more next time. Practice makes perfect!
+18 .  Eye Responsiveness
+19 .  This measures how fast your eyes react when something changes on the screen, measured in seconds. A lower number means your eyes and brain are communicating super fast! Think of it like a reflex test for your eyes. The quicker you react, the sharper your visual reflexes are.
+20 .  Do a Blink Training or Saccadic Jumps session to measure your eye reflex speed!
+21 .  Lightning fast! Your eye reflexes are incredibly sharp.
+22 .  Your eye reflexes are working well! Keep training to get even faster.
+23 .  Normal
+24 .  Mild
+25 .  Moderate
+26 .  Severe
+27 .  Done
+28 .  About C Test
+29 .  The C test uses a Landolt C target to check how well each eye identifies the opening direction. It is a simple way to screen visual sharpness and compare left and right eye performance.
+30 .  How the score works
+31 .  Each eye is scored out of 6. Higher values mean that eye correctly handled more targets during the test.
+32 .  Why both eyes matter
+33 .  Looking at both eyes separately helps surface imbalance. A repeated gap between left and right can be more useful than a single score alone.
+34 .  Current result
+35 .  Your average vision score is \(score)/6.
+
+Lucid/testViewController/CTestResultPageCollectionViewController.swift
+1 .  Excellent Acuity
+2 .  Optimal clarity! Your eye resolved the smallest shapes easily, showing sharp and healthy vision.
+3 .  Very Good Acuity
+4 .  Strong focus! Your eye identified almost all detail. Visual acuity is very solid and healthy.
+5 .  Good Acuity
+6 .  Clear functional vision. You identified most orientations, though there is minor room to sharpen.
+7 .  Moderate Acuity
+8 .  Fair detail recognition. You resolved larger shapes easily, but struggled slightly with smaller ones.
+9 .  Lower Detail Clarity
+10 .  A bit soft on details. Larger targets were clear, but smaller orientation details were tricky.
+11 .  Reduced Acuity
+12 .  Struggled with shape details today. This can occur with screen fatigue or poor lighting.
+13 .  Needs Care & Practice
+14 .  Very tricky to identify directions. This suggests high visual fatigue. We recommend resting your eyes.
+15 .  Previous saved score
+16 .  Left Eye
+17 .  Right Eye
+18 .  C Test Results
+19 .  Done
+20 .  Saccadic Jumps
+21 .  Speeds up your eye reaction time and helps you lock on targets faster.
+22 .  Near Far Focus
+23 .  Trains your eyes to quickly adjust between close and distant objects.
+24 .  Smooth Pursuits
+25 .  Great for helping your eyes follow movement smoothly and comfortably.
+26 .  Blink Training
+27 .  Refreshes your eyes and keeps them feeling comfortable during focus tasks.
+28 .  Figure Eight
+29 .  A fun way to boost eye flexibility and coordination while keeping performance sharp.
+30 .  Peripheral Awareness
+31 .  Helps relax your eyes and widen how much you notice around you.
+32 .  Your average C Test score
+33 .  Strong Visual Performance
+34 .  Steady Visual Performance
+35 .  Let's Practice Together
+36 .  There is a noticeable difference between your eyes today. Your \(strongerEye) eye was sharper than your \(weakerEye) eye. Focus exercises can help.
+37 .  Superb performance! Both of your eyes are demonstrating high visual resolution today.
+38 .  Good, balanced performance! Both eyes are working together smoothly and sharing the effort.
+39 .  Both eyes are feeling a bit tired or strained. Consistent daily exercises will help boost your focus.
+40 .  Needs Care
+41 .  Fair
+42 .  Good
+43 .  Strong
+44 .  YOUR LAST SCORE
+45 .  \(previousFormatted) → \(currentFormatted) / 6
+46 .  Steady
+47 .  Same as last time, let's keep up the good work
+48 .  Great!
+49 .  Up \(pts) points from last time, your eyes are getting sharper!
+50 .  Up \(pts) point from your last test. Nice steady progress!
+51 .  Decent
+52 .  Slightly up \(pts) pts, small improvement keep it up!
+53 .  Low
+54 .  Down \(pts) points from last time. Eyes might be tired!
+55 .  Okay
+56 .  Slightly down \(pts) pts. Small swings are totally normal, no worries!
+57 .  \(tag) — \(comparisonLine)
+58 .  YOUR CUSTOM RECOMMENDATIONS
+59 .  \(result.rawScore)/6
+60 .  About C Test
+61 .  The C test uses a Landolt C target to check how well each eye identifies the opening direction. It is a simple way to screen visual sharpness and compare left and right eye performance.
+62 .  How the score works
+63 .  Each eye is scored out of 6. Higher values mean that eye correctly handled more targets during the test.
+64 .  Why both eyes matter
+65 .  Looking at both eyes separately helps surface imbalance. A repeated gap between left and right can be more useful than a single score alone.
+66 .  Current result
+67 .  Left eye: \(leftResult.rawScore)/6. Right eye: \(rightResult.rawScore)/6. Average performance today: \(String(format:
+68 .  , averageScore))/6.
+
+Lucid/testViewController/LandoltCViewController.swift
+1 .  In this test, you must speak the matching numbers out loud!
+2 .  Please hold your phone at arm's length
+3 .  Look at the opening and say the matching number out loud!
+4 .  If it's hard to see, just say 'cannot see' or 'skip' to move on.
+5 .  You will see the flashes around the edges for your response.
+6 .  Start Test
+7 .  Next
+8 .  Skip
+9 .  Previous
+10 .  Please close your right eye
+11 .  Please close your left eye
+12 .  Skipped! Let's continue.
+13 .  cover your left eye
+14 .  Cover your left eye
+15 .  Left
+16 .  Right
+17 .  Left Eye
+18 .  Right Eye
+19 .  --- DEBUG SPEECH: \(spoken) ---
+20 .  six
+21 .  sex
+22 .  skip
+23 .  one
+24 .  two
+25 .  three
+26 .  four
+27 .  five
+28 .  seven
+29 .  eight
+
+Lucid/testViewController/OSDIResultPageCollectionViewController.swift
+1 .  Moderate
+2 .  OSDI Result
+3 .  Today
+4 .  Test \(index + 1)
+5 .  Done
+6 .  Perfect score! Your eyes are in excellent shape with no signs of dry eye irritation. Keep doing what you're doing!
+7 .  Normal
+8 .  Awesome job! Your eyes feel happy and comfy with almost no dryness today. Keep blinking and taking little breaks!
+9 .  Great job! Your score is normal, and your eyes are working nicely. Remember to rest your eyes with tiny screen breaks.
+10 .  Mild
+11 .  You have a little dryness, like sand in your eyes sometimes. Drink water, blink more, and take small screen breaks to feel better.
+12 .  Your eyes feel a bit rough and tired today. Try Blink Training, rest often, and be kind to your eyes so they can feel calm again.
+13 .  Severe
+14 .  Your eyes feel very dry and sore right now. Rest them, skip long screen time, and ask a grown-up eye doctor for help if it keeps hurting.
+15 .  Your eyes are having a hard day and need extra care. Try warm eye hugs, slow blinks, and planned breaks to help them feel better.
+16 .  Your eyes feel tired and dry. Give them rest, sip water, and do easy eye exercises to make them happy again.
+17 .  Smooth Pursuits
+18 .  Try Smooth Pursuits to help your eyes track moving targets with fluid coordination.
+19 .  Figure Eight
+20 .  Try Figure Eight to keep your eye muscles flexible, agile, and well-coordinated.
+21 .  Blink Training
+22 .  Perfect for mild dryness. Boosts the tear film to naturally soothe your eyes.
+23 .  Peripheral Awareness
+24 .  Helps widen your field of view and relaxes focused eye strain.
+25 .  Essential to restore moisture. Helps clear up moderate fatigue and irritation.
+26 .  Saccadic Jumps
+27 .  Improves visual agility and stimulates blinking reflexes to ease moderate strain.
+28 .  Focus on slow, full blinks to restore the soothing moisture barrier over your dry eyes.
+29 .  Digital Break
+30 .  Highly recommended: take a 20-minute screen break to rest your eye muscles.
+31 .  YOUR EYE COMFORT SCORE
+32 .  \(scoreValue)
+33 .  Your first eye comfort score is saved!
+34 .  \(value)% better comfort
+35 .  \(value)% increase in strain
+36 .  \(formattedDifference) points lower (more comfortable!) than last check-up
+37 .  \(formattedDifference) points higher (more strain) than last check-up
+38 .  Just like last time! Steady and consistent.
+39 .  We've saved this to your trends!
+40 .  Last score: \(String(format:
+41 .  , previousScore))
+42 .  PERFORMANCE
+43 .  Lower scores mean happier, more comfortable eyes!
+44 .  RECOMMENDATIONS
+45 .  About OSDI
+46 .  OSDI measures ocular discomfort and how dry-eye symptoms affect daily visual tasks. Scores range from 0 to 100, and lower scores are better.
+47 .  How the score is mapped
+48 .  The chart uses the number of answered questions and the sum of all response scores to derive the final OSDI result.
+49 .  Severity mapping
+50 .  0–12 is Normal, 13–22 is Mild, 23–32 is Moderate, and 33–100 is Severe.
+51 .  Current result
+52 .  Your current score is \(Int(score.rounded())), which falls in the \(severity) range.
+53 .  OSDI CURVE
+54 .  Result placement
+55 .  Your score is positioned on the OSDI severity scale. Lower scores indicate healthier ocular comfort.
+56 .  Current Score
+57 .  \(Int(score.rounded()))
+58 .  Severity
+59 .  \(answered)
+60 .  Your score
+61 .  \(bucket)
+62 .  Sum of scores for all questions answered
+
+Lucid/testViewController/OSDISlideViewController.swift
+1 .  This test will check for Dry Eye Symptoms & Digital Strain.
+2 .  We'll ask simple questions about your eye comfort over the past week.
+3 .  Use the slider to rate how often you feel irritation, from Never to Mostly.
+4 .  If a daily activity doesn't apply to you, you can tap Skip.
+5 .  None of the time
+6 .  Some of the time
+7 .  Half of the time
+8 .  Most of the time
+9 .  All of the time
+10 .  How your eyes feel
+11 .  Does bright light or sunlight hurt your eyes?
+12 .  Do your eyes feel like something is stuck or itchy inside them?
+13 .  Do your eyes feel sore, sting, or burn?
+14 .  Does your vision go blurry or out of focus sometimes?
+15 .  Your surroundings
+16 .  Do your eyes feel uncomfortable when it is windy or you're on a bike?
+17 .  Do your eyes feel very dry in the summer heat?
+18 .  Do your eyes feel dry in AC rooms or in front of a fan?
+19 .  Do your eyes get red or sting near dust, smoke, or heavy traffic?
+20 .  Daily activities
+21 .  Is it hard to read books or long messages on your phone?
+22 .  Do your eyes struggle when driving at night because of headlights?
+23 .  Do you have trouble seeing clearly on your phone, laptop, or ATM screen?
+24 .  Do your eyes feel tired when you watch a movie or a cricket match?
+25 .  Skip
+26 .  Never
+27 .  Mostly
+28 .  Start Test
+29 .  Next
+30 .  Previous
+31 .  Have your eyes felt any of this in the past week?
+32 .  Have your eyes felt uncomfortable in these places recently?
+33 .  Have these everyday things been harder because of your eyes? (You can skip these if they don't apply to you)
+34 .  Have your eyes felt this way over the past week?
+35 .  Normal
+36 .  Mild
+37 .  Moderate
+38 .  Severe
+39 .  Submit
+40 .  Slide to answer
+41 .  Skipped
+
+LucidwidgetExtension/AppIntent.swift
+1 .  Configuration
+2 .  This is an example widget.
+3 .  Favorite Emoji
+
+LucidwidgetExtension/LucidwidgetExtension.swift
+1 .  Time:
+2 .  Favorite Emoji:
+
+LucidwidgetExtension/LucidwidgetExtensionControl.swift
+1 .  Start Timer
+2 .  On
+3 .  Off
+4 .  timer
+5 .  Timer
+6 .  A an example control that runs a timer.
+7 .  Timer Name Configuration
+8 .  Timer Name
+9 .  Start a timer
+10 .  Timer is running
+

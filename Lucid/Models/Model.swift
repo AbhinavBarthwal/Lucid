@@ -65,7 +65,6 @@ final class User: Codable {
             "PencilPushup": 60,
             "Figure8": 90,
             "Blink": 90,
-            "PeripheralAwareness": 75,
             "NearFar": 110
         ]
         let currentRecs = recommendedExercises.isEmpty ? ["SmoothPursuit", "Blink"] : recommendedExercises

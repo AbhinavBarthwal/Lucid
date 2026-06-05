@@ -21,11 +21,14 @@ class TrendsAllCollectionViewCell: UICollectionViewCell {
     }
     
     /// Call this in cellForItemAt
-    func configure(title: String, subtitle: String, color: UIColor, iconName: String = "minus") {
+    func configure(title: String, subtitle: String, color: UIColor, iconName: String = "minus", isEmptyState: Bool = false) {
         titleLabel.text = title
         
         subtitleLabel.text = subtitle
-        subtitleLabel.textColor = color
+        subtitleLabel.font = isEmptyState
+            ? UIFont.systemFont(ofSize: 12, weight: .medium)
+            : UIFont.systemFont(ofSize: 16, weight: .semibold)
+        subtitleLabel.textColor = isEmptyState ? UIColor.white.withAlphaComponent(0.72) : color
         
         // Using SF Symbols for high-fidelity scaling
         let config = UIImage.SymbolConfiguration(weight: .black)

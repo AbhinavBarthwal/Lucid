@@ -20,7 +20,10 @@ class RecommendationEngine {
                 newRecommendations.insert("Figure8")
             } else if osdiScore <= 32 {
                 newRecommendations.insert("Blink")
-                newRecommendations.insert("PeripheralAwareness")
+                let candidates = ["SmoothPursuit", "Figure8", "NearFar", "SaccadicJump", "PencilPushup"]
+                if let nextCandidate = candidates.first(where: { !newRecommendations.contains($0) }) {
+                    newRecommendations.insert(nextCandidate)
+                }
             } else {
                 newRecommendations.insert("Blink")
                 newRecommendations.insert("NearFar")
@@ -48,6 +51,7 @@ class RecommendationEngine {
             newRecommendations.insert("Blink")
         }
         
+        newRecommendations.remove("PeripheralAwareness")
         // 5. Update user model
         user.recommendedExercises = Array(newRecommendations)
         
@@ -57,7 +61,6 @@ class RecommendationEngine {
             "PencilPushup": 60,
             "Figure8": 90,
             "Blink": 90,
-            "PeripheralAwareness": 75,
             "NearFar": 110
         ]
         let sumOfRecommendedExercises = newRecommendations.compactMap { exerciseTimes[$0] }.reduce(0, +)

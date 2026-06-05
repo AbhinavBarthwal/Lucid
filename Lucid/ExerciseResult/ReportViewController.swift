@@ -324,8 +324,8 @@ class ReportViewController: UIViewController, UICollectionViewDataSource, UIColl
 
     static func randomCompletionMessage() -> String {
         [
-            "Nicely done! Your eyes got the gentle reset they deserved.",
-            "Session complete! Every little check-in helps build happy, healthy eyes.",
+            "Nicely done! You did very well.",
+            "Session complete! Every little exercise helps build happy, healthy eyes.",
             "Great job! You took a wonderful step for your eye health today.",
             "All done and logged! Your eyes are definitely thanking you."
         ].randomElement() ?? "Exercise complete! Fantastic job taking care of your eyes today."

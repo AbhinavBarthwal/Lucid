@@ -269,8 +269,8 @@ final class CTestResultPageCollectionViewController: UICollectionViewController 
                     body: "A fun way to boost eye flexibility and coordination while keeping performance sharp."
                 ),
                 CTestWisdomItem(
-                    title: "Peripheral Awareness",
-                    body: "Helps relax your eyes and widen how much you notice around you."
+                    title: "Near Far Focus",
+                    body: "A great way to keep your eye muscles agile when they are already performing well."
                 )
             ]
         }

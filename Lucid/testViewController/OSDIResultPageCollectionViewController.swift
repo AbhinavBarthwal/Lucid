@@ -230,7 +230,7 @@ final class OSDIResultPageCollectionViewController: UICollectionViewController {
         case "Mild":
             return [
                 OSDIRecommendationItem(title: "Blink Training", detail: "Perfect for mild dryness. Boosts the tear film to naturally soothe your eyes."),
-                OSDIRecommendationItem(title: "Peripheral Awareness", detail: "Helps widen your field of view and relaxes focused eye strain.")
+                OSDIRecommendationItem(title: "Figure Eight", detail: "Keeps your eye muscles flexible and reduces strain from focused tasks.")
             ]
         case "Moderate":
             return [
@@ -665,7 +665,7 @@ final class TrendHistoryCell: PremiumCardCell {
     }
 
     func configure(current: Double, previous: Double?) {
-        var config = UIHostingConfiguration {
+        let config = UIHostingConfiguration {
             OSDIPerformanceView(
                 currentScore: current,
                 previousScore: previous

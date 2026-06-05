@@ -84,16 +84,16 @@ class ReportCollectionViewCell: UICollectionViewCell {
         switch sessionType {
         case "SmoothPursuit":
             scoreMeaningLabel.text = errors == 0
-                ? "Excellent tracking today. No missed gaze checks recorded."
-                : "\(errors) missed gaze checks. Higher score means smoother tracking."
+                ? "you did very well today and touched every point"
+                : "there were \(errors) missed points, but we will improve upon them for sure"
         case "SaccadicJumps":
             scoreMeaningLabel.text = errors == 0
-                ? "Clean directional responses across the session."
-                : "\(errors) missed responses. Higher score means faster directional accuracy."
+                ? "your response as per the direction announced were on point, Welldone!"
+                : "while there were \(errors) errors, we will get it better next time."
         default:
             scoreMeaningLabel.text = errors == 0
-                ? "Clean blink set. No missed blink checks recorded."
-                : "\(errors) errors recorded. Higher score means stronger blink completion."
+                ? "Lets goooo! Wonderfull session"
+                : "while there were \(errors) errors, we will get it better next time."
         }
     }
 
@@ -114,7 +114,7 @@ class ReportCollectionViewCell: UICollectionViewCell {
         
         scoreLabel.text = String(format: "%.2fs", avgReactionTimeSeconds)
         captionLabel.text = "RESPONSIVENESS"
-        scoreMeaningLabel.text = "Average time taken to respond. Lower is faster and more responsive."
+        scoreMeaningLabel.text = "lower that 0.5s is good and if it is higher than that there is a room for improvement."
     }
 
     func configureWisdom(title: String, message: String) {

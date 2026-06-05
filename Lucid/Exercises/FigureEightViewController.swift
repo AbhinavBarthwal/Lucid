@@ -47,7 +47,8 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
     private var currentInstructionIndex = 0
 
     private let exerciseInstructions: [InstructionStep] = [
-        InstructionStep(message: "Keep the phone close to your face", duration: 6.5)
+        InstructionStep(message: "Try to keep your phone as close as possible", duration: 6.5),
+        InstructionStep(message: "Follow the moving orange ball", duration: 4.5)
     ]
 
     override var prefersStatusBarHidden: Bool { return true }
@@ -99,9 +100,21 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
     private func setupInitialUI() {
         circleView.layer.cornerRadius = circleView.bounds.width / 2
         circleView.backgroundColor = .accent
+        
         instructionLabel.alpha = 0
+        instructionLabel.font = .systemFont(ofSize: 20, weight: .semibold)
+        instructionLabel.textColor = .lightGray
+        instructionLabel.textAlignment = .center
+        instructionLabel.numberOfLines = 0
+        
         circleView.alpha = 0
+        
         centerMessageLabel.alpha = 1
+        centerMessageLabel.font = .systemFont(ofSize: 32, weight: .bold)
+        centerMessageLabel.textColor = .white
+        centerMessageLabel.textAlignment = .center
+        centerMessageLabel.numberOfLines = 0
+        
         instructionLabel.isHidden = false
         circleView.isHidden = false
         centerMessageLabel.isHidden = false
@@ -453,7 +466,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         isAnimationPaused = false
         resetLayerSpeed(layer: circleView.layer)
             
-        instructionLabel.text = "Keep the phone close to your face "
+        instructionLabel.text = "Try to keep your phone as close as possible"
         instructionLabel.textColor = .lightGray
         instructionLabel.alpha = 0
             
@@ -475,7 +488,7 @@ class FigureEightViewController: UIViewController, ARSessionDelegate, CAAnimatio
         isAnimationPaused = false
         resetLayerSpeed(layer: circleView.layer)
         
-        instructionLabel.text = "Keep the phone close to your face "
+        instructionLabel.text = "Try to keep your phone as close as possible"
         instructionLabel.textColor = .lightGray
         instructionLabel.alpha = 0
         

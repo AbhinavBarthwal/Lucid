@@ -13,6 +13,12 @@ struct TrendData: Identifiable {
     let value: Double
 }
 
+extension Array where Element == TrendData {
+    var hasRecordedTrendData: Bool {
+        contains { $0.value >= 0 }
+    }
+}
+
 struct TrendCardView: View {
     let title: String
     let averageScore: String
@@ -84,7 +90,7 @@ struct TrendCardView: View {
                 
                 Spacer()
                 
-                if hasAverageData {
+                if data.hasRecordedTrendData {
                     Chart {
                         ForEach(data) { item in
                             if item.value >= 0 {
@@ -116,13 +122,6 @@ struct TrendCardView: View {
                     }
                     .chartYAxis(.hidden)
                     .chartYScale(domain: 0...yAxisMax)
-                } else {
-                    VStack(alignment: .center) {
-                        Text("No data found")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.gray)
-                    }
-                    .frame(width: 160, height: 120)
                 }
             }
         }

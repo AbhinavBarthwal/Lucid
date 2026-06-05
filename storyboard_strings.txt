@@ -1,0 +1,111 @@
+Lucid/Base.lproj/Main.storyboard
+1 .  Exercises
+2 .  Item
+3 .  Test
+4 .  OSDI Test
+5 .  (changed) Answer simple questions about dry, tired, or sore eyes.
+6 .  C Test
+7 .  (changed) Look at the open side of each C and say the matching number.
+8 .  Label
+9 .  Symptoms
+10 .  (changed) How often did this happen in the last week?
+11 .  Never
+12 .  Mostly
+13 .  prev
+14 .  Prev
+15 .  next
+16 .  Next
+
+Lucid/ExerciseResult/ChartCollectionViewCell.xib
+1 .  Label
+
+Lucid/ExerciseResult/MetricCollectionViewCell.xib
+1 .  Label
+
+Lucid/ExerciseResult/Report.storyboard
+1 .  (changed) Performance Report
+
+Lucid/ExerciseResult/ReportCollectionViewCell.xib
+1 .  Label
+
+Lucid/Exercises/ExerciseCollectionViewCell.xib
+1 .  Description of exercise
+2 .  5 min
+
+Lucid/Exercises/exerciseStoryBoards/PencilPushUp.storyboard
+1 .  Label
+
+Lucid/Exercises/exerciseStoryBoards/PeripheralAwareness.storyboard
+1 .  Label
+
+Lucid/ProfilePage/ProfilePage.storyboard
+1 .  Profile
+2 .  Medical profile
+3 .  Notification
+4 .  Set Exercise Goal
+5 .  Share Eye Health Report
+6 .  About Us
+7 .  Help
+8 .  Daily Exercise Goal
+9 .  (changed) Set how many minutes you want to spend on eye exercises each day.
+10 .  Button
+11 .  Change Exercise Goal
+12 .  Previous Conditions
+13 .  Eye-Related
+14 .  Body-Related
+15 .  Old Password
+16 .  Forgot Password?
+17 .  Create New Password
+18 .  (changed) Password must be at least 8 characters
+19 .  (changed) Passwords must match
+20 .  Confirm Password
+21 .  Password & Security
+22 .  Full Name
+23 .  Abhinav Barthwal
+24 .  Date of birth
+25 .  Gender
+26 .  Item 1
+27 .  Item 2
+28 .  Select
+29 .  Left Eye
+30 .  Right Eye
+31 .  (changed) Add health conditions
+32 .  Medical Profile
+33 .  (changed) Screen Time Alert
+34 .  (changed) Eye Test Reminders
+35 .  Eye Health Trends
+36 .  (changed) Exercise Reminders
+37 .  (changed) Award Alerts
+38 .  Notifications
+
+Lucid/Summary/Cells/AwardsCollectionViewCell.xib
+1 .  Awards
+2 .  Focused Champ
+
+Lucid/Summary/Cells/DailyExerciseCollectionViewCell.xib
+1 .  Daily Exercises
+2 .  Today
+3 .  Label
+
+Lucid/Summary/Cells/PageLinkCollectionViewCell.xib
+1 .  Label
+
+Lucid/Summary/Cells/StreakCollectionViewCell.xib
+1 .  Exercise Streak
+2 .  T
+3 .  W
+4 .  F
+5 .  Day
+
+Lucid/Summary/Cells/TrendsAllCollectionViewCell.xib
+1 .  Move
+2 .  -/-CAL/DAY
+
+Lucid/Summary/Summary.storyboard
+1 .  Badge Title
+2 .  Badge details go here.
+3 .  Earned date
+4 .  Got it!
+5 .  Awards
+6 .  (changed) Performance Report
+

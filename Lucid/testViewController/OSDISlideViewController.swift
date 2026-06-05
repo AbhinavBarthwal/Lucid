@@ -23,9 +23,9 @@ class OSDIViewController: UIViewController {
     
     private let osdiInstructions: [InstructionStep] = [
         InstructionStep(message: "This test asks simple questions about dry, tired, or sore eyes.", duration: 4.5),
-        InstructionStep(message: "Answer based on how your eyes felt in the last week.", duration: 4.5),
+        InstructionStep(message: "Take the test based on how your eyes felt in the last week.", duration: 4.5),
         InstructionStep(message: "Use the slider: Never means it did not happen. Mostly means it happened a lot.", duration: 5.5),
-        InstructionStep(message: "If a daily activity does not apply to you, tap Skip. Your score is saved for future reports.", duration: 5.5)
+        InstructionStep(message: "If a daily activity does not apply to you, tap Skip. ", duration: 3.5)
     ]
 
     private var currentIndex = 0
@@ -91,6 +91,14 @@ class OSDIViewController: UIViewController {
         mostlyLabel?.numberOfLines = 0
         onboardingInstructionLabel?.numberOfLines = 0
         valueLabel?.numberOfLines = 0
+
+        onboardingInstructionLabel?.font = .systemFont(ofSize: 32, weight: .bold)
+        onboardingInstructionLabel?.textColor = .white
+        onboardingInstructionLabel?.textAlignment = .center
+
+        instructionLabel?.font = .systemFont(ofSize: 20, weight: .semibold)
+        instructionLabel?.textColor = .lightGray
+        instructionLabel?.textAlignment = .center
         
         // Hide valueLabel as requested by the user
         valueLabel?.isHidden = true

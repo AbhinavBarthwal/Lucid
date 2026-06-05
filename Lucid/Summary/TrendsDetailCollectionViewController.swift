@@ -94,6 +94,9 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
         var direction = 1
         var showCustomOSDISheet = false
         var showCustomCTestSheet = false
+        var emptyPrompt = ""
+        var emptyActionTitle = ""
+        var emptyAction: (() -> Void)?
 
         // Reordered index mapping:
         // 0: OSDI Score
@@ -109,7 +112,10 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
             showCustomOSDISheet = true
             lore = "OSDI checks how dry, tired, or sore your eyes feel and how much that affects daily tasks. Scores range from 0 to 100. Lower is better. 0-12 is Normal, 13-22 is Mild, 23-32 is Moderate, and 33-100 is Severe. Your score comes from the questions you answered."
             let val = Double(average) ?? 0
-            let hasData = data.contains(where: { $0.value >= 0 })
+            let hasData = data.hasRecordedTrendData
+            emptyPrompt = "Complete OSDI to get score data."
+            emptyActionTitle = "Start OSDI"
+            emptyAction = { [weak self] in self?.launchOSDI() }
             status = !hasData ? "Take the quick OSDI quiz to find out if your eyes are getting too tired from screens!" : (val < 13 ? "Awesome! Your eyes are feeling super fresh and relaxed. Keep up the good work!" : "Uh oh, your eyes are feeling a bit tired or dry. You should take a break from screens and blink more!")
         case 1:
             title = "C Test Score"
@@ -119,7 +125,10 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
             showCustomCTestSheet = true
             lore = "The C Test shows a C shape facing different directions. It checks how clearly each eye can see. Each eye is scored out of 6. Higher scores mean that eye got more targets right. Comparing left and right eye scores can show if one eye needs more care."
             let val = Double(average) ?? 0
-            let hasData = data.contains(where: { $0.value >= 0 })
+            let hasData = data.hasRecordedTrendData
+            emptyPrompt = "Complete the C Test to get score data."
+            emptyActionTitle = "Start C Test"
+            emptyAction = { [weak self] in self?.launchCTest() }
             if !hasData {
                 status = "Take a C Test to find out how sharp your eyes can see today!"
             } else if val >= 5.0 {
@@ -135,7 +144,10 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
             data = self.accuracyTrends
             lore = "This score shows how well your eyes follow moving things on the screen. If your eyes stay on the dot, your score goes up. A high score means your eyes are tracking well."
             let val = Double(average) ?? 0
-            let hasData = data.contains(where: { $0.value >= 0 })
+            let hasData = data.hasRecordedTrendData
+            emptyPrompt = "Complete the exercise below to get accuracy data."
+            emptyActionTitle = "Start Smooth Pursuits"
+            emptyAction = { [weak self] in self?.launchSmoothPursuits() }
             status = !hasData ? "Try doing some exercises so we can measure how accurately your eyes can follow targets!" : (val > 90 ? "Whoa, your eyes are like a hawk! You are tracking things super well. Keep it up!" : "Your tracking is okay, but let's try to focus a bit more next time. Practice makes perfect!")
         case 3:
             title = "Eye Responsiveness"
@@ -145,7 +157,10 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
             max = 3
             lore = "This shows how fast your eyes react when something changes on the screen. It is measured in seconds. A lower number means a faster reaction."
             let val = Double(average) ?? 0
-            let hasData = data.contains(where: { $0.value >= 0 })
+            let hasData = data.hasRecordedTrendData
+            emptyPrompt = "Complete exercise below to get responsiveness data."
+            emptyActionTitle = "Start Saccadic Jumps"
+            emptyAction = { [weak self] in self?.launchSaccadicJumps() }
             status = !hasData ? "Do a Blink Training or Saccadic Jumps session to measure your eye reflex speed!" : (val < 0.8 ? "Lightning fast! Your eye reflexes are incredibly sharp." : "Your eye reflexes are working well! Keep training to get even faster.")
         default: break
         }
@@ -160,13 +175,46 @@ class TrendsDetailViewController: UIViewController, UICollectionViewDataSource, 
                 lore: lore,
                 status: status,
                 showCustomOSDISheet: showCustomOSDISheet,
-                showCustomCTestSheet: showCustomCTestSheet
+                showCustomCTestSheet: showCustomCTestSheet,
+                emptyPrompt: emptyPrompt,
+                emptyActionTitle: emptyActionTitle,
+                emptyAction: emptyAction
             )
         }
         .margins(.all, 0)
         
         cell.backgroundColor = .clear
         return cell
+    }
+
+    private func launchOSDI() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let vc = storyboard.instantiateViewController(withIdentifier: "OSDIViewController") as? OSDIViewController {
+            vc.hidesBottomBarWhenPushed = true
+            navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+
+    private func launchCTest() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let vc = storyboard.instantiateViewController(withIdentifier: "LandoltCViewController") as? LandoltCViewController {
+            vc.hidesBottomBarWhenPushed = true
+            navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+
+    private func launchSmoothPursuits() {
+        let storyboard = UIStoryboard(name: "SmoothPursits", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "SmoothPursuitsVC")
+        vc.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(vc, animated: true)
+    }
+
+    private func launchSaccadicJumps() {
+        let storyboard = UIStoryboard(name: "SaccadicJumps", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "SaccadicJumpsVC")
+        vc.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(vc, animated: true)
     }
 }
 
@@ -176,22 +224,69 @@ struct TrendCardContainer: View {
     let max: Double, direction: Int, lore: String, status: String
     let showCustomOSDISheet: Bool
     let showCustomCTestSheet: Bool
+    let emptyPrompt: String
+    let emptyActionTitle: String
+    let emptyAction: (() -> Void)?
     @State private var showDetail = false
+
+    private var hasData: Bool {
+        data.hasRecordedTrendData
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top) {
-                TrendCardView(title: title, averageScore: average, data: data, yAxisMax: max, betterDirection: direction)
-                Spacer()
-                Button { showDetail = true } label: {
-                    Image(systemName: "info.circle").font(.system(size: 16)).foregroundColor(.orange.opacity(0.7))
+            if hasData {
+                HStack(alignment: .top) {
+                    TrendCardView(title: title, averageScore: average, data: data, yAxisMax: max, betterDirection: direction)
+                    Spacer()
+                    Button { showDetail = true } label: {
+                        Image(systemName: "info.circle").font(.system(size: 16)).foregroundColor(.orange.opacity(0.7))
+                    }
                 }
+                .frame(height: 150)
+                
+                Text(status)
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.6))
+            } else {
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack(alignment: .top) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "flask.fill")
+                                .foregroundColor(.accent)
+                            Text(title)
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.accent)
+                        }
+
+                        Spacer()
+
+                        Button { showDetail = true } label: {
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 16))
+                                .foregroundColor(.orange.opacity(0.7))
+                        }
+                    }
+
+                    Text(emptyPrompt)
+                        .font(.system(size: 18, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    if let emptyAction {
+                        Button(action: emptyAction) {
+                            Text(emptyActionTitle)
+                                .font(.system(size: 15, weight: .bold, design: .rounded))
+                                .foregroundColor(.black)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                                .background(Color.accentColor)
+                                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, minHeight: 150, alignment: .center)
             }
-            .frame(height: 150)
-            
-            Text(status)
-                .font(.system(size: 12, weight: .medium, design: .rounded))
-                .foregroundColor(.white.opacity(0.6))
         }
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 16).fill(Color.black.opacity(0.4)))

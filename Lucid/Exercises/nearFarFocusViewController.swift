@@ -39,7 +39,7 @@ class NearFarFocusViewController: UIViewController, ARSessionDelegate {
     private var currentInstructionIndex = 0
 
     private let exerciseInstructions: [InstructionStep] = [
-        InstructionStep(message: "Alternate focusing on the screen and looking away", duration: 5.5)
+        InstructionStep(message: "You will be asked to look at the screen and look away please follow accordingly.", duration: 7.0)
     ]
     
     override func viewDidLoad() {
@@ -94,9 +94,17 @@ class NearFarFocusViewController: UIViewController, ARSessionDelegate {
         centerMessageLabel.alpha = 1
         centerMessageLabel.isHidden = false
         
-        timerLabel.numberOfLines = 0
+        instructionLabel.font = .systemFont(ofSize: 20, weight: .semibold)
+        instructionLabel.textColor = .lightGray
+        instructionLabel.textAlignment = .center
         instructionLabel.numberOfLines = 0
+        
+        centerMessageLabel.font = .systemFont(ofSize: 32, weight: .bold)
+        centerMessageLabel.textColor = .white
+        centerMessageLabel.textAlignment = .center
         centerMessageLabel.numberOfLines = 0
+        
+        timerLabel.numberOfLines = 0
     }
     
     private func fadeTransition(showCenterMessage: Bool, showExerciseUI: Bool, completion: (() -> Void)? = nil) {
@@ -357,7 +365,7 @@ class NearFarFocusViewController: UIViewController, ARSessionDelegate {
         timerLabel.text = "\(secondsRemaining)"
         
         instructionLabel.textColor = .lightGray
-        instructionLabel.text = "Look away from the screen\n\(currentRound)/\(totalRounds)"
+        instructionLabel.text = "Look away from the screen"
         
         speak("Look away")
         
@@ -501,14 +509,14 @@ class NearFarFocusViewController: UIViewController, ARSessionDelegate {
                         if self.instructionLabel.textColor == .systemRed {
                             UIView.animate(withDuration: 0.3) {
                                 self.instructionLabel.textColor = .lightGray
-                                self.instructionLabel.text = "Look away from the screen\n\(self.currentRound)/\(self.totalRounds)"
+                                self.instructionLabel.text = "Look away from the screen"
                             }
                         }
                     } else {
                         self.totalErrors += 1
                         Vibrator.playError()
                         self.instructionLabel.textColor = .systemRed
-                        self.instructionLabel.text = "⚠️ Please look away from the screen!"
+                        self.instructionLabel.text = "Please look away from the screen!"
                     }
                 }
             }

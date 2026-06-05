@@ -883,7 +883,7 @@ private struct PersonalDetailsStep: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("We save your name for future reports. This helps Lucid compare results more correctly over time.")
+            Text("What should we call you")
                 .font(.subheadline)
                 .foregroundStyle(Color.white.opacity(0.60))
                 .fixedSize(horizontal: false, vertical: true)

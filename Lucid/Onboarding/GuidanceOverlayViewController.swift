@@ -71,7 +71,7 @@ final class GuidanceOverlayViewController: UIViewController {
         stepsList.append(Step(
             callout: Callout(
                 title: "Biweekly Test Reminder",
-                body: "Complete your pending OSDI and C Test here when you are ready."
+                body: "Complete your pending \(testName) here, when you are ready."
             ),
             target: .checkupTest
         ))
