@@ -579,6 +579,8 @@ private struct LandingStep: View {
     let onContinue: () -> Void
     let onAppleSignIn: (String, String, String) -> Void
 
+    @State private var isShowingTerms = false
+
     var body: some View {
         VStack(spacing: 0) {
             Spacer()
@@ -674,13 +676,47 @@ private struct LandingStep: View {
                 }
                 .padding(.horizontal, 16)
                 
-                Text("By continuing, you're agreeing to Lucid's Terms & Privacy Policy")
-                    .font(.caption2)
-                    .foregroundStyle(.white.opacity(0.4))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
+                VStack(spacing: 2) {
+                    Text("By continuing, you're agreeing to Lucid's")
+                        .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.4))
+
+                    Button {
+                        isShowingTerms = true
+                    } label: {
+                        Text("Terms & Conditions")
+                            .font(.caption2.weight(.semibold))
+                            .underline()
+                            .foregroundStyle(Color.accentColor.opacity(0.85))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Terms and Conditions")
+                }
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
             }
             .padding(.bottom, 30)
+        }
+        .sheet(isPresented: $isShowingTerms) {
+            TermsSheetView(isPresented: $isShowingTerms)
+        }
+    }
+}
+
+private struct TermsSheetView: UIViewControllerRepresentable {
+    @Binding var isPresented: Bool
+
+    func makeUIViewController(context: Context) -> TermsViewController {
+        let termsViewController = TermsViewController()
+        termsViewController.onClose = {
+            isPresented = false
+        }
+        return termsViewController
+    }
+
+    func updateUIViewController(_ uiViewController: TermsViewController, context: Context) {
+        uiViewController.onClose = {
+            isPresented = false
         }
     }
 }
