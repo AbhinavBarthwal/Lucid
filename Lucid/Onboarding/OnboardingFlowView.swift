@@ -619,7 +619,7 @@ private struct LandingStep: View {
                         .foregroundStyle(.white)
                         .tracking(4)
                     
-                    Text("Helping your eyes feel better")
+                    Text("Fixing Digital Eye Strain")
                         .font(.subheadline)
                         .foregroundStyle(Color.white.opacity(0.70))
                         .multilineTextAlignment(.center)
@@ -713,6 +713,8 @@ private struct EmailLoginStep: View {
                 .fixedSize(horizontal: false, vertical: true)
 
             // Email Field
+            
+            // Email Field - Fully Reworked to block accent color hijacking
             VStack(alignment: .leading, spacing: 8) {
                 Text("Email Address")
                     .font(.system(size: 14, weight: .bold))
@@ -721,16 +723,29 @@ private struct EmailLoginStep: View {
                 HStack {
                     Image(systemName: "envelope")
                         .foregroundStyle(Color.white.opacity(0.4))
-                    TextField("", text: $email)
-                        .keyboardType(.emailAddress)
-                        .textInputAutocapitalization(.never)
-                        .textContentType(.username)
-                        .autocorrectionDisabled()
-                        .foregroundStyle(.white)
-                        .onChange(of: email) { _, _ in
-                            emailStatus = .unchecked
-                            authMode = .undecided
+                    
+                    ZStack(alignment: .leading) {
+                        // Manual placeholder layer: untouched by system accent tints
+                        if email.isEmpty {
+                            Text("example@apple.com")
+                                .font(.system(size: 16, design: .default)) // Matches standard TextField size
+                                .foregroundStyle(Color.white.opacity(0.25)) // Pure muted grey
+                                .allowsHitTesting(false)
+                                .tint(Color.white.opacity(0.25))
                         }
+                        
+                        // Clean, untinted interactive text input
+                        TextField("", text: $email)
+                            .keyboardType(.emailAddress)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .foregroundStyle(.white)
+                            .tint(Color.accentColor) // Keeps ONLY the blinking insertion cursor blue/accented
+                            .onChange(of: email) { _, _ in
+                                emailStatus = .unchecked
+                                authMode = .undecided
+                            }
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 14)
@@ -834,7 +849,7 @@ private struct EmailLoginStep: View {
     private var instructionText: String {
         switch emailStatus {
         case .unchecked:
-            return "Start with your email. We save it so you can find your profile later."
+            return "Let's start with your email"
         case .checking:
             return "Checking for your account..."
         case .present:
@@ -847,9 +862,9 @@ private struct EmailLoginStep: View {
     private var helperCopy: String {
         switch emailStatus {
         case .notPresent:
-            return "Your password is saved so you can sign in again."
+            return "" // to be removed
         case .present:
-            return "Sign in to load your saved test history."
+            return "" // to be removed
         default:
             return ""
         }
@@ -885,7 +900,7 @@ private struct PersonalDetailsStep: View {
         VStack(alignment: .leading, spacing: 20) {
             Text("What should we call you")
                 .font(.subheadline)
-                .foregroundStyle(Color.white.opacity(0.60))
+                .foregroundStyle(Color.accent)
                 .fixedSize(horizontal: false, vertical: true)
 
             // Name Field
@@ -926,7 +941,7 @@ private struct EyePowerStep: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Add your eye power if you know it. We save it to make future reports more correct.")
+            Text("Add your eye power if you know it. We save it to make future reports and give better tips and recommendations")
                 .font(.subheadline)
                 .foregroundStyle(Color.white.opacity(0.60))
 
@@ -1016,7 +1031,7 @@ private struct ConditionsStep: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Pick any health details that apply. We save these for future reference and better report results.")
+                Text("Pick any health details that apply, we save these for future reference and better recommendations")
                     .font(.subheadline)
                     .foregroundStyle(Color.white.opacity(0.60))
                     .fixedSize(horizontal: false, vertical: true)
