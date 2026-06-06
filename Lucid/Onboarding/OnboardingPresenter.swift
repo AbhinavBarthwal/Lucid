@@ -19,7 +19,6 @@ enum OnboardingGate {
 
 final class CredentialStore {
     static let shared = CredentialStore()
-
     private let service = "com.lucid.saved-password"
 
     private init() {}
@@ -101,6 +100,8 @@ final class OnboardingPresenter {
         let hasCompletedDetails = !(user.email ?? "").isEmpty
         
         if hasCompletedDetails {
+            // Re-auth logic path: treat as recurring and block overlay
+            UserDefaults.standard.set(true, forKey: "Lucid.guidanceOverlay.didShow")
             showSettingUpAndFinish(window: window, presenter: topVC)
         } else {
             let hosting = UIHostingController(rootView: AnyView(EmptyView()))
@@ -124,6 +125,12 @@ final class OnboardingPresenter {
     
     private static func handleOnboardingSubmitted(draft: OnboardingDraft, window: UIWindow, presenter: UIViewController) async {
         await saveDraft(draft)
+        
+        // Block presentation of tutorial flows if the user context is parsed as an existing account login
+        if draft.authMode == .login {
+            UserDefaults.standard.set(true, forKey: "Lucid.guidanceOverlay.didShow")
+        }
+        
         showSettingUpAndFinish(window: window, presenter: presenter)
     }
     
@@ -133,13 +140,9 @@ final class OnboardingPresenter {
                 AVAudioApplication.requestRecordPermission { _ in
                     SFSpeechRecognizer.requestAuthorization { _ in
                         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-                            if let error {
-                                print("Lucid: Notification permission error: \(error)")
-                            }
+                            if let error { print("Lucid: Notification permission error: \(error)") }
                             Task { @MainActor in
-                                if granted {
-                                    NotificationManager.shared.refreshScheduledNotificationsFromDefaults()
-                                }
+                                if granted { NotificationManager.shared.refreshScheduledNotificationsFromDefaults() }
                                 completion()
                             }
                         }
@@ -149,13 +152,9 @@ final class OnboardingPresenter {
                 AVAudioSession.sharedInstance().requestRecordPermission { _ in
                     SFSpeechRecognizer.requestAuthorization { _ in
                         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-                            if let error {
-                                print("Lucid: Notification permission error: \(error)")
-                            }
+                            if let error { print("Lucid: Notification permission error: \(error)") }
                             Task { @MainActor in
-                                if granted {
-                                    NotificationManager.shared.refreshScheduledNotificationsFromDefaults()
-                                }
+                                if granted { NotificationManager.shared.refreshScheduledNotificationsFromDefaults() }
                                 completion()
                             }
                         }
@@ -168,18 +167,13 @@ final class OnboardingPresenter {
     private static func saveDraft(_ draft: OnboardingDraft) async {
         let user = SwiftDataManager.shared.getOrCreateUser()
         
-        // Attempt to fetch existing profile from Supabase first
         _ = await SupabaseManager.shared.fetchAndApplyUser(byEmail: draft.normalizedEmail, to: user)
         
         user.email = draft.normalizedEmail
         if !draft.password.isEmpty { user.password = draft.password }
         
-        // If draft has name, it's a new signup or the user went through details, overwrite with draft
         if !draft.trimmedName.isEmpty {
             user.name = draft.trimmedName
-//            user.dateOfBirth = draft.dateOfBirth
-//            user.age = computeAge(from: draft.dateOfBirth)
-//            user.gender = draft.gender.isEmpty ? "Prefer not to say" : draft.gender
             user.leftEyePower = Double(draft.leftEyePower.trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
             user.rightEyePower = Double(draft.rightEyePower.trimmingCharacters(in: .whitespacesAndNewlines)) ?? 0
             user.previousConditions = draft.cleanedConditions
@@ -196,7 +190,6 @@ final class OnboardingPresenter {
             try SwiftDataManager.shared.context.save()
             await SupabaseManager.shared.syncUser(user)
         } catch {
-            // Non-blocking: still allow the user into the app.
             print("Onboarding save failed: \(error)")
         }
     }
@@ -204,18 +197,14 @@ final class OnboardingPresenter {
     private static func presentMandatoryTestsAlert(on presenter: UIViewController, window: UIWindow, start: @escaping () -> Void) {
         let alert = UIAlertController(
             title: "Take your eye check now?",
-            message: "To help us better understand your vision and eye health, we’d like you to complete two short tests:\n\nOSDI (Ocular Surface Disease Index)\nA brief questionnaire about symptoms such as eye dryness, discomfort, sensitivity to light, and how these may affect your daily activities.\n\nC Test (Landolt C Test)\nA simple visual acuity test that measures how clearly you can see by identifying the direction of a small opening in a ring-shaped symbol.\n\nThese assessments take about 2 minutes to complete.\nIf you'd prefer, you can skip them for now and complete them later.",
+            message: "To help us better understand your vision and eye health, we’d like you to complete two short tests:\n\nOSDI (Ocular Surface Disease Index)\nA brief questionnaire about symptoms.\n\nC Test (Landolt C Test)\nA simple visual acuity test.\n\nThese assessments take about 2 minutes to complete.",
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "Take Test Now", style: .default) { _ in
-            DispatchQueue.main.async {
-                start()
-            }
+            DispatchQueue.main.async { start() }
         })
         alert.addAction(UIAlertAction(title: "Do It Later", style: .cancel) { _ in
-            DispatchQueue.main.async {
-                showSettingUpAndFinish(window: window, presenter: presenter)
-            }
+            DispatchQueue.main.async { showSettingUpAndFinish(window: window, presenter: presenter) }
         })
         presenter.present(alert, animated: true)
     }
@@ -259,25 +248,11 @@ final class OnboardingPresenter {
         })
     }
     
-    private static func computeAge(from dateOfBirth: Date) -> Int {
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.year], from: dateOfBirth, to: Date())
-        return max(0, components.year ?? 0)
-    }
-    
     private static func topViewController(from root: UIViewController) -> UIViewController {
         var current = root
-        while let presented = current.presentedViewController {
-            current = presented
-        }
-        
-        if let nav = current as? UINavigationController {
-            return nav.visibleViewController ?? nav
-        }
-        if let tab = current as? UITabBarController {
-            return tab.selectedViewController ?? tab
-        }
-        
+        while let presented = current.presentedViewController { current = presented }
+        if let nav = current as? UINavigationController { return nav.visibleViewController ?? nav }
+        if let tab = current as? UITabBarController { return tab.selectedViewController ?? tab }
         return current
     }
 }
@@ -297,15 +272,12 @@ private final class MandatoryTestsCoordinator {
         self.onFinished = onFinished
         
         guard let osdiVC = storyboard.instantiateViewController(withIdentifier: "OSDIViewController") as? OSDIViewController else {
-            assertionFailure("OSDIViewController storyboardIdentifier is missing or mismatched.")
             onFinished()
             return
         }
         
         osdiVC.shouldShowResultUI = false
-        osdiVC.onTestCompleted = { [weak self] _, _ in
-            self?.showLandoltC()
-        }
+        osdiVC.onTestCompleted = { [weak self] _, _ in self?.showLandoltC() }
         osdiVC.navigationItem.hidesBackButton = true
         
         let nav = UINavigationController(rootViewController: osdiVC)
@@ -321,7 +293,6 @@ private final class MandatoryTestsCoordinator {
     private func showLandoltC() {
         guard let nav = navigationController else { return }
 
-        // Show a friendly transition screen for 2.5s before pushing LandoltC
         let transitionVC = TestTransitionViewController()
         transitionVC.navigationItem.hidesBackButton = true
         nav.setNavigationBarHidden(true, animated: false)
@@ -329,19 +300,14 @@ private final class MandatoryTestsCoordinator {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { [weak self, weak nav] in
             guard let self, let nav else { return }
-
             guard let landoltVC = storyboard.instantiateViewController(withIdentifier: "LandoltCViewController") as? LandoltCViewController else {
-                assertionFailure("LandoltCViewController storyboardIdentifier is missing or mismatched.")
                 self.finish()
                 return
             }
 
             landoltVC.shouldShowCompletionSummary = false
-            landoltVC.onTestCompleted = { [weak self] in
-                self?.finish()
-            }
+            landoltVC.onTestCompleted = { [weak self] in self?.finish() }
             landoltVC.navigationItem.hidesBackButton = true
-
             nav.pushViewController(landoltVC, animated: true)
         }
     }
@@ -351,7 +317,6 @@ private final class MandatoryTestsCoordinator {
             onFinished?()
             return
         }
-        
         nav.dismiss(animated: true) { [weak self] in
             self?.onFinished?()
         }
@@ -415,15 +380,10 @@ private struct SettingThingsUpView: View {
     }
 }
 
-// MARK: - OSDI → C-Test Transition Screen
-
 final class TestTransitionViewController: UIViewController {
-
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
-
-
 
         let title = UILabel()
         title.text = "Nice work!"
@@ -440,7 +400,7 @@ final class TestTransitionViewController: UIViewController {
         subtitle.numberOfLines = 0
         subtitle.translatesAutoresizingMaskIntoConstraints = false
 
-        let stack = UIStackView(arrangedSubviews: [ title, subtitle])
+        let stack = UIStackView(arrangedSubviews: [title, subtitle])
         stack.axis = .vertical
         stack.alignment = .center
         stack.spacing = 16
@@ -458,4 +418,3 @@ final class TestTransitionViewController: UIViewController {
         UIView.animate(withDuration: 0.5) { stack.alpha = 1 }
     }
 }
-
