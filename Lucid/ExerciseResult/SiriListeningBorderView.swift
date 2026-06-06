@@ -184,16 +184,22 @@ class SiriListeningBorderView: UIView {
 
     private func mountOnWindow() {
         var window: UIWindow? = nil
-        if #available(iOS 15.0, *) {
-            let scenes = UIApplication.shared.connectedScenes
-            let windowScene = scenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene
-                ?? scenes.first as? UIWindowScene
-            window = windowScene?.keyWindow ?? windowScene?.windows.first
+        
+        // Modern iOS 15+ window retrieval via active UIWindowScene
+        let activeScene = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first { $0.activationState == .foregroundActive }
+        
+        if let scene = activeScene {
+            window = scene.windows.first(where: { $0.isKeyWindow }) ?? scene.windows.first
+        } else {
+            // Fallback for non-active or background scenes (safely avoiding deprecated global windows)
+            let anyScene = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .first
+            window = anyScene?.windows.first(where: { $0.isKeyWindow }) ?? anyScene?.windows.first
         }
-        if window == nil {
-            window = UIApplication.shared.windows.first(where: { $0.isKeyWindow })
-                ?? UIApplication.shared.windows.first
-        }
+        
         guard let w = window else { return }
         frame = w.bounds
         autoresizingMask = [.flexibleWidth, .flexibleHeight]

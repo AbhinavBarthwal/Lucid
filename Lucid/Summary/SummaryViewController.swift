@@ -260,7 +260,7 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                 
                 return section
                 
-            } else {
+            }  else {
                 // MARK: - Section 3 (Trends 2x2 Grid with Background)
                 let itemSize = NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(0.50),
@@ -274,9 +274,10 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                     heightDimension: .absolute(70)
                 )
                 
+                // Fix: Using the updated iOS 16 API syntax 'repeatingSubitem'
                 let group = NSCollectionLayoutGroup.horizontal(
                     layoutSize: groupSize,
-                    subitem: item,
+                    repeatingSubitem: item,
                     count: 2
                 )
                 

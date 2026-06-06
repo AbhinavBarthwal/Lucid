@@ -388,7 +388,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         if lastUpdateTimestamp == 0 {
             lastUpdateTimestamp = currentTime
         }
-        let deltaTime = currentTime - lastUpdateTimestamp
+        _ = currentTime - lastUpdateTimestamp
         lastUpdateTimestamp = currentTime
         
         let leftEyeBlink = faceAnchor.blendShapes[.eyeBlinkLeft]?.floatValue ?? 0.0

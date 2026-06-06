@@ -418,7 +418,7 @@ struct OnboardingFlowView: View {
             if draft.trimmedName.isEmpty {
                 return "We'd love to know your name! Please enter it to continue."
             }
-            let tenYearsAgo = Calendar.current.date(byAdding: .year, value: -10, to: Date()) ?? Date()
+            _ = Calendar.current.date(byAdding: .year, value: -10, to: Date()) ?? Date()
 //            if draft.dateOfBirth > tenYearsAgo {
 //                return "Lucid is designed for ages 10 and up. We look forward to welcoming you soon!"
 //            }

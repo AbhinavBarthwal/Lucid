@@ -423,7 +423,6 @@ final class TestTransitionViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .black
 
-        let emoji = UILabel()
 
 
         let title = UILabel()
