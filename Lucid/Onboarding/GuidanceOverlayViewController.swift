@@ -66,8 +66,8 @@ final class GuidanceOverlayViewController: UIViewController {
         var stepsList: [Step] = []
         
         // 1. Test Reminder (always included in the flow now)
-        let state = (Self.findVisibleSummary(in: presentingViewController ?? view.window?.rootViewController))?.getCheckupState() ?? .OSDIDue
-        let testName = state == .OSDIDue ? "OSDI Test" : "C Test"
+        _ = (Self.findVisibleSummary(in: presentingViewController ?? view.window?.rootViewController))?.getCheckupState() ?? .OSDIDue
+        
         stepsList.append(Step(
             callout: Callout(
                 title: "Test Reminder",

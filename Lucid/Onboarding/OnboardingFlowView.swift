@@ -12,6 +12,7 @@ struct OnboardingDraft: Equatable {
     var leftEyePower: String = ""
     var rightEyePower: String = ""
     var previousConditions: Set<String> = []
+    var authMode: OnboardingAuthMode = .undecided // Track authentication state for routing downstream
 
     var normalizedEmail: String {
         email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
@@ -277,7 +278,6 @@ struct OnboardingFlowView: View {
             }
             return
         }
-        // Landing is step 0, so going back from email goes to landing
         guard step.rawValue > 0, let prev = Step(rawValue: step.rawValue - 1) else { return }
         withAnimation(.easeInOut(duration: 0.22)) {
             step = prev
@@ -323,7 +323,6 @@ struct OnboardingFlowView: View {
                     return
                 }
                 
-                // Verify password: check locally or check via Supabase remote database
                 let email = draft.normalizedEmail
                 let pass = draft.password
                 withAnimation { didSubmit = true }
@@ -334,6 +333,7 @@ struct OnboardingFlowView: View {
                     
                     if verifiedLocal || verifiedRemote {
                         draft.email = email
+                        draft.authMode = .login // Flag as a recurring account session
                         onFinished(draft)
                     } else {
                         withAnimation {
@@ -383,22 +383,8 @@ struct OnboardingFlowView: View {
         draft.leftEyePower = String(format: "%.2f", leftPower)
         draft.rightEyePower = String(format: "%.2f", rightPower)
 
-//        if step == .personal {
-//            if Calendar.current.isDateInToday(draft.dateOfBirth) {
-//                var components = DateComponents()
-//                components.year = 1950
-//                components.month = 1
-//                components.day = 1
-//                if let fallbackDate = Calendar.current.date(from: components) {
-//                    draft.dateOfBirth = fallbackDate
-//                }
-//            }
-//            if draft.gender.isEmpty {
-//                draft.gender = "Prefer not to say"
-            //}
-        //}
-
         if step == .conditions {
+            draft.authMode = .create // Flag as a new conversion session
             withAnimation { didSubmit = true }
             onFinished(draft)
             return
@@ -418,16 +404,11 @@ struct OnboardingFlowView: View {
             if draft.trimmedName.isEmpty {
                 return "We'd love to know your name! Please enter it to continue."
             }
-            _ = Calendar.current.date(byAdding: .year, value: -10, to: Date()) ?? Date()
-//            if draft.dateOfBirth > tenYearsAgo {
-//                return "Lucid is designed for ages 10 and up. We look forward to welcoming you soon!"
-//            }
         case .eyePower:
             return nil
         case .conditions:
             return nil
         }
-
         return nil
     }
 
@@ -441,6 +422,7 @@ struct OnboardingFlowView: View {
         let components = calendar.dateComponents([.year], from: dateOfBirth, to: Date())
         return max(0, components.year ?? 0)
     }
+
     private func handleAppleSignIn(idToken: String, email: String, fullName: String) {
         withAnimation { didSubmit = true }
         
@@ -457,10 +439,10 @@ struct OnboardingFlowView: View {
                 localUser.id = uid
                 try? SwiftDataManager.shared.context.save()
                 
-                // 1. Check if user exists by ID first (most robust, works on subsequent sign-ins)
                 let existsById = await SupabaseManager.shared.checkUserExists(id: uid)
                 if existsById {
                     draft.email = userEmail.isEmpty ? (authEmail ?? "") : userEmail
+                    draft.authMode = .login // Flag as a returning user session
                     _ = await SupabaseManager.shared.fetchAndApplyUser(byId: uid, to: localUser)
                     
                     await MainActor.run {
@@ -470,18 +452,17 @@ struct OnboardingFlowView: View {
                 }
             }
             
-            // 2. Fallback to checking by email if not matched by ID
             if !userEmail.isEmpty {
                 let existsByEmail = await SupabaseManager.shared.checkUserExists(email: userEmail)
                 if existsByEmail {
                     draft.email = userEmail
+                    draft.authMode = .login // Flag as a returning user session
                     _ = await SupabaseManager.shared.fetchAndApplyUser(byEmail: userEmail, to: localUser)
                     
                     await MainActor.run {
                         onFinished(draft)
                     }
                 } else {
-                    // Proceed to personal details with prefilled info
                     await MainActor.run {
                         didSubmit = false
                         draft.email = userEmail
@@ -519,12 +500,10 @@ struct OnboardingLoadingOverlay: View {
     
     var body: some View {
         ZStack {
-            // Frosted glassmorphism background
             Color.black.opacity(0.85)
                 .ignoresSafeArea()
             
             VStack(spacing: 28) {
-                // Circular Glowing Spinner
                 ZStack {
                     Circle()
                         .stroke(Color.white.opacity(0.08), lineWidth: 5)
@@ -560,8 +539,6 @@ struct OnboardingLoadingOverlay: View {
                             insertion: .move(edge: .bottom).combined(with: .opacity),
                             removal: .move(edge: .top).combined(with: .opacity)
                         ))
-                    
-                    // Secure Supabase text removed as requested
                 }
                 .padding(.horizontal, 40)
             }
@@ -585,7 +562,6 @@ private struct LandingStep: View {
         VStack(spacing: 0) {
             Spacer()
             
-            // Glowing Eye Icon Logo
             ZStack {
                 Circle()
                     .fill(Color.accentColor.opacity(0.12))
@@ -608,7 +584,6 @@ private struct LandingStep: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 180, height: 180)
                     .clipShape(Circle())
-                    
                     .shadow(color: Color.accentColor.opacity(0.5), radius: 12, x: 0, y: 6)
             }
             
@@ -721,8 +696,6 @@ private struct TermsSheetView: UIViewControllerRepresentable {
     }
 }
 
-
-
 // MARK: - EmailLoginStep
 private struct EmailLoginStep: View {
     @Binding var email: String
@@ -741,16 +714,12 @@ private struct EmailLoginStep: View {
                     .padding(.bottom, 4)
             }
 
-            // Instruction copy
             Text(instructionText)
                 .font(.system(size: 15, weight: .medium, design: .rounded))
                 .foregroundStyle(Color.accentColor)
                 .padding(.bottom, 4)
                 .fixedSize(horizontal: false, vertical: true)
 
-            // Email Field
-            
-            // Email Field - Fully Reworked to block accent color hijacking
             VStack(alignment: .leading, spacing: 8) {
                 Text("Email Address")
                     .font(.system(size: 14, weight: .bold))
@@ -761,22 +730,20 @@ private struct EmailLoginStep: View {
                         .foregroundStyle(Color.white.opacity(0.4))
                     
                     ZStack(alignment: .leading) {
-                        // Manual placeholder layer: untouched by system accent tints
                         if email.isEmpty {
                             Text("example@apple.com")
-                                .font(.system(size: 16, design: .default)) // Matches standard TextField size
-                                .foregroundStyle(Color.white.opacity(0.25)) // Pure muted grey
+                                .font(.system(size: 16, design: .default))
+                                .foregroundStyle(Color.white.opacity(0.25))
                                 .allowsHitTesting(false)
                                 .tint(Color.white.opacity(0.25))
                         }
                         
-                        // Clean, untinted interactive text input
                         TextField("", text: $email)
                             .keyboardType(.emailAddress)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .foregroundStyle(.white)
-                            .tint(Color.accentColor) // Keeps ONLY the blinking insertion cursor blue/accented
+                            .tint(Color.accentColor)
                             .onChange(of: email) { _, _ in
                                 emailStatus = .unchecked
                                 authMode = .undecided
@@ -803,7 +770,6 @@ private struct EmailLoginStep: View {
                 .padding(.vertical, 20)
             }
 
-            // Password Field
             if emailStatus == .present || emailStatus == .notPresent {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(emailStatus == .present ? "Password" : "Create Password")
@@ -838,7 +804,6 @@ private struct EmailLoginStep: View {
                 }
             }
 
-            // Confirm Password Field (Create Only)
             if emailStatus == .notPresent {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Confirm Password")
@@ -868,8 +833,8 @@ private struct EmailLoginStep: View {
                     .overlay(
                         RoundedRectangle(cornerRadius: 14)
                             .stroke(Color.white.opacity(0.10), lineWidth: 1)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
             }
 
@@ -895,18 +860,8 @@ private struct EmailLoginStep: View {
         }
     }
 
-    private var helperCopy: String {
-        switch emailStatus {
-        case .notPresent:
-            return "" // to be removed
-        case .present:
-            return "" // to be removed
-        default:
-            return ""
-        }
-    }
+    private var helperCopy: String { "" }
 }
-
 
 // MARK: - AccountModeBadge
 private struct AccountModeBadge: View {
@@ -931,17 +886,17 @@ private struct AccountModeBadge: View {
 private struct PersonalDetailsStep: View {
     @Binding var name: String
 
-
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("What should we call you")
                 .font(.subheadline)
-                .foregroundStyle(Color.accent)
+                .foregroundStyle(Color.accentColor)
                 .fixedSize(horizontal: false, vertical: true)
 
-            // Name Field
             VStack(alignment: .leading, spacing: 8) {
-                fieldTitle("Name")
+                Text("Name")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(Color.white.opacity(0.8))
                 
                 HStack {
                     Image(systemName: "person")
@@ -961,12 +916,6 @@ private struct PersonalDetailsStep: View {
             }
         }
         .padding(.top, 10)
-    }
-
-    private func fieldTitle(_ text: String) -> some View {
-        Text(text)
-            .font(.system(size: 14, weight: .bold))
-            .foregroundStyle(Color.white.opacity(0.8))
     }
 }
 
@@ -1164,24 +1113,19 @@ private struct FlowLayout<Data: RandomAccessCollection, Content: View>: View whe
                             width = 0
                             height -= dimension.height
                         }
-
                         let result = width
-
                         if tag == tags.last {
                             width = 0
                         } else {
                             width -= dimension.width
                         }
-
                         return result
                     }
                     .alignmentGuide(.top) { _ in
                         let result = height
-
                         if tag == tags.last {
                             height = 0
                         }
-
                         return result
                     }
             }
