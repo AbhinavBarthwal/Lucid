@@ -27,23 +27,11 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B5F278372FC29AFA009CBA11 /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		ADCBCE9A2F14ACAD008D4CCE /* Lucid.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lucid.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		B5F2781E2FC29AF9009CBA11 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		B5F278202FC29AF9009CBA11 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		B5F2783D2FC29B24009CBA11 /* DeviceActivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DeviceActivity.framework; path = System/Library/Frameworks/DeviceActivity.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -63,11 +51,6 @@
 				ADCBCEAC2F14ACAE008D4CCE /* Exceptions for "Lucid" folder in "Lucid" target */,
 			);
 			path = Lucid;
-			sourceTree = "<group>";
-		};
-		B5F278222FC29AF9009CBA11 /* LucidwidgetExtension */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = LucidwidgetExtension;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -94,7 +77,6 @@
 			isa = PBXGroup;
 			children = (
 				ADCBCE9C2F14ACAD008D4CCE /* Lucid */,
-				B5F278222FC29AF9009CBA11 /* LucidwidgetExtension */,
 				B5F2781D2FC29AF9009CBA11 /* Frameworks */,
 				ADCBCE9B2F14ACAD008D4CCE /* Products */,
 			);
@@ -111,9 +93,7 @@
 		B5F2781D2FC29AF9009CBA11 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				B5F2781E2FC29AF9009CBA11 /* WidgetKit.framework */,
 				B5F278202FC29AF9009CBA11 /* SwiftUI.framework */,
-				B5F2783D2FC29B24009CBA11 /* DeviceActivity.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -129,7 +109,6 @@
 				ADCBCE972F14ACAD008D4CCE /* Frameworks */,
 				ADCBCE982F14ACAD008D4CCE /* Resources */,
 				AD43099C2F5FD36300915CF3 /* Embed Frameworks */,
-				B5F278372FC29AFA009CBA11 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);

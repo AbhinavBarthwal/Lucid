@@ -2,10 +2,10 @@ import UIKit
 
 class NotificationsViewController: UITableViewController {
 
-    @IBOutlet weak var digitalTimeSwitch: UISwitch?
+
     @IBOutlet weak var reminderSwitch: UISwitch?
     @IBOutlet weak var eyeTrendSwitch: UISwitch?
-    @IBOutlet weak var suggestionSwitch: UISwitch?
+
     @IBOutlet weak var badgeSwitch: UISwitch?
     @IBOutlet weak var exerciseReminderSwitch: UISwitch?
 
@@ -20,9 +20,7 @@ class NotificationsViewController: UITableViewController {
         }
     }
 
-    @IBAction func digitalTimeChanged(_ sender: UISwitch) {
-        saveState(key: "digitalTime", value: sender.isOn)
-    }
+
 
     @IBAction func reminderChanged(_ sender: UISwitch) {
         saveState(key: "reminder", value: sender.isOn)
@@ -51,9 +49,7 @@ class NotificationsViewController: UITableViewController {
         }
     }
 
-    @IBAction func suggestionChanged(_ sender: UISwitch) {
-        saveState(key: "suggestion", value: sender.isOn)
-    }
+
 
     @IBAction func badgeChanged(_ sender: UISwitch) {
         saveState(key: "badge", value: sender.isOn)
@@ -66,10 +62,10 @@ class NotificationsViewController: UITableViewController {
     func loadSwitchStates() {
         NotificationManager.shared.registerDefaultSettings()
         
-        digitalTimeSwitch?.isOn = UserDefaults.standard.bool(forKey: "digitalTime")
+
         reminderSwitch?.isOn = UserDefaults.standard.bool(forKey: "reminder")
         eyeTrendSwitch?.isOn = UserDefaults.standard.bool(forKey: "eyeTrend")
-        suggestionSwitch?.isOn = UserDefaults.standard.bool(forKey: "suggestion")
+
         badgeSwitch?.isOn = UserDefaults.standard.bool(forKey: "badge")
         exerciseReminderSwitch?.isOn = UserDefaults.standard.bool(forKey: "exerciseReminder")
     }

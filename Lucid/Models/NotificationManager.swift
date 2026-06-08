@@ -45,12 +45,10 @@ public class NotificationManager {
 
     public func registerDefaultSettings() {
         UserDefaults.standard.register(defaults: [
-            "digitalTime": true,
             "reminder": true,
             "eyeTrend": true,
             "exerciseReminder": true,
-            "badge": true,
-            "suggestion": true
+            "badge": true
         ])
     }
     
@@ -185,6 +183,23 @@ public class NotificationManager {
             if !idsToCancel.isEmpty {
                 UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: idsToCancel)
                 print("Lucid: Cancelled \(idsToCancel.count) pending exercise reminders.")
+            }
+        }
+    }
+    
+    public func printPendingNotifications() {
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            print("🔔 Pending Notification Requests Count: \(requests.count)")
+            for request in requests {
+                let triggerDesc: String
+                if let calendarTrigger = request.trigger as? UNCalendarNotificationTrigger {
+                    triggerDesc = "Calendar (dateComponents: \(calendarTrigger.dateComponents))"
+                } else if let intervalTrigger = request.trigger as? UNTimeIntervalNotificationTrigger {
+                    triggerDesc = "Interval (seconds: \(intervalTrigger.timeInterval), repeats: \(intervalTrigger.repeats))"
+                } else {
+                    triggerDesc = "Immediate / None"
+                }
+                print("  - ID: \(request.identifier) | Title: \"\(request.content.title)\" | Trigger: \(triggerDesc)")
             }
         }
     }

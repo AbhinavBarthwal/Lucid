@@ -35,6 +35,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
         UINavigationBar.appearance().compactAppearance = appearance
         
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+            NotificationManager.shared.printPendingNotifications()
+        }
+        
         return true
     }
 
