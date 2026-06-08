@@ -64,7 +64,8 @@ class RecommendationEngine {
             "NearFar": 110
         ]
         let sumOfRecommendedExercises = newRecommendations.compactMap { exerciseTimes[$0] }.reduce(0, +)
-        user.dailyExerciseGoal = sumOfRecommendedExercises
+        let minutes = Int(ceil(Double(sumOfRecommendedExercises) / 60.0))
+        user.dailyExerciseGoal = minutes * 60
         
         // 6. Save and Sync
         do {

@@ -68,7 +68,9 @@ final class User: Codable {
             "NearFar": 110
         ]
         let currentRecs = recommendedExercises.isEmpty ? ["SmoothPursuit", "Blink"] : recommendedExercises
-        return currentRecs.compactMap { exerciseTimes[$0] }.reduce(0, +)
+        let sum = currentRecs.compactMap { exerciseTimes[$0] }.reduce(0, +)
+        let minutes = Int(ceil(Double(sum) / 60.0))
+        return minutes * 60
     }
 
     func checkDailyReset() {
@@ -83,7 +85,7 @@ final class User: Codable {
             self.dailyExerciseGoal = calculateDailyGoalFromRecommendations()
             
             let completedSeconds = getTotalSeconds(for: today)
-            let isCompleted = completedSeconds >= dailyExerciseGoal
+            let isCompleted = (completedSeconds / 60) >= (dailyExerciseGoal / 60)
             self.streak.append(StreakDay(date: today, isCompleted: isCompleted))
             self.streak.sort(by: { $0.date < $1.date })
             
@@ -98,7 +100,7 @@ final class User: Codable {
         checkDailyReset()
         
         let completedSeconds = getTotalSeconds(for: today)
-        let isCompleted = completedSeconds >= dailyExerciseGoal
+        let isCompleted = (completedSeconds / 60) >= (dailyExerciseGoal / 60)
         
         if let index = streak.firstIndex(where: { calendar.isDate($0.date, inSameDayAs: today) }) {
             streak[index].isCompleted = isCompleted
