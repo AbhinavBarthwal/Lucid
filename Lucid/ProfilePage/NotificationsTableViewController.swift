@@ -8,6 +8,7 @@ class NotificationsViewController: UITableViewController {
 
     @IBOutlet weak var badgeSwitch: UISwitch?
     @IBOutlet weak var exerciseReminderSwitch: UISwitch?
+    @IBOutlet weak var eyeTipsSwitch: UISwitch?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,6 +22,15 @@ class NotificationsViewController: UITableViewController {
     }
 
 
+
+    @IBAction func eyeTipsChanged(_ sender: UISwitch) {
+        saveState(key: "eyeTips", value: sender.isOn)
+        if sender.isOn {
+            NotificationManager.shared.scheduleDailyEyeTipReminder()
+        } else {
+            NotificationManager.shared.cancelDailyEyeTipReminder()
+        }
+    }
 
     @IBAction func reminderChanged(_ sender: UISwitch) {
         saveState(key: "reminder", value: sender.isOn)
@@ -68,5 +78,6 @@ class NotificationsViewController: UITableViewController {
 
         badgeSwitch?.isOn = UserDefaults.standard.bool(forKey: "badge")
         exerciseReminderSwitch?.isOn = UserDefaults.standard.bool(forKey: "exerciseReminder")
+        eyeTipsSwitch?.isOn = UserDefaults.standard.bool(forKey: "eyeTips")
     }
 }
