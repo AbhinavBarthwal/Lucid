@@ -646,7 +646,6 @@ extension SummaryViewController {
         let user = SwiftDataManager.shared.getOrCreateUser()
         let lastOSDI = user.osdiSessions.map { $0.date }.max()
         let lastCTest = user.eyeTestSessions.map { $0.startingTime }.max()
-        return .CTestDue
         // If there are absolutely no sessions, OSDI is due first
         if lastOSDI == nil && lastCTest == nil {
             return .OSDIDue
