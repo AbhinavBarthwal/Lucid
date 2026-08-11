@@ -16,7 +16,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
     var shouldShowCompletionSummary: Bool = true
 
     // MARK: - Speech
-    private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-IN"))
+    private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
     private let audioEngine = AVAudioEngine()
@@ -43,6 +43,35 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
     private var instructionNextButton: UIButton?
     private var instructionPrevButton: UIButton?
     private var currentInstructionIndex = 0
+
+    // MARK: - Transcription UI
+    private let transcriptionContainer: UIVisualEffectView = {
+        let blurEffect = UIBlurEffect(style: .systemThinMaterial)
+        let view = UIVisualEffectView(effect: blurEffect)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.cornerRadius = 16
+        view.clipsToBounds = true
+        view.alpha = 0 // Hidden initially
+        return view
+    }()
+    
+    private let transcriptionIcon: UIImageView = {
+        let imageView = UIImageView(image: UIImage(systemName: "waveform"))
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.tintColor = .secondaryLabel
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
+    private let transcriptionLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 16, weight: .medium)
+        label.textColor = .label
+        label.text = "Listening..."
+        label.textAlignment = .left
+        return label
+    }()
 
     private let eyeWarningLabel: UILabel = {
         let label = UILabel()
@@ -83,6 +112,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         setupUIInitialState()
         setupARKit()
         setupSpeech()
+        setupTranscriptionUI()
         instructionLabel.alpha = 0
         setupInstructionButtons()
         
@@ -336,7 +366,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         // ↓ Change the value below to adjust how long this message stays on screen.
         let eyeInstructionDuration: TimeInterval = 2.0  // ← seconds the message is visible
 
-        self.instructionLabel.text = "Cover your right eye"
+        self.instructionLabel.text = "Cover your left eye"
         UIView.animate(withDuration: 0.3) {
             self.instructionLabel.alpha = 1
         }
@@ -425,7 +455,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
     }
 
     private func showWarningSmoothly() {
-        let expectedText = !isTestingRightEye ? "Please close your right eye" : "Please close your left eye"
+        let expectedText = !isTestingRightEye ? "Please close your left eye" : "Please close your right eye"
         if eyeWarningLabel.text != expectedText {
             eyeWarningLabel.text = expectedText
         }
@@ -550,11 +580,11 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
                 self.landoltImageView.alpha = 0
                 self.numbers.forEach { $0.alpha = 0 }
 
-                // Always show "Cover your left eye" before the right-eye test —
+                // Always show "Cover your left eye" before the right-eye test —gi
                 // mandatory, mirrors the right-eye instruction in startActivePhase().
                 // ↓ Change the value below to adjust how long this message stays on screen.
                 let eyeInstructionDuration: TimeInterval = 2.0  // ← seconds the message is visible
-                self.instructionLabel.text = "Cover your left eye"
+                self.instructionLabel.text = "Cover your right eye"
                 UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 1 }
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + eyeInstructionDuration) {
@@ -577,16 +607,16 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         sceneView?.session.pause()
 
         // Always save the scores globally regardless of routing
-        EyeTestDataManager.shared.saveEyeTestScore(score: Double(leftEyeScore),  eye: "Left")
-        EyeTestDataManager.shared.saveEyeTestScore(score: Double(rightEyeScore), eye: "Right")
+        EyeTestDataManager.shared.saveEyeTestScore(score: Double(leftEyeScore),  eye: "Right")
+        EyeTestDataManager.shared.saveEyeTestScore(score: Double(rightEyeScore), eye: "Left")
 
         if shouldShowCompletionSummary {
             // MARK: - Old Flow (Detailed Result View)
-            let leftResult = CTestEyeResult.make(for: "Left Eye", rawScore: leftEyeScore)
-            let rightResult = CTestEyeResult.make(for: "Right Eye", rawScore: rightEyeScore)
+            let leftResult = CTestEyeResult.make(for: "Right Eye", rawScore: leftEyeScore)
+            let rightResult = CTestEyeResult.make(for: "Left Eye", rawScore: rightEyeScore)
 
-            let recentLeftSessions = EyeTestDataManager.shared.fetchRecentEyeTestSessions(for: "Left", limit: 2)
-            let recentRightSessions = EyeTestDataManager.shared.fetchRecentEyeTestSessions(for: "Right", limit: 2)
+            let recentLeftSessions = EyeTestDataManager.shared.fetchRecentEyeTestSessions(for: "Right", limit: 2)
+            let recentRightSessions = EyeTestDataManager.shared.fetchRecentEyeTestSessions(for: "Left", limit: 2)
             
             let previousComparison: CTestComparison? = {
                 guard recentLeftSessions.count > 1, recentRightSessions.count > 1 else {
@@ -649,7 +679,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         // invalid sample rate (0 Hz), which causes AVAudioEngine to abort with:
         // "required condition is false: IsFormatSampleRateAndChannelCountValid(format)"
         let audioSession = AVAudioSession.sharedInstance()
-        try? audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
+        try? audioSession.setCategory(.playAndRecord, mode: .spokenAudio, options: [.duckOthers, .defaultToSpeaker])
         try? audioSession.setActive(true, options: .notifyOthersOnDeactivation)
 
         recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
@@ -660,28 +690,50 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
 
             let spoken = result.bestTranscription.formattedString.lowercased()
             print("--- DEBUG SPEECH: \(spoken) ---")
+            
+            let latestWord = result.bestTranscription.segments.last?.substring ?? ""
+            DispatchQueue.main.async {
+                self.transcriptionLabel.text = latestWord.isEmpty ? "Listening..." : latestWord
+            }
 
             if !self.isProcessing {
-                guard let candidate = self.speechCandidate(from: result) else { return }
-                guard self.isReadyToProcess(candidate: candidate, isFinal: result.isFinal) else { return }
+                let normalized = spoken
+                    .replacingOccurrences(of: "can't see", with: "cannot see")
+                    .replacingOccurrences(of: "cant see", with: "cannot see")
 
-                if candidate.isSkip {
+                var matchedValue: String?
+                var isSkipDetected = false
+
+                if normalized.contains("cannot see") || normalized.contains("skip") {
+                    isSkipDetected = true
+                } else {
+                    for segment in result.bestTranscription.segments.reversed() {
+                        let token = self.cleanSpeechToken(segment.substring)
+                        if let value = self.numberValue(for: token) {
+                            matchedValue = value
+                            break
+                        }
+                    }
+                }
+
+                if isSkipDetected {
                     self.isProcessing = true
                     self.handleUserSkip()
-                } else if candidate.value == self.currentCorrectNumber {
+                } else if let value = matchedValue {
                     self.isProcessing = true
-                    self.stopAudio(hideBorder: false)        // close mic immediately on recognition
-                    SiriListeningBorderView.shared.setBorderState(.correct)   // green light on
-                    self.blinkC {
-                        self.generateNextTarget(isSuccess: true)
-                    }
-                } else {
-                    self.isProcessing = true
-                    self.stopAudio(hideBorder: false)        // close mic immediately on recognition
-                    SiriListeningBorderView.shared.setBorderState(.incorrect) // red light on
-                    Vibrator.playDouble()
-                    self.blinkC {
-                        self.generateNextTarget(isSuccess: false)
+                    if value == self.currentCorrectNumber {
+                        self.stopAudio(hideBorder: false)        // close mic immediately on recognition
+                        SiriListeningBorderView.shared.setBorderState(.correct)   // green light on
+                        self.blinkC {
+                            self.generateNextTarget(isSuccess: true)
+                        }
+                    } else {
+                        self.stopAudio(hideBorder: false)        // close mic immediately on recognition
+                        SiriListeningBorderView.shared.setBorderState(.incorrect) // red light on
+                        Vibrator.playDouble()
+                        self.blinkC {
+                            self.generateNextTarget(isSuccess: false)
+                        }
                     }
                 }
             }
@@ -707,6 +759,22 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
         SiriListeningBorderView.shared.setBorderState(.listening)
         SiriListeningBorderView.shared.startListening(audioEngine: audioEngine)
         SiriListeningBorderView.shared.show()
+        
+        UIView.animate(
+            withDuration: 0.6,
+            delay: 0,
+            usingSpringWithDamping: 0.75,
+            initialSpringVelocity: 0.5,
+            options: [.allowUserInteraction]
+        ) {
+            self.transcriptionContainer.alpha = 1.0
+            self.transcriptionContainer.transform = .identity
+            self.transcriptionLabel.text = "Listening..."
+        }
+        if #available(iOS 17.0, *) {
+            self.transcriptionIcon.addSymbolEffect(.pulse.byLayer, options: .repeating)
+        }
+        
         let generator = UISelectionFeedbackGenerator()
         generator.selectionChanged()
     }
@@ -719,6 +787,10 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
             // Smoothly hide border — display link fades it, no pop
             SiriListeningBorderView.shared.hide()
             SiriListeningBorderView._latestRMS = 0
+        }
+        
+        if #available(iOS 17.0, *) {
+            self.transcriptionIcon.removeAllSymbolEffects()
         }
 
         if audioEngine.isRunning {
@@ -741,6 +813,29 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
 
     private func setupSpeech() {
         SFSpeechRecognizer.requestAuthorization { _ in }
+    }
+
+    private func setupTranscriptionUI() {
+        view.addSubview(transcriptionContainer)
+        transcriptionContainer.contentView.addSubview(transcriptionIcon)
+        transcriptionContainer.contentView.addSubview(transcriptionLabel)
+        
+        NSLayoutConstraint.activate([
+            transcriptionContainer.topAnchor.constraint(equalTo: view.topAnchor, constant: 48),
+            transcriptionContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            transcriptionContainer.heightAnchor.constraint(equalToConstant: 44),
+            transcriptionContainer.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, constant: -32),
+            transcriptionContainer.widthAnchor.constraint(greaterThanOrEqualToConstant: 160),
+            
+            transcriptionIcon.leadingAnchor.constraint(equalTo: transcriptionContainer.contentView.leadingAnchor, constant: 16),
+            transcriptionIcon.centerYAnchor.constraint(equalTo: transcriptionContainer.contentView.centerYAnchor),
+            transcriptionIcon.widthAnchor.constraint(equalToConstant: 20),
+            transcriptionIcon.heightAnchor.constraint(equalToConstant: 20),
+            
+            transcriptionLabel.leadingAnchor.constraint(equalTo: transcriptionIcon.trailingAnchor, constant: 12),
+            transcriptionLabel.trailingAnchor.constraint(equalTo: transcriptionContainer.contentView.trailingAnchor, constant: -16),
+            transcriptionLabel.centerYAnchor.constraint(equalTo: transcriptionContainer.contentView.centerYAnchor)
+        ])
     }
 
     // MARK: - Helpers

@@ -398,7 +398,7 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                     iconName = "doc.text.fill"
                 } else {
                     titleText = "C Test"
-                    reasonText = "Nice work on the OSDI! One more let's check how sharp your focus is today"
+                    reasonText = "Nice work on the OSDI! just one more, let's check how sharp your focus is today"
                     iconName = "eye.fill"
                 }
 
@@ -487,7 +487,7 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
             
             // Map the data into the 4 grid items
             switch indexPath.item {
-            case 0:
+            case 2:
                 cell.configure(
                     title: "Accuracy",
                     subtitle: trendSubtitle(
@@ -500,7 +500,7 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                     iconName: "target",
                     isEmptyState: !accuracyTrends.hasRecordedTrendData
                 )
-            case 1:
+            case 3:
                 cell.configure(
                     title: "Responsiveness",
                     subtitle: trendSubtitle(
@@ -513,7 +513,7 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                     iconName: "bolt.fill",
                     isEmptyState: !responsivenessTrends.hasRecordedTrendData
                 )
-            case 2:
+            case 1:
                 cell.configure(
                     title: "C Test Score",
                     subtitle: trendSubtitle(
@@ -526,7 +526,7 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                     iconName: "eye.fill",
                     isEmptyState: !eyeTestTrends.hasRecordedTrendData
                 )
-            case 3:
+            case 0:
                 cell.configure(
                     title: "OSDI Score",
                     subtitle: trendSubtitle(
@@ -575,8 +575,12 @@ class SummaryViewController: UIViewController, UICollectionViewDataSource, UICol
                     }
                 }
             } else if currentItemType == "rec" {
-                guard let exercise = currentDailyExercise() else { return }
-                launchExercise(exercise)
+                // DEBUG: Launch Landolt C Test instead of daily exercise
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                if let vc = storyboard.instantiateViewController(withIdentifier: "LandoltCViewController") as? LandoltCViewController {
+                    vc.hidesBottomBarWhenPushed = true
+                    navigationController?.pushViewController(vc, animated: true)
+                }
             } else if currentItemType == "streak" {
                 let user = SwiftDataManager.shared.getOrCreateUser()
                 user.updateTodayStreakStatus()
@@ -642,7 +646,7 @@ extension SummaryViewController {
         let user = SwiftDataManager.shared.getOrCreateUser()
         let lastOSDI = user.osdiSessions.map { $0.date }.max()
         let lastCTest = user.eyeTestSessions.map { $0.startingTime }.max()
-        
+        return .CTestDue
         // If there are absolutely no sessions, OSDI is due first
         if lastOSDI == nil && lastCTest == nil {
             return .OSDIDue

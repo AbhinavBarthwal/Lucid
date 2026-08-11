@@ -218,19 +218,26 @@ public class NotificationManager {
     
     // MARK: - Bi-weekly Test Reminder (14 days)
     public func scheduleBiWeeklyReminder() {
-        let content = UNMutableNotificationContent()
-        content.title = "Time for a quick vision check!"
-        content.body = "It's time for your biweekly eye check-up! Let's see how your eyes are feeling today."
-        content.sound = .default
-        
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 14 * 24 * 3600, repeats: true)
-        let request = UNNotificationRequest(identifier: "biweeklyTestReminder", content: content, trigger: trigger)
-        
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("Lucid: Error scheduling bi-weekly reminder: \(error)")
-            } else {
-                print("Lucid: Bi-weekly reminder scheduled successfully.")
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            if requests.contains(where: { $0.identifier == "biweeklyTestReminder" }) {
+                print("Lucid: Bi-weekly reminder is already scheduled. Skipping.")
+                return
+            }
+            
+            let content = UNMutableNotificationContent()
+            content.title = "Time for a quick vision check!"
+            content.body = "It's time for your biweekly eye check-up! Let's see how your eyes are feeling today."
+            content.sound = .default
+            
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 14 * 24 * 3600, repeats: true)
+            let request = UNNotificationRequest(identifier: "biweeklyTestReminder", content: content, trigger: trigger)
+            
+            UNUserNotificationCenter.current().add(request) { error in
+                if let error = error {
+                    print("Lucid: Error scheduling bi-weekly reminder: \(error)")
+                } else {
+                    print("Lucid: Bi-weekly reminder scheduled successfully.")
+                }
             }
         }
     }
@@ -242,19 +249,26 @@ public class NotificationManager {
     
     // MARK: - Weekly Trends Reminder (7 days)
     public func scheduleWeeklyTrendsReminder() {
-        let content = UNMutableNotificationContent()
-        content.title = "Your weekly eye health trends are ready!"
-        content.body = "Take a peek at your eye health summary from this past week!"
-        content.sound = .default
-        
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 7 * 24 * 3600, repeats: true)
-        let request = UNNotificationRequest(identifier: "weeklyTrendsReminder", content: content, trigger: trigger)
-        
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("Lucid: Error scheduling weekly trends reminder: \(error)")
-            } else {
-                print("Lucid: Weekly trends reminder scheduled successfully.")
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            if requests.contains(where: { $0.identifier == "weeklyTrendsReminder" }) {
+                print("Lucid: Weekly trends reminder is already scheduled. Skipping.")
+                return
+            }
+            
+            let content = UNMutableNotificationContent()
+            content.title = "Your weekly eye health trends are ready!"
+            content.body = "Take a peek at your eye health summary from this past week!"
+            content.sound = .default
+            
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 7 * 24 * 3600, repeats: true)
+            let request = UNNotificationRequest(identifier: "weeklyTrendsReminder", content: content, trigger: trigger)
+            
+            UNUserNotificationCenter.current().add(request) { error in
+                if let error = error {
+                    print("Lucid: Error scheduling weekly trends reminder: \(error)")
+                } else {
+                    print("Lucid: Weekly trends reminder scheduled successfully.")
+                }
             }
         }
     }

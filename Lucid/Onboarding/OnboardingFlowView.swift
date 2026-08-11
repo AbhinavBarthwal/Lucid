@@ -125,8 +125,8 @@ struct OnboardingFlowView: View {
                             onContinue: {
                                 withAnimation { step = .email }
                             },
-                            onAppleSignIn: { idToken, email, fullName in
-                                handleAppleSignIn(idToken: idToken, email: email, fullName: fullName)
+                            onAppleSignIn: { userIdentifier, idToken, email, fullName in
+                                handleAppleSignIn(userIdentifier: userIdentifier, idToken: idToken, email: email, fullName: fullName)
                             }
                         )
                     case .email:
@@ -423,7 +423,7 @@ struct OnboardingFlowView: View {
         return max(0, components.year ?? 0)
     }
 
-    private func handleAppleSignIn(idToken: String, email: String, fullName: String) {
+    private func handleAppleSignIn(userIdentifier: String, idToken: String, email: String, fullName: String) {
         withAnimation { didSubmit = true }
         
         Task {
@@ -431,51 +431,72 @@ struct OnboardingFlowView: View {
             let authEmail = authResult.email
             let authId = authResult.uid
             
-            let userEmail = !email.isEmpty ? email : (authEmail ?? "")
-            let userName = fullName
-            
-            let localUser = SwiftDataManager.shared.getOrCreateUser()
-            if let uid = authId {
-                localUser.id = uid
-                try? SwiftDataManager.shared.context.save()
-                
-                let existsById = await SupabaseManager.shared.checkUserExists(id: uid)
-                if existsById {
-                    draft.email = userEmail.isEmpty ? (authEmail ?? "") : userEmail
-                    draft.authMode = .login // Flag as a returning user session
-                    _ = await SupabaseManager.shared.fetchAndApplyUser(byId: uid, to: localUser)
-                    
-                    await MainActor.run {
-                        onFinished(draft)
-                    }
-                    return
-                }
+            if !userIdentifier.isEmpty {
+                UserDefaults.standard.set(userIdentifier, forKey: "apple_user_id")
             }
             
-            if !userEmail.isEmpty {
-                let existsByEmail = await SupabaseManager.shared.checkUserExists(email: userEmail)
-                if existsByEmail {
-                    draft.email = userEmail
-                    draft.authMode = .login // Flag as a returning user session
+            let userEmail: String
+            if !email.isEmpty {
+                userEmail = email
+            } else if let authEmail, !authEmail.isEmpty {
+                userEmail = authEmail
+            } else if !userIdentifier.isEmpty {
+                userEmail = "\(userIdentifier.prefix(12))@privaterelay.appleid.com"
+            } else {
+                userEmail = "apple_user@lucid.app"
+            }
+            
+            let userName = !fullName.isEmpty ? fullName : "Lucid User"
+            let localUser = SwiftDataManager.shared.getOrCreateUser()
+            
+            var userExists = false
+            if let uid = authId {
+                userExists = await SupabaseManager.shared.checkUserExists(id: uid)
+            }
+            
+            if !userExists && !userEmail.isEmpty {
+                userExists = await SupabaseManager.shared.checkUserExists(email: userEmail)
+            }
+            
+            if userExists {
+                // AUTOMATIC SIGN IN
+                if let uid = authId {
+                    localUser.id = uid
+                    _ = await SupabaseManager.shared.fetchAndApplyUser(byId: uid, to: localUser)
+                } else if !userEmail.isEmpty {
                     _ = await SupabaseManager.shared.fetchAndApplyUser(byEmail: userEmail, to: localUser)
-                    
-                    await MainActor.run {
-                        onFinished(draft)
-                    }
-                } else {
-                    await MainActor.run {
-                        didSubmit = false
-                        draft.email = userEmail
-                        if !userName.isEmpty { draft.name = userName }
-                        withAnimation {
-                            step = .personal
-                        }
-                    }
+                }
+                
+                if (localUser.email ?? "").isEmpty {
+                    localUser.email = userEmail
+                }
+                try? SwiftDataManager.shared.context.save()
+                
+                draft.email = userEmail
+                draft.authMode = .login // Flag as returning user session
+                
+                await MainActor.run {
+                    onFinished(draft)
                 }
             } else {
+                // AUTOMATIC SIGN UP
+                if let uid = authId {
+                    localUser.id = uid
+                }
+                localUser.email = userEmail
+                if localUser.name.isEmpty || localUser.name == "User" || localUser.name.trimmingCharacters(in: .whitespaces).isEmpty {
+                    localUser.name = userName
+                }
+                
+                try? SwiftDataManager.shared.context.save()
+                await SupabaseManager.shared.syncUser(localUser)
+                
+                draft.email = userEmail
+                if !userName.isEmpty { draft.name = userName }
+                draft.authMode = .create // Flag as new user session
+                
                 await MainActor.run {
-                    didSubmit = false
-                    validationMessage = "We couldn't get your email from Apple. No worries, let's try signing up manually!"
+                    onFinished(draft)
                 }
             }
         }
@@ -554,9 +575,10 @@ struct OnboardingLoadingOverlay: View {
 // MARK: - LandingStep
 private struct LandingStep: View {
     let onContinue: () -> Void
-    let onAppleSignIn: (String, String, String) -> Void
+    let onAppleSignIn: (String, String, String, String) -> Void
 
     @State private var isShowingTerms = false
+    @State private var hasExistingAppleID: Bool = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -603,7 +625,7 @@ private struct LandingStep: View {
                 }
                 
                 VStack(spacing: 12) {
-                    SignInWithAppleButton(.signIn) { request in
+                    SignInWithAppleButton(hasExistingAppleID ? .signIn : .signUp) { request in
                         request.requestedScopes = [.fullName, .email]
                     } onCompletion: { result in
                         switch result {
@@ -612,12 +634,17 @@ private struct LandingStep: View {
                                let identityToken = appleIDCredential.identityToken,
                                let idTokenString = String(data: identityToken, encoding: .utf8) {
                                 
+                                let appleUser = appleIDCredential.user
                                 let email = appleIDCredential.email ?? ""
                                 let givenName = appleIDCredential.fullName?.givenName ?? ""
                                 let familyName = appleIDCredential.fullName?.familyName ?? ""
                                 let fullName = [givenName, familyName].filter { !$0.isEmpty }.joined(separator: " ")
                                 
-                                onAppleSignIn(idTokenString, email, fullName)
+                                if !appleUser.isEmpty {
+                                    UserDefaults.standard.set(appleUser, forKey: "apple_user_id")
+                                }
+                                
+                                onAppleSignIn(appleUser, idTokenString, email, fullName)
                             }
                         case .failure(let error):
                             print("Apple Sign In failed: \(error.localizedDescription)")
@@ -672,8 +699,32 @@ private struct LandingStep: View {
             }
             .padding(.bottom, 30)
         }
+        .task {
+            await checkAppleIDExistence()
+        }
         .sheet(isPresented: $isShowingTerms) {
             TermsSheetView(isPresented: $isShowingTerms)
+        }
+    }
+
+    private func checkAppleIDExistence() async {
+        let savedID = UserDefaults.standard.string(forKey: "apple_user_id") ?? ""
+        if !savedID.isEmpty {
+            let provider = ASAuthorizationAppleIDProvider()
+            let state = await withCheckedContinuation { continuation in
+                provider.getCredentialState(forUserID: savedID) { state, _ in
+                    continuation.resume(returning: state)
+                }
+            }
+            await MainActor.run {
+                hasExistingAppleID = (state == .authorized)
+            }
+        } else {
+            let localUser = SwiftDataManager.shared.getOrCreateUser()
+            let hasEmail = !(localUser.email ?? "").isEmpty
+            await MainActor.run {
+                hasExistingAppleID = hasEmail
+            }
         }
     }
 }

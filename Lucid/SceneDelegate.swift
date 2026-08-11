@@ -1,5 +1,6 @@
 // SceneDelegate.swift
 import UIKit
+import UserNotifications
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
@@ -12,6 +13,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         Task { @MainActor in
             OnboardingPresenter.presentIfNeeded(on: self.window)
             self.scheduleGuidanceOverlayCheck()
+        }
+        
+        // Request notification permission on first launch (or after user resets permissions).
+        // getNotificationSettings is idempotent — the dialog only fires when status is .notDetermined.
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            if settings.authorizationStatus == .notDetermined {
+                Task { @MainActor in
+                    NotificationManager.shared.requestAuthorization()
+                }
+            }
         }
     }
     

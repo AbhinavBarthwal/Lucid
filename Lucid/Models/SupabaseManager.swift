@@ -105,7 +105,7 @@ class SupabaseManager {
                 credentials: OpenIDConnectCredentials(
                     provider: .apple,
                     idToken: idToken,
-                    nonce: nonce ?? ""
+                    nonce: nonce
                 )
             )
             print("☁️ Apple Sign-In successful. User ID: \(session.user.id)")

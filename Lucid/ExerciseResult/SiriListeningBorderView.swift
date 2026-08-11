@@ -31,6 +31,10 @@ class SiriListeningBorderView: UIView {
     private func updateColorsForCurrentState() {
         guard shimmerLayer != nil, borderLayer != nil, glowLayer != nil else { return }
         
+        CATransaction.begin()
+        CATransaction.setAnimationDuration(0.45)
+        CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeInEaseOut))
+        
         switch borderState {
         case .listening:
             shimmerLayer.colors = [
@@ -69,6 +73,8 @@ class SiriListeningBorderView: UIView {
             glowLayer.strokeColor = UIColor.systemRed.withAlphaComponent(0.4).cgColor
             glowLayer.shadowColor = UIColor.systemRed.cgColor
         }
+        
+        CATransaction.commit()
     }
 
 
@@ -119,13 +125,13 @@ class SiriListeningBorderView: UIView {
     
     func show() {
         guard isActive else { return }
-        UIView.animate(withDuration: 0.3) {
+        UIView.animate(withDuration: 0.5) {
             self.alpha = 1
         }
     }
     
     func hide() {
-        UIView.animate(withDuration: 0.6) {
+        UIView.animate(withDuration: 0.8) {
             self.alpha = 0
         }
     }
