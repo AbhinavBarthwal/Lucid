@@ -2,9 +2,20 @@ import UIKit
 import ARKit
 import AudioToolbox
 import AVFoundation
+import MediaPlayer
 
 private enum PencilPushUpExercisePhase {
     case none, bringingCloser, waitingForReset
+}
+
+private class VideoPlayerView: UIView {
+    override static var layerClass: AnyClass {
+        return AVPlayerLayer.self
+    }
+    
+    var playerLayer: AVPlayerLayer {
+        return layer as! AVPlayerLayer
+    }
 }
 
 @MainActor
@@ -16,6 +27,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
     @IBOutlet weak var distanceLabel: UILabel!
 
     private let arSession = ARSession()
+    private let speechSynthesizer = AVSpeechSynthesizer()
     private let errorHapticGenerator = UINotificationFeedbackGenerator()
     private let successHapticGenerator = UINotificationFeedbackGenerator()
     private let heavyHapticGenerator = UIImpactFeedbackGenerator(style: .heavy)
@@ -35,6 +47,14 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
     private var totalFramesChecked = 0
     private var totalErrors = 0
 
+    // Video player properties
+    private var videoPlayer: AVPlayer?
+    private var videoContainerView: UIView?
+    private var videoEndObserver: NSObjectProtocol?
+    private var isVideoDismissed = false
+
+    /*
+    // MARK: - Commented Out Instructions (can be re-enabled later)
     // Navigation/Skip buttons for instructions
     private var instructionNextButton: UIButton?
     private var instructionPrevButton: UIButton?
@@ -46,6 +66,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         InstructionStep(message: "Bring the phone closer slowly", duration: 3.5),
         InstructionStep(message: "You will feel one vibration when you complete a rep. If you look away, you will feel two vibrations.", duration: 6.0)
     ]
+    */
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -65,8 +86,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         successHapticGenerator.prepare()
         heavyHapticGenerator.prepare()
         centerMessageLabel.alpha = 0
-        setupInstructionButtons()
-        runInstructionSequence(index: 0)
+        startIntroSequence()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -90,6 +110,173 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         instructionLabel.layer.removeAllAnimations()
         currentPhase = .none
         isLookingAtScreen = false
+        
+        if let observer = videoEndObserver {
+            NotificationCenter.default.removeObserver(observer)
+            videoEndObserver = nil
+        }
+        videoPlayer?.pause()
+        videoPlayer = nil
+        videoContainerView?.removeFromSuperview()
+        videoContainerView = nil
+        
+        if speechSynthesizer.isSpeaking {
+            speechSynthesizer.stopSpeaking(at: .immediate)
+        }
+    }
+
+    private func startIntroSequence() {
+        var videoURL = Bundle.main.url(forResource: "the_phone_should_be_brought_fo", withExtension: "mp4")
+        if videoURL == nil, let path = Bundle.main.path(forResource: "the_phone_should_be_brought_fo", ofType: "mp4") {
+            videoURL = URL(fileURLWithPath: path)
+        }
+        
+        if let videoURL {
+            playInstructionVideo(url: videoURL)
+        } else {
+            directlyStartExercise()
+        }
+    }
+
+    private func playInstructionVideo(url: URL) {
+        let container = UIView()
+        container.backgroundColor = .black
+        container.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(container)
+        self.videoContainerView = container
+        
+        NSLayoutConstraint.activate([
+            container.topAnchor.constraint(equalTo: view.topAnchor),
+            container.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            container.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            container.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        
+        let playerView = VideoPlayerView()
+        playerView.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(playerView)
+        
+        NSLayoutConstraint.activate([
+            playerView.topAnchor.constraint(equalTo: container.topAnchor),
+            playerView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+            playerView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            playerView.trailingAnchor.constraint(equalTo: container.trailingAnchor)
+        ])
+        
+        let playerItem = AVPlayerItem(url: url)
+        let player = AVPlayer(playerItem: playerItem)
+        player.volume = 1.0
+        self.videoPlayer = player
+        playerView.playerLayer.player = player
+        playerView.playerLayer.videoGravity = .resizeAspect
+        
+        let skipBtn = UIButton(type: .system)
+        skipBtn.translatesAutoresizingMaskIntoConstraints = false
+        skipBtn.setTitle("Skip", for: .normal)
+        skipBtn.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        skipBtn.setTitleColor(.white, for: .normal)
+        skipBtn.backgroundColor = UIColor.white.withAlphaComponent(0.25)
+        skipBtn.layer.cornerRadius = 16
+        skipBtn.addTarget(self, action: #selector(skipVideoTapped), for: .touchUpInside)
+        container.addSubview(skipBtn)
+        
+        NSLayoutConstraint.activate([
+            skipBtn.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            skipBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            skipBtn.widthAnchor.constraint(equalToConstant: 72),
+            skipBtn.heightAnchor.constraint(equalToConstant: 34)
+        ])
+        
+        videoEndObserver = NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime,
+            object: playerItem,
+            queue: .main
+        ) { [weak self] _ in
+            self?.dismissVideoAndStartExercise()
+        }
+        
+        player.play()
+    }
+
+    @objc private func skipVideoTapped() {
+        dismissVideoAndStartExercise()
+    }
+
+    private func dismissVideoAndStartExercise() {
+        guard !isVideoDismissed else { return }
+        isVideoDismissed = true
+        
+        if let observer = videoEndObserver {
+            NotificationCenter.default.removeObserver(observer)
+            videoEndObserver = nil
+        }
+        videoPlayer?.pause()
+        
+        guard let container = videoContainerView else {
+            directlyStartExercise()
+            return
+        }
+        
+        UIView.animate(withDuration: 0.4, animations: {
+            container.alpha = 0
+        }) { [weak self] _ in
+            guard let self = self else { return }
+            container.removeFromSuperview()
+            self.videoContainerView = nil
+            self.videoPlayer = nil
+            self.directlyStartExercise()
+        }
+    }
+
+    private func directlyStartExercise() {
+        guard isExerciseActive, currentPhase == .none else { return }
+        maximizeSystemVolume()
+        InstructionTracker.markAsCompleted(for: "PencilPushup")
+        runStartCountdown { [weak self] in
+            guard let self = self, self.isExerciseActive, self.currentPhase == .none else { return }
+            self.sessionStartTime = Date()
+            self.startBringingCloserPhase()
+        }
+    }
+
+    private func maximizeSystemVolume() {
+        let volumeView = MPVolumeView(frame: CGRect(x: -1000, y: -1000, width: 1, height: 1))
+        if let windowScene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene,
+           let window = windowScene.windows.first(where: { $0.isKeyWindow }) ?? windowScene.windows.first {
+            window.addSubview(volumeView)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                for subview in volumeView.subviews {
+                    if let slider = subview as? UISlider {
+                        slider.setValue(1.0, animated: false)
+                        break
+                    }
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    volumeView.removeFromSuperview()
+                }
+            }
+        }
+    }
+
+    private func speak(_ text: String) {
+        guard isExerciseActive else { return }
+        maximizeSystemVolume()
+        if speechSynthesizer.isSpeaking {
+            speechSynthesizer.stopSpeaking(at: .immediate)
+        }
+        let utterance = AVSpeechUtterance(string: text)
+        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        utterance.rate = 0.5
+        utterance.volume = 1.0
+        speechSynthesizer.speak(utterance)
+    }
+
+    /*
+    // MARK: - Commented Out Instructions (can be re-enabled later)
+    private func startInstructionsSequence() {
+        guard isExerciseActive, currentPhase == .none else { return }
+        setupInstructionButtons()
+        runInstructionSequence(index: 0)
     }
 
     private func runInstructionSequence(index: Int) {
@@ -220,6 +407,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
             self.startBringingCloserPhase()
         }
     }
+    */
 
     private func runStartCountdown(completion: @escaping () -> Void) {
         UIView.animate(withDuration: 0.2, animations: {
@@ -270,8 +458,10 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
         guard isExerciseActive else { return }
         currentPhase = .bringingCloser
         self.instructionLabel.textColor = .lightGray
-        self.instructionLabel.text = "Bring the phone closer slowly"
+        self.instructionLabel.text = "Bring your phone closer"
         self.circleView.transform = .identity
+        
+        speak("Bring your phone closer")
         
         UIView.animate(withDuration: 0.3, animations: {
             self.centerMessageLabel.alpha = 0
@@ -296,7 +486,8 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
             fadeTransition(showCenterMessage: false, showExerciseUI: false) { [weak self] in
                 guard let self = self, self.isExerciseActive else { return }
                 self.instructionLabel.text = nil
-                self.centerMessageLabel.text = "Get back to the initial position"
+                self.centerMessageLabel.text = "Bring your phone back"
+                self.speak("Bring your phone back")
                 UIView.animate(withDuration: 0.5) {
                     self.centerMessageLabel.alpha = 1
                 }
@@ -440,7 +631,7 @@ class PencilPushUpViewController: UIViewController, ARSessionDelegate {
                 guard self.isExerciseActive, self.currentPhase == .bringingCloser else { return }
                 self.totalFramesChecked += 1
                 if self.isLookingAtScreen {
-                    if self.instructionLabel.text != "Bring the phone closer slowly" {
+                    if self.instructionLabel.text != "Bring your phone closer" {
                         UIView.animate(withDuration: 0.3) { self.instructionLabel.alpha = 0 }
                     }
                 } else {

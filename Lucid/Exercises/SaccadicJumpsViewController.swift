@@ -2,6 +2,17 @@ import UIKit
 import ARKit
 import AVFoundation
 import AudioToolbox
+import MediaPlayer
+
+private class VideoPlayerView: UIView {
+    override static var layerClass: AnyClass {
+        return AVPlayerLayer.self
+    }
+    
+    var playerLayer: AVPlayerLayer {
+        return layer as! AVPlayerLayer
+    }
+}
 
 class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
 
@@ -39,21 +50,30 @@ class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
     private var directionsPool: [Direction] = []
     
     private let speedTiers: [Double] = [2.5 , 2.2 , 2.0 , 1.8]
-    
+
+    // Video player properties
+    private var videoPlayer: AVPlayer?
+    private var videoContainerView: UIView?
+    private var videoEndObserver: NSObjectProtocol?
+    private var isVideoDismissed = false
+
+    /*
+    // MARK: - Commented Out Instructions (can be re-enabled later)
     private let exerciseInstructions: [InstructionStep] = [
         InstructionStep(message: "Move your eyes fully in the direction announced", duration: 4.5),
         InstructionStep(message: "Keep your head still", duration: 3.5),
         InstructionStep(message: "You will feel one vibration for a correct move and two vibrations for a wrong move.", duration: 6.0)
     ]
 
-    private var sessionStartTime: Date?
-    private var cueTime: Date?
-    private var reactionTimes: [TimeInterval] = []
-
     // Navigation/Skip buttons for instructions
     private var instructionNextButton: UIButton?
     private var instructionPrevButton: UIButton?
     private var currentInstructionIndex = 0
+    */
+
+    private var sessionStartTime: Date?
+    private var cueTime: Date?
+    private var reactionTimes: [TimeInterval] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -62,8 +82,7 @@ class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
         setupEyeTracking()
         notificationGenerator.prepare()
         impactGenerator.prepare()
-        setupInstructionButtons()
-        runInstructionSequence(index: 0)
+        startIntroSequence()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -84,6 +103,15 @@ class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
         repCount = totalReps // Break the loop
         centerMessageLabel.layer.removeAllAnimations()
         centerMessageLabel.alpha = 0
+        
+        if let observer = videoEndObserver {
+            NotificationCenter.default.removeObserver(observer)
+            videoEndObserver = nil
+        }
+        videoPlayer?.pause()
+        videoPlayer = nil
+        videoContainerView?.removeFromSuperview()
+        videoContainerView = nil
     }
 
     private func configureAudioSession() {
@@ -97,6 +125,140 @@ class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
         }
     }
 
+    private func startIntroSequence() {
+        var videoURL = Bundle.main.url(forResource: "1789361477868956", withExtension: "mp4")
+        if videoURL == nil, let path = Bundle.main.path(forResource: "1789361477868956", ofType: "mp4") {
+            videoURL = URL(fileURLWithPath: path)
+        }
+        
+        if let videoURL {
+            playInstructionVideo(url: videoURL)
+        } else {
+            directlyStartExercise()
+        }
+    }
+
+    private func playInstructionVideo(url: URL) {
+        let container = UIView()
+        container.backgroundColor = .black
+        container.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(container)
+        self.videoContainerView = container
+        
+        NSLayoutConstraint.activate([
+            container.topAnchor.constraint(equalTo: view.topAnchor),
+            container.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            container.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            container.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        
+        let playerView = VideoPlayerView()
+        playerView.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(playerView)
+        
+        NSLayoutConstraint.activate([
+            playerView.topAnchor.constraint(equalTo: container.topAnchor),
+            playerView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+            playerView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            playerView.trailingAnchor.constraint(equalTo: container.trailingAnchor)
+        ])
+        
+        let playerItem = AVPlayerItem(url: url)
+        let player = AVPlayer(playerItem: playerItem)
+        player.volume = 1.0
+        self.videoPlayer = player
+        playerView.playerLayer.player = player
+        playerView.playerLayer.videoGravity = .resizeAspect
+        
+        let skipBtn = UIButton(type: .system)
+        skipBtn.translatesAutoresizingMaskIntoConstraints = false
+        skipBtn.setTitle("Skip", for: .normal)
+        skipBtn.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        skipBtn.setTitleColor(.white, for: .normal)
+        skipBtn.backgroundColor = UIColor.white.withAlphaComponent(0.25)
+        skipBtn.layer.cornerRadius = 16
+        skipBtn.addTarget(self, action: #selector(skipVideoTapped), for: .touchUpInside)
+        container.addSubview(skipBtn)
+        
+        NSLayoutConstraint.activate([
+            skipBtn.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            skipBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            skipBtn.widthAnchor.constraint(equalToConstant: 72),
+            skipBtn.heightAnchor.constraint(equalToConstant: 34)
+        ])
+        
+        videoEndObserver = NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime,
+            object: playerItem,
+            queue: .main
+        ) { [weak self] _ in
+            self?.dismissVideoAndStartExercise()
+        }
+        
+        player.play()
+    }
+
+    @objc private func skipVideoTapped() {
+        dismissVideoAndStartExercise()
+    }
+
+    private func dismissVideoAndStartExercise() {
+        guard !isVideoDismissed else { return }
+        isVideoDismissed = true
+        
+        if let observer = videoEndObserver {
+            NotificationCenter.default.removeObserver(observer)
+            videoEndObserver = nil
+        }
+        videoPlayer?.pause()
+        
+        guard let container = videoContainerView else {
+            directlyStartExercise()
+            return
+        }
+        
+        UIView.animate(withDuration: 0.4, animations: {
+            container.alpha = 0
+        }) { [weak self] _ in
+            guard let self = self else { return }
+            container.removeFromSuperview()
+            self.videoContainerView = nil
+            self.videoPlayer = nil
+            self.directlyStartExercise()
+        }
+    }
+
+    private func directlyStartExercise() {
+        guard isExerciseActive, !isTracking else { return }
+        maximizeSystemVolume()
+        InstructionTracker.markAsCompleted(for: "SaccadicJumps")
+        runStartCountdown { [weak self] in
+            guard let self = self, self.isExerciseActive, !self.isTracking else { return }
+            self.startExercise()
+        }
+    }
+
+    private func maximizeSystemVolume() {
+        let volumeView = MPVolumeView(frame: CGRect(x: -1000, y: -1000, width: 1, height: 1))
+        if let windowScene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene,
+           let window = windowScene.windows.first(where: { $0.isKeyWindow }) ?? windowScene.windows.first {
+            window.addSubview(volumeView)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                for subview in volumeView.subviews {
+                    if let slider = subview as? UISlider {
+                        slider.setValue(1.0, animated: false)
+                        break
+                    }
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    volumeView.removeFromSuperview()
+                }
+            }
+        }
+    }
+
+    /*
+    // MARK: - Commented Out Instructions (can be re-enabled later)
     private func runInstructionSequence(index: Int) {
         guard isExerciseActive, !isTracking else { return }
         currentInstructionIndex = index
@@ -224,6 +386,7 @@ class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
             self.startExercise()
         }
     }
+    */
 
     private func runStartCountdown(completion: @escaping () -> Void) {
         UIView.animate(withDuration: 0.2, animations: {
@@ -375,6 +538,7 @@ class SaccadicJumpsViewController: UIViewController, ARSessionDelegate {
 
     private func speak(_ text: String) {
         guard isExerciseActive else { return }
+        maximizeSystemVolume()
         if speechSynthesizer.isSpeaking {
             speechSynthesizer.stopSpeaking(at: .immediate)
         }

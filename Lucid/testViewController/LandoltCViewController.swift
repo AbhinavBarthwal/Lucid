@@ -213,7 +213,7 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
                     self.instructionLabel.alpha = 1
                 }) { _ in
                     if !isFirstRun {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self] in
+                        DispatchQueue.main.asyncAfter(deadline: .now() + step.duration) { [weak self = self] in
                             guard let self = self, self.isInstructionPhase, self.currentInstructionIndex == index else { return }
                             self.runInstructionSequence(index: index + 1)
                         }
@@ -612,11 +612,11 @@ class LandoltCViewController: UIViewController, ARSessionDelegate {
 
         if shouldShowCompletionSummary {
             // MARK: - Old Flow (Detailed Result View)
-            let leftResult = CTestEyeResult.make(for: "Right Eye", rawScore: leftEyeScore)
-            let rightResult = CTestEyeResult.make(for: "Left Eye", rawScore: rightEyeScore)
+            let leftResult = CTestEyeResult.make(for: "Left Eye", rawScore: rightEyeScore)
+            let rightResult = CTestEyeResult.make(for: "Right Eye", rawScore: leftEyeScore)
 
-            let recentLeftSessions = EyeTestDataManager.shared.fetchRecentEyeTestSessions(for: "Right", limit: 2)
-            let recentRightSessions = EyeTestDataManager.shared.fetchRecentEyeTestSessions(for: "Left", limit: 2)
+            let recentLeftSessions = EyeTestDataManager.shared.fetchRecentEyeTestSessions(for: "Left", limit: 2)
+            let recentRightSessions = EyeTestDataManager.shared.fetchRecentEyeTestSessions(for: "Right", limit: 2)
             
             let previousComparison: CTestComparison? = {
                 guard recentLeftSessions.count > 1, recentRightSessions.count > 1 else {

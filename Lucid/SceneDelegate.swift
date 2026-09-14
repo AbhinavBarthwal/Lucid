@@ -27,6 +27,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     func sceneDidBecomeActive(_ scene: UIScene) {
+        UIApplication.shared.isIdleTimerDisabled = true
         Task { @MainActor in
             OnboardingPresenter.presentIfNeeded(on: self.window)
             self.scheduleGuidanceOverlayCheck()
@@ -35,6 +36,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 NotificationManager.shared.scheduleExerciseReminders()
             }
         }
+    }
+    
+    func sceneWillResignActive(_ scene: UIScene) {
+        UIApplication.shared.isIdleTimerDisabled = false
     }
 
     private func scheduleGuidanceOverlayCheck(after delay: TimeInterval = 0.8) {
